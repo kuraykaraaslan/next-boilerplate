@@ -42,8 +42,9 @@ Tenant-scoped supplier/vendor master records and their contacts.
 
 ## Next layer (modules_next/) surface
 
-- `supplier/ui/supplier-categories.page` _(ui, client)_
+- `supplier/ui/supplier-categories-panel.component` _(ui, client)_
 - `supplier/ui/supplier-contacts-panel.component` _(ui, client)_
+- `supplier/ui/supplier-settings.page` _(ui, client)_
 - `supplier/ui/suppliers-supplier-id.page` _(ui, client)_
 - `supplier/ui/suppliers.page` _(ui, client)_
 

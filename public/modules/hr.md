@@ -53,9 +53,10 @@ Tenant-scoped HR: employees, departments and leave requests.
 - `hr/ui/hr-departments.page` _(ui, client)_
 - `hr/ui/hr-employees-employee-id.page` _(ui, client)_
 - `hr/ui/hr-employees.page` _(ui, client)_
-- `hr/ui/hr-leave-types.page` _(ui, client)_
 - `hr/ui/hr-leave.page` _(ui, client)_
+- `hr/ui/hr-settings.page` _(ui, client)_
 - `hr/ui/hr-status-badge.component` _(ui, client)_
+- `hr/ui/leave-types-panel.component` _(ui, client)_
 
 ## README
 

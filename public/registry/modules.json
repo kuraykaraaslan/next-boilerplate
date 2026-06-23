@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T15:27:01.997Z",
+  "generatedAt": "2026-06-23T17:01:00.528Z",
   "modules": [
     {
       "id": "common",
@@ -9582,13 +9582,13 @@
           "scope": "tenant"
         },
         {
-          "id": "accounting-journals",
-          "label": "Journals",
-          "href": "/admin/accounting/journals",
-          "icon": "fas fa-folder-tree",
+          "id": "accounting-settings",
+          "label": "Accounting Settings",
+          "href": "/admin/accounting/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "erp",
-          "order": 50,
+          "order": 90,
           "scope": "tenant"
         }
       ],
@@ -9610,8 +9610,8 @@
           "component": "accounting/ui/accounting-periods.page"
         },
         {
-          "path": "/admin/accounting/journals",
-          "component": "accounting/ui/accounting-journals.page"
+          "path": "/admin/accounting/settings",
+          "component": "accounting/ui/accounting-settings.page"
         },
         {
           "path": "/admin/accounting/journal/[entryId]",
@@ -9712,7 +9712,8 @@
         "./server/index",
         "./server",
         "./ui/accounting-accounts.page",
-        "./ui/accounting-journals.page",
+        "./ui/accounting-settings.page",
+        "./ui/journals-panel.component",
         "./ui/accounting-journal.page",
         "./ui/accounting-journal-entry-id.page",
         "./ui/accounting-ledger.page",
@@ -9979,10 +9980,10 @@
           "scope": "tenant"
         },
         {
-          "id": "hr-leave-types",
-          "label": "Leave Types",
-          "href": "/admin/hr/leave-types",
-          "icon": "fas fa-tags",
+          "id": "hr-settings",
+          "label": "HR Settings",
+          "href": "/admin/hr/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "hr",
           "order": 90,
@@ -9999,16 +10000,16 @@
           "component": "hr/ui/hr-employees-employee-id.page"
         },
         {
-          "path": "/admin/hr/leave-types",
-          "component": "hr/ui/hr-leave-types.page"
-        },
-        {
           "path": "/admin/hr/departments",
           "component": "hr/ui/hr-departments.page"
         },
         {
           "path": "/admin/hr/leave",
           "component": "hr/ui/hr-leave.page"
+        },
+        {
+          "path": "/admin/hr/settings",
+          "component": "hr/ui/hr-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10086,7 +10087,8 @@
         "./ui/hr-employees-employee-id.page",
         "./ui/hr-departments.page",
         "./ui/hr-leave.page",
-        "./ui/hr-leave-types.page",
+        "./ui/hr-settings.page",
+        "./ui/leave-types-panel.component",
         "./ui/hr-status-badge.component",
         "./ui/employee-leave-panel.component",
         ".",
@@ -10203,23 +10205,13 @@
           "scope": "tenant"
         },
         {
-          "id": "inventory-uoms",
-          "label": "Units of Measure",
-          "href": "/admin/inventory/uoms",
-          "icon": "fas fa-ruler",
+          "id": "inventory-settings",
+          "label": "Inventory Settings",
+          "href": "/admin/inventory/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "erp",
           "order": 90,
-          "scope": "tenant"
-        },
-        {
-          "id": "inventory-reasons",
-          "label": "Movement Reasons",
-          "href": "/admin/inventory/reasons",
-          "icon": "fas fa-tags",
-          "group": "Configuration",
-          "workspace": "erp",
-          "order": 91,
           "scope": "tenant"
         }
       ],
@@ -10245,12 +10237,8 @@
           "component": "inventory/ui/inventory-counts-count-id.page"
         },
         {
-          "path": "/admin/inventory/uoms",
-          "component": "inventory/ui/inventory-uoms.page"
-        },
-        {
-          "path": "/admin/inventory/reasons",
-          "component": "inventory/ui/inventory-reasons.page"
+          "path": "/admin/inventory/settings",
+          "component": "inventory/ui/inventory-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10367,8 +10355,9 @@
         "./ui/inventory-movements.page",
         "./ui/inventory-counts.page",
         "./ui/inventory-counts-count-id.page",
-        "./ui/inventory-uoms.page",
-        "./ui/inventory-reasons.page",
+        "./ui/inventory-settings.page",
+        "./ui/uoms-panel.component",
+        "./ui/movement-reasons-panel.component",
         "./ui/count-status-badge.component",
         "./ui/count-lines-panel.component",
         ".",
@@ -10725,13 +10714,13 @@
           "scope": "tenant"
         },
         {
-          "id": "payroll-components",
-          "label": "Salary Components",
-          "href": "/admin/payroll/components",
-          "icon": "fas fa-sliders",
+          "id": "payroll-settings",
+          "label": "Payroll Settings",
+          "href": "/admin/payroll/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "hr",
-          "order": 60,
+          "order": 90,
           "scope": "tenant"
         }
       ],
@@ -10753,8 +10742,8 @@
           "component": "payroll/ui/payroll-payslips-payslip-id.page"
         },
         {
-          "path": "/admin/payroll/components",
-          "component": "payroll/ui/payroll-components.page"
+          "path": "/admin/payroll/settings",
+          "component": "payroll/ui/payroll-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10842,7 +10831,8 @@
         "./ui/payroll-runs-run-id.page",
         "./ui/payroll-payslips.page",
         "./ui/payroll-payslips-payslip-id.page",
-        "./ui/payroll-components.page",
+        "./ui/payroll-settings.page",
+        "./ui/salary-components-panel.component",
         "./ui/payroll-status-badge.component",
         "./ui/payslip-lines-panel.component",
         ".",
@@ -11186,10 +11176,10 @@
           "scope": "tenant"
         },
         {
-          "id": "supplier-categories",
-          "label": "Categories",
-          "href": "/admin/suppliers/categories",
-          "icon": "fas fa-tags",
+          "id": "supplier-settings",
+          "label": "Supplier Settings",
+          "href": "/admin/suppliers/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "erp",
           "order": 90,
@@ -11202,8 +11192,8 @@
           "component": "supplier/ui/suppliers.page"
         },
         {
-          "path": "/admin/suppliers/categories",
-          "component": "supplier/ui/supplier-categories.page"
+          "path": "/admin/suppliers/settings",
+          "component": "supplier/ui/supplier-settings.page"
         },
         {
           "path": "/admin/suppliers/[supplierId]",
@@ -11260,7 +11250,8 @@
         "./server",
         "./ui/suppliers.page",
         "./ui/suppliers-supplier-id.page",
-        "./ui/supplier-categories.page",
+        "./ui/supplier-settings.page",
+        "./ui/supplier-categories-panel.component",
         "./ui/supplier-contacts-panel.component",
         ".",
         "./module.json"

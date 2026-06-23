@@ -66,10 +66,11 @@ Tenant-scoped inventory: warehouses, stock locations, stock items, movements and
 - `inventory/ui/inventory-counts-count-id.page` _(ui, client)_
 - `inventory/ui/inventory-counts.page` _(ui, client)_
 - `inventory/ui/inventory-movements.page` _(ui, client)_
-- `inventory/ui/inventory-reasons.page` _(ui, client)_
+- `inventory/ui/inventory-settings.page` _(ui, client)_
 - `inventory/ui/inventory-stock.page` _(ui, client)_
-- `inventory/ui/inventory-uoms.page` _(ui, client)_
 - `inventory/ui/inventory-warehouses.page` _(ui, client)_
+- `inventory/ui/movement-reasons-panel.component` _(ui, client)_
+- `inventory/ui/uoms-panel.component` _(ui, client)_
 
 ## README
 

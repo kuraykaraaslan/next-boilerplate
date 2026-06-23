@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T15:27:01.997Z",
+  "generatedAt": "2026-06-23T17:01:00.528Z",
   "components": [
     {
       "id": "accounting/ui/accounting-accounts.page",
@@ -34,16 +34,6 @@
       "baseName": "accounting-journal.page"
     },
     {
-      "id": "accounting/ui/accounting-journals.page",
-      "module": "accounting",
-      "filePath": "modules/accounting/ui/accounting-journals.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "accounting-journals.page"
-    },
-    {
       "id": "accounting/ui/accounting-ledger.page",
       "module": "accounting",
       "filePath": "modules/accounting/ui/accounting-ledger.page.tsx",
@@ -62,6 +52,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "accounting-periods.page"
+    },
+    {
+      "id": "accounting/ui/accounting-settings.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-settings.page"
     },
     {
       "id": "accounting/ui/journal-entry-status-badge.component",
@@ -87,6 +87,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "journal-lines-panel.component"
+    },
+    {
+      "id": "accounting/ui/journals-panel.component",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/journals-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "JournalsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "journals-panel.component"
     },
     {
       "id": "ai_chat/ui/ai-chat-box.component",
@@ -3250,16 +3262,6 @@
       "baseName": "hr-employees.page"
     },
     {
-      "id": "hr/ui/hr-leave-types.page",
-      "module": "hr",
-      "filePath": "modules/hr/ui/hr-leave-types.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "hr-leave-types.page"
-    },
-    {
       "id": "hr/ui/hr-leave.page",
       "module": "hr",
       "filePath": "modules/hr/ui/hr-leave.page.tsx",
@@ -3268,6 +3270,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "hr-leave.page"
+    },
+    {
+      "id": "hr/ui/hr-settings.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-settings.page"
     },
     {
       "id": "hr/ui/hr-status-badge.component",
@@ -3281,6 +3293,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "hr-status-badge.component"
+    },
+    {
+      "id": "hr/ui/leave-types-panel.component",
+      "module": "hr",
+      "filePath": "modules/hr/ui/leave-types-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LeaveTypesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "leave-types-panel.component"
     },
     {
       "id": "integrations_hub/ui/connected-apps-columns.component",
@@ -3383,14 +3407,14 @@
       "baseName": "inventory-movements.page"
     },
     {
-      "id": "inventory/ui/inventory-reasons.page",
+      "id": "inventory/ui/inventory-settings.page",
       "module": "inventory",
-      "filePath": "modules/inventory/ui/inventory-reasons.page.tsx",
+      "filePath": "modules/inventory/ui/inventory-settings.page.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "inventory-reasons.page"
+      "baseName": "inventory-settings.page"
     },
     {
       "id": "inventory/ui/inventory-stock.page",
@@ -3403,16 +3427,6 @@
       "baseName": "inventory-stock.page"
     },
     {
-      "id": "inventory/ui/inventory-uoms.page",
-      "module": "inventory",
-      "filePath": "modules/inventory/ui/inventory-uoms.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "inventory-uoms.page"
-    },
-    {
       "id": "inventory/ui/inventory-warehouses.page",
       "module": "inventory",
       "filePath": "modules/inventory/ui/inventory-warehouses.page.tsx",
@@ -3421,6 +3435,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "inventory-warehouses.page"
+    },
+    {
+      "id": "inventory/ui/movement-reasons-panel.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/movement-reasons-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "MovementReasonsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "movement-reasons-panel.component"
+    },
+    {
+      "id": "inventory/ui/uoms-panel.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/uoms-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "UomsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "uoms-panel.component"
     },
     {
       "id": "invoice/ui/earsiv-sms-sign-modal.component",
@@ -4062,16 +4100,6 @@
       "baseName": "wallet-badges.component"
     },
     {
-      "id": "payroll/ui/payroll-components.page",
-      "module": "payroll",
-      "filePath": "modules/payroll/ui/payroll-components.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "payroll-components.page"
-    },
-    {
       "id": "payroll/ui/payroll-payslips-payslip-id.page",
       "module": "payroll",
       "filePath": "modules/payroll/ui/payroll-payslips-payslip-id.page.tsx",
@@ -4112,6 +4140,16 @@
       "baseName": "payroll-runs.page"
     },
     {
+      "id": "payroll/ui/payroll-settings.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-settings.page"
+    },
+    {
       "id": "payroll/ui/payroll-status-badge.component",
       "module": "payroll",
       "filePath": "modules/payroll/ui/payroll-status-badge.component.tsx",
@@ -4137,6 +4175,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "payslip-lines-panel.component"
+    },
+    {
+      "id": "payroll/ui/salary-components-panel.component",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/salary-components-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SalaryComponentsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "salary-components-panel.component"
     },
     {
       "id": "plugin_runtime/ui/plugin-frame.component",
@@ -4793,14 +4843,16 @@
       "baseName": "store-products.page"
     },
     {
-      "id": "supplier/ui/supplier-categories.page",
+      "id": "supplier/ui/supplier-categories-panel.component",
       "module": "supplier",
-      "filePath": "modules/supplier/ui/supplier-categories.page.tsx",
+      "filePath": "modules/supplier/ui/supplier-categories-panel.component.tsx",
       "kind": "ui",
-      "exports": [],
+      "exports": [
+        "SupplierCategoriesPanel"
+      ],
       "isClient": true,
       "isServer": false,
-      "baseName": "supplier-categories.page"
+      "baseName": "supplier-categories-panel.component"
     },
     {
       "id": "supplier/ui/supplier-contacts-panel.component",
@@ -4813,6 +4865,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "supplier-contacts-panel.component"
+    },
+    {
+      "id": "supplier/ui/supplier-settings.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/supplier-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "supplier-settings.page"
     },
     {
       "id": "supplier/ui/suppliers-supplier-id.page",

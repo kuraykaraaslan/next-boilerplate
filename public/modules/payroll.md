@@ -49,13 +49,14 @@ Tenant-scoped payroll: payroll runs, payslips and salary components.
 
 ## Next layer (modules_next/) surface
 
-- `payroll/ui/payroll-components.page` _(ui, client)_
 - `payroll/ui/payroll-payslips-payslip-id.page` _(ui, client)_
 - `payroll/ui/payroll-payslips.page` _(ui, client)_
 - `payroll/ui/payroll-runs-run-id.page` _(ui, client)_
 - `payroll/ui/payroll-runs.page` _(ui, client)_
+- `payroll/ui/payroll-settings.page` _(ui, client)_
 - `payroll/ui/payroll-status-badge.component` _(ui, client)_
 - `payroll/ui/payslip-lines-panel.component` _(ui, client)_
+- `payroll/ui/salary-components-panel.component` _(ui, client)_
 
 ## README
 

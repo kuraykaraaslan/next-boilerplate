@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T15:27:01.997Z",
+  "generatedAt": "2026-06-23T17:01:00.528Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -9598,13 +9598,13 @@
           "scope": "tenant"
         },
         {
-          "id": "accounting-journals",
-          "label": "Journals",
-          "href": "/admin/accounting/journals",
-          "icon": "fas fa-folder-tree",
+          "id": "accounting-settings",
+          "label": "Accounting Settings",
+          "href": "/admin/accounting/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "erp",
-          "order": 50,
+          "order": 90,
           "scope": "tenant"
         }
       ],
@@ -9626,8 +9626,8 @@
           "component": "accounting/ui/accounting-periods.page"
         },
         {
-          "path": "/admin/accounting/journals",
-          "component": "accounting/ui/accounting-journals.page"
+          "path": "/admin/accounting/settings",
+          "component": "accounting/ui/accounting-settings.page"
         },
         {
           "path": "/admin/accounting/journal/[entryId]",
@@ -9728,7 +9728,8 @@
         "./server/index",
         "./server",
         "./ui/accounting-accounts.page",
-        "./ui/accounting-journals.page",
+        "./ui/accounting-settings.page",
+        "./ui/journals-panel.component",
         "./ui/accounting-journal.page",
         "./ui/accounting-journal-entry-id.page",
         "./ui/accounting-ledger.page",
@@ -9995,10 +9996,10 @@
           "scope": "tenant"
         },
         {
-          "id": "hr-leave-types",
-          "label": "Leave Types",
-          "href": "/admin/hr/leave-types",
-          "icon": "fas fa-tags",
+          "id": "hr-settings",
+          "label": "HR Settings",
+          "href": "/admin/hr/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "hr",
           "order": 90,
@@ -10015,16 +10016,16 @@
           "component": "hr/ui/hr-employees-employee-id.page"
         },
         {
-          "path": "/admin/hr/leave-types",
-          "component": "hr/ui/hr-leave-types.page"
-        },
-        {
           "path": "/admin/hr/departments",
           "component": "hr/ui/hr-departments.page"
         },
         {
           "path": "/admin/hr/leave",
           "component": "hr/ui/hr-leave.page"
+        },
+        {
+          "path": "/admin/hr/settings",
+          "component": "hr/ui/hr-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10102,7 +10103,8 @@
         "./ui/hr-employees-employee-id.page",
         "./ui/hr-departments.page",
         "./ui/hr-leave.page",
-        "./ui/hr-leave-types.page",
+        "./ui/hr-settings.page",
+        "./ui/leave-types-panel.component",
         "./ui/hr-status-badge.component",
         "./ui/employee-leave-panel.component",
         ".",
@@ -10219,23 +10221,13 @@
           "scope": "tenant"
         },
         {
-          "id": "inventory-uoms",
-          "label": "Units of Measure",
-          "href": "/admin/inventory/uoms",
-          "icon": "fas fa-ruler",
+          "id": "inventory-settings",
+          "label": "Inventory Settings",
+          "href": "/admin/inventory/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "erp",
           "order": 90,
-          "scope": "tenant"
-        },
-        {
-          "id": "inventory-reasons",
-          "label": "Movement Reasons",
-          "href": "/admin/inventory/reasons",
-          "icon": "fas fa-tags",
-          "group": "Configuration",
-          "workspace": "erp",
-          "order": 91,
           "scope": "tenant"
         }
       ],
@@ -10261,12 +10253,8 @@
           "component": "inventory/ui/inventory-counts-count-id.page"
         },
         {
-          "path": "/admin/inventory/uoms",
-          "component": "inventory/ui/inventory-uoms.page"
-        },
-        {
-          "path": "/admin/inventory/reasons",
-          "component": "inventory/ui/inventory-reasons.page"
+          "path": "/admin/inventory/settings",
+          "component": "inventory/ui/inventory-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10383,8 +10371,9 @@
         "./ui/inventory-movements.page",
         "./ui/inventory-counts.page",
         "./ui/inventory-counts-count-id.page",
-        "./ui/inventory-uoms.page",
-        "./ui/inventory-reasons.page",
+        "./ui/inventory-settings.page",
+        "./ui/uoms-panel.component",
+        "./ui/movement-reasons-panel.component",
         "./ui/count-status-badge.component",
         "./ui/count-lines-panel.component",
         ".",
@@ -10741,13 +10730,13 @@
           "scope": "tenant"
         },
         {
-          "id": "payroll-components",
-          "label": "Salary Components",
-          "href": "/admin/payroll/components",
-          "icon": "fas fa-sliders",
+          "id": "payroll-settings",
+          "label": "Payroll Settings",
+          "href": "/admin/payroll/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "hr",
-          "order": 60,
+          "order": 90,
           "scope": "tenant"
         }
       ],
@@ -10769,8 +10758,8 @@
           "component": "payroll/ui/payroll-payslips-payslip-id.page"
         },
         {
-          "path": "/admin/payroll/components",
-          "component": "payroll/ui/payroll-components.page"
+          "path": "/admin/payroll/settings",
+          "component": "payroll/ui/payroll-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10858,7 +10847,8 @@
         "./ui/payroll-runs-run-id.page",
         "./ui/payroll-payslips.page",
         "./ui/payroll-payslips-payslip-id.page",
-        "./ui/payroll-components.page",
+        "./ui/payroll-settings.page",
+        "./ui/salary-components-panel.component",
         "./ui/payroll-status-badge.component",
         "./ui/payslip-lines-panel.component",
         ".",
@@ -11202,10 +11192,10 @@
           "scope": "tenant"
         },
         {
-          "id": "supplier-categories",
-          "label": "Categories",
-          "href": "/admin/suppliers/categories",
-          "icon": "fas fa-tags",
+          "id": "supplier-settings",
+          "label": "Supplier Settings",
+          "href": "/admin/suppliers/settings",
+          "icon": "fas fa-gear",
           "group": "Configuration",
           "workspace": "erp",
           "order": 90,
@@ -11218,8 +11208,8 @@
           "component": "supplier/ui/suppliers.page"
         },
         {
-          "path": "/admin/suppliers/categories",
-          "component": "supplier/ui/supplier-categories.page"
+          "path": "/admin/suppliers/settings",
+          "component": "supplier/ui/supplier-settings.page"
         },
         {
           "path": "/admin/suppliers/[supplierId]",
@@ -11276,7 +11266,8 @@
         "./server",
         "./ui/suppliers.page",
         "./ui/suppliers-supplier-id.page",
-        "./ui/supplier-categories.page",
+        "./ui/supplier-settings.page",
+        "./ui/supplier-categories-panel.component",
         "./ui/supplier-contacts-panel.component",
         ".",
         "./module.json"
@@ -15192,16 +15183,6 @@
       "baseName": "accounting-journal.page"
     },
     {
-      "id": "accounting/ui/accounting-journals.page",
-      "module": "accounting",
-      "filePath": "modules/accounting/ui/accounting-journals.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "accounting-journals.page"
-    },
-    {
       "id": "accounting/ui/accounting-ledger.page",
       "module": "accounting",
       "filePath": "modules/accounting/ui/accounting-ledger.page.tsx",
@@ -15220,6 +15201,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "accounting-periods.page"
+    },
+    {
+      "id": "accounting/ui/accounting-settings.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-settings.page"
     },
     {
       "id": "accounting/ui/journal-entry-status-badge.component",
@@ -15245,6 +15236,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "journal-lines-panel.component"
+    },
+    {
+      "id": "accounting/ui/journals-panel.component",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/journals-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "JournalsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "journals-panel.component"
     },
     {
       "id": "ai_chat/ui/ai-chat-box.component",
@@ -18408,16 +18411,6 @@
       "baseName": "hr-employees.page"
     },
     {
-      "id": "hr/ui/hr-leave-types.page",
-      "module": "hr",
-      "filePath": "modules/hr/ui/hr-leave-types.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "hr-leave-types.page"
-    },
-    {
       "id": "hr/ui/hr-leave.page",
       "module": "hr",
       "filePath": "modules/hr/ui/hr-leave.page.tsx",
@@ -18426,6 +18419,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "hr-leave.page"
+    },
+    {
+      "id": "hr/ui/hr-settings.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-settings.page"
     },
     {
       "id": "hr/ui/hr-status-badge.component",
@@ -18439,6 +18442,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "hr-status-badge.component"
+    },
+    {
+      "id": "hr/ui/leave-types-panel.component",
+      "module": "hr",
+      "filePath": "modules/hr/ui/leave-types-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LeaveTypesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "leave-types-panel.component"
     },
     {
       "id": "integrations_hub/ui/connected-apps-columns.component",
@@ -18541,14 +18556,14 @@
       "baseName": "inventory-movements.page"
     },
     {
-      "id": "inventory/ui/inventory-reasons.page",
+      "id": "inventory/ui/inventory-settings.page",
       "module": "inventory",
-      "filePath": "modules/inventory/ui/inventory-reasons.page.tsx",
+      "filePath": "modules/inventory/ui/inventory-settings.page.tsx",
       "kind": "ui",
       "exports": [],
       "isClient": true,
       "isServer": false,
-      "baseName": "inventory-reasons.page"
+      "baseName": "inventory-settings.page"
     },
     {
       "id": "inventory/ui/inventory-stock.page",
@@ -18561,16 +18576,6 @@
       "baseName": "inventory-stock.page"
     },
     {
-      "id": "inventory/ui/inventory-uoms.page",
-      "module": "inventory",
-      "filePath": "modules/inventory/ui/inventory-uoms.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "inventory-uoms.page"
-    },
-    {
       "id": "inventory/ui/inventory-warehouses.page",
       "module": "inventory",
       "filePath": "modules/inventory/ui/inventory-warehouses.page.tsx",
@@ -18579,6 +18584,30 @@
       "isClient": true,
       "isServer": false,
       "baseName": "inventory-warehouses.page"
+    },
+    {
+      "id": "inventory/ui/movement-reasons-panel.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/movement-reasons-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "MovementReasonsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "movement-reasons-panel.component"
+    },
+    {
+      "id": "inventory/ui/uoms-panel.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/uoms-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "UomsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "uoms-panel.component"
     },
     {
       "id": "invoice/ui/earsiv-sms-sign-modal.component",
@@ -19220,16 +19249,6 @@
       "baseName": "wallet-badges.component"
     },
     {
-      "id": "payroll/ui/payroll-components.page",
-      "module": "payroll",
-      "filePath": "modules/payroll/ui/payroll-components.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "payroll-components.page"
-    },
-    {
       "id": "payroll/ui/payroll-payslips-payslip-id.page",
       "module": "payroll",
       "filePath": "modules/payroll/ui/payroll-payslips-payslip-id.page.tsx",
@@ -19270,6 +19289,16 @@
       "baseName": "payroll-runs.page"
     },
     {
+      "id": "payroll/ui/payroll-settings.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-settings.page"
+    },
+    {
       "id": "payroll/ui/payroll-status-badge.component",
       "module": "payroll",
       "filePath": "modules/payroll/ui/payroll-status-badge.component.tsx",
@@ -19295,6 +19324,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "payslip-lines-panel.component"
+    },
+    {
+      "id": "payroll/ui/salary-components-panel.component",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/salary-components-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SalaryComponentsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "salary-components-panel.component"
     },
     {
       "id": "plugin_runtime/ui/plugin-frame.component",
@@ -19951,14 +19992,16 @@
       "baseName": "store-products.page"
     },
     {
-      "id": "supplier/ui/supplier-categories.page",
+      "id": "supplier/ui/supplier-categories-panel.component",
       "module": "supplier",
-      "filePath": "modules/supplier/ui/supplier-categories.page.tsx",
+      "filePath": "modules/supplier/ui/supplier-categories-panel.component.tsx",
       "kind": "ui",
-      "exports": [],
+      "exports": [
+        "SupplierCategoriesPanel"
+      ],
       "isClient": true,
       "isServer": false,
-      "baseName": "supplier-categories.page"
+      "baseName": "supplier-categories-panel.component"
     },
     {
       "id": "supplier/ui/supplier-contacts-panel.component",
@@ -19971,6 +20014,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "supplier-contacts-panel.component"
+    },
+    {
+      "id": "supplier/ui/supplier-settings.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/supplier-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "supplier-settings.page"
     },
     {
       "id": "supplier/ui/suppliers-supplier-id.page",

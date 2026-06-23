@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T15:27:01.997Z",
+  "generatedAt": "2026-06-23T17:01:00.528Z",
   "menu": [
     {
       "id": "settings",
@@ -806,18 +806,6 @@
       "moduleId": "payroll"
     },
     {
-      "id": "accounting-journals",
-      "label": "Journals",
-      "href": "/admin/accounting/journals",
-      "icon": "fas fa-folder-tree",
-      "group": "Configuration",
-      "workspace": "erp",
-      "order": 50,
-      "scope": "tenant",
-      "permissions": [],
-      "moduleId": "accounting"
-    },
-    {
       "id": "invoice-list-erp",
       "label": "Invoices",
       "href": "/admin/invoices",
@@ -842,18 +830,6 @@
       "moduleId": "payroll"
     },
     {
-      "id": "payroll-components",
-      "label": "Salary Components",
-      "href": "/admin/payroll/components",
-      "icon": "fas fa-sliders",
-      "group": "Configuration",
-      "workspace": "hr",
-      "order": 60,
-      "scope": "tenant",
-      "permissions": [],
-      "moduleId": "payroll"
-    },
-    {
       "id": "search-content",
       "label": "Search",
       "href": "/admin/search",
@@ -866,10 +842,22 @@
       "moduleId": "search"
     },
     {
-      "id": "hr-leave-types",
-      "label": "Leave Types",
-      "href": "/admin/hr/leave-types",
-      "icon": "fas fa-tags",
+      "id": "accounting-settings",
+      "label": "Accounting Settings",
+      "href": "/admin/accounting/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "id": "hr-settings",
+      "label": "HR Settings",
+      "href": "/admin/hr/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "hr",
       "order": 90,
@@ -878,10 +866,10 @@
       "moduleId": "hr"
     },
     {
-      "id": "inventory-uoms",
-      "label": "Units of Measure",
-      "href": "/admin/inventory/uoms",
-      "icon": "fas fa-ruler",
+      "id": "inventory-settings",
+      "label": "Inventory Settings",
+      "href": "/admin/inventory/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "erp",
       "order": 90,
@@ -890,28 +878,28 @@
       "moduleId": "inventory"
     },
     {
-      "id": "supplier-categories",
-      "label": "Categories",
-      "href": "/admin/suppliers/categories",
-      "icon": "fas fa-tags",
+      "id": "payroll-settings",
+      "label": "Payroll Settings",
+      "href": "/admin/payroll/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "hr",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "id": "supplier-settings",
+      "label": "Supplier Settings",
+      "href": "/admin/suppliers/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "erp",
       "order": 90,
       "scope": "tenant",
       "permissions": [],
       "moduleId": "supplier"
-    },
-    {
-      "id": "inventory-reasons",
-      "label": "Movement Reasons",
-      "href": "/admin/inventory/reasons",
-      "icon": "fas fa-tags",
-      "group": "Configuration",
-      "workspace": "erp",
-      "order": 91,
-      "scope": "tenant",
-      "permissions": [],
-      "moduleId": "inventory"
     }
   ],
   "pageRoutes": [
@@ -940,12 +928,6 @@
       "moduleId": "accounting"
     },
     {
-      "path": "/admin/accounting/journals",
-      "componentId": "accounting/ui/accounting-journals.page",
-      "permissions": [],
-      "moduleId": "accounting"
-    },
-    {
       "path": "/admin/accounting/ledger",
       "componentId": "accounting/ui/accounting-ledger.page",
       "permissions": [],
@@ -954,6 +936,12 @@
     {
       "path": "/admin/accounting/periods",
       "componentId": "accounting/ui/accounting-periods.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/settings",
+      "componentId": "accounting/ui/accounting-settings.page",
       "permissions": [],
       "moduleId": "accounting"
     },
@@ -1192,8 +1180,8 @@
       "moduleId": "hr"
     },
     {
-      "path": "/admin/hr/leave-types",
-      "componentId": "hr/ui/hr-leave-types.page",
+      "path": "/admin/hr/settings",
+      "componentId": "hr/ui/hr-settings.page",
       "permissions": [],
       "moduleId": "hr"
     },
@@ -1234,20 +1222,14 @@
       "moduleId": "inventory"
     },
     {
-      "path": "/admin/inventory/reasons",
-      "componentId": "inventory/ui/inventory-reasons.page",
+      "path": "/admin/inventory/settings",
+      "componentId": "inventory/ui/inventory-settings.page",
       "permissions": [],
       "moduleId": "inventory"
     },
     {
       "path": "/admin/inventory/stock",
       "componentId": "inventory/ui/inventory-stock.page",
-      "permissions": [],
-      "moduleId": "inventory"
-    },
-    {
-      "path": "/admin/inventory/uoms",
-      "componentId": "inventory/ui/inventory-uoms.page",
       "permissions": [],
       "moduleId": "inventory"
     },
@@ -1378,12 +1360,6 @@
       "moduleId": "payment"
     },
     {
-      "path": "/admin/payroll/components",
-      "componentId": "payroll/ui/payroll-components.page",
-      "permissions": [],
-      "moduleId": "payroll"
-    },
-    {
       "path": "/admin/payroll/payslips",
       "componentId": "payroll/ui/payroll-payslips.page",
       "permissions": [],
@@ -1404,6 +1380,12 @@
     {
       "path": "/admin/payroll/runs/[runId]",
       "componentId": "payroll/ui/payroll-runs-run-id.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/admin/payroll/settings",
+      "componentId": "payroll/ui/payroll-settings.page",
       "permissions": [],
       "moduleId": "payroll"
     },
@@ -1612,8 +1594,8 @@
       "moduleId": "supplier"
     },
     {
-      "path": "/admin/suppliers/categories",
-      "componentId": "supplier/ui/supplier-categories.page",
+      "path": "/admin/suppliers/settings",
+      "componentId": "supplier/ui/supplier-settings.page",
       "permissions": [],
       "moduleId": "supplier"
     },

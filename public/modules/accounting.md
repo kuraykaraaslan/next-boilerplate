@@ -55,11 +55,12 @@ Tenant-scoped double-entry accounting: chart of accounts, journal entries/lines,
 - `accounting/ui/accounting-accounts.page` _(ui, client)_
 - `accounting/ui/accounting-journal-entry-id.page` _(ui, client)_
 - `accounting/ui/accounting-journal.page` _(ui, client)_
-- `accounting/ui/accounting-journals.page` _(ui, client)_
 - `accounting/ui/accounting-ledger.page` _(ui, client)_
 - `accounting/ui/accounting-periods.page` _(ui, client)_
+- `accounting/ui/accounting-settings.page` _(ui, client)_
 - `accounting/ui/journal-entry-status-badge.component` _(ui, client)_
 - `accounting/ui/journal-lines-panel.component` _(ui, client)_
+- `accounting/ui/journals-panel.component` _(ui, client)_
 
 ## README
 
