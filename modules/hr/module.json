@@ -1,0 +1,132 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "hr",
+  "name": "HR",
+  "description": "Tenant-scoped HR: employees, departments and leave requests.",
+  "version": "1.0.0",
+  "icon": "fas fa-user-tie",
+  "tags": [
+    "hr",
+    "employees",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "hr-employees",
+      "label": "Employees",
+      "href": "/admin/hr/employees",
+      "icon": "fas fa-user-tie",
+      "group": "Employees",
+      "workspace": "hr",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "hr-departments",
+      "label": "Departments",
+      "href": "/admin/hr/departments",
+      "icon": "fas fa-sitemap",
+      "group": "Departments",
+      "workspace": "hr",
+      "order": 20,
+      "scope": "tenant"
+    },
+    {
+      "id": "hr-leave",
+      "label": "Leave",
+      "href": "/admin/hr/leave",
+      "icon": "fas fa-plane-departure",
+      "group": "Leave",
+      "workspace": "hr",
+      "order": 30,
+      "scope": "tenant"
+    },
+    {
+      "id": "hr-leave-types",
+      "label": "Leave Types",
+      "href": "/admin/hr/leave-types",
+      "icon": "fas fa-tags",
+      "group": "Configuration",
+      "workspace": "hr",
+      "order": 90,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/hr/employees",
+      "handler": "hr/server/hr-employees.route"
+    },
+    {
+      "path": "/api/hr/employees/[employeeId]",
+      "handler": "hr/server/hr-employees-employee-id.route"
+    },
+    {
+      "path": "/api/hr/departments",
+      "handler": "hr/server/hr-departments.route"
+    },
+    {
+      "path": "/api/hr/departments/[departmentId]",
+      "handler": "hr/server/hr-departments-department-id.route"
+    },
+    {
+      "path": "/api/hr/leave",
+      "handler": "hr/server/hr-leave.route"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]",
+      "handler": "hr/server/hr-leave-leave-id.route"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]/approve",
+      "handler": "hr/server/hr-leave-leave-id-approve.route"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]/reject",
+      "handler": "hr/server/hr-leave-leave-id-reject.route"
+    },
+    {
+      "path": "/api/hr/leave-types",
+      "handler": "hr/server/hr-leave-types.route"
+    },
+    {
+      "path": "/api/hr/leave-types/[leaveTypeId]",
+      "handler": "hr/server/hr-leave-types-leave-type-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/hr/employees",
+      "component": "hr/ui/hr-employees.page"
+    },
+    {
+      "path": "/admin/hr/employees/[employeeId]",
+      "component": "hr/ui/hr-employees-employee-id.page"
+    },
+    {
+      "path": "/admin/hr/leave-types",
+      "component": "hr/ui/hr-leave-types.page"
+    },
+    {
+      "path": "/admin/hr/departments",
+      "component": "hr/ui/hr-departments.page"
+    },
+    {
+      "path": "/admin/hr/leave",
+      "component": "hr/ui/hr-leave.page"
+    }
+  ]
+}

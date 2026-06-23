@@ -1,0 +1,130 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "payroll",
+  "name": "Payroll",
+  "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
+  "version": "1.0.0",
+  "icon": "fas fa-money-check-dollar",
+  "tags": [
+    "payroll",
+    "hr",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payroll",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "payroll-runs",
+      "label": "Payroll Runs",
+      "href": "/admin/payroll/runs",
+      "icon": "fas fa-money-check-dollar",
+      "group": "Payroll",
+      "workspace": "hr",
+      "order": 40,
+      "scope": "tenant"
+    },
+    {
+      "id": "payroll-payslips",
+      "label": "Payslips",
+      "href": "/admin/payroll/payslips",
+      "icon": "fas fa-file-invoice-dollar",
+      "group": "Payroll",
+      "workspace": "hr",
+      "order": 50,
+      "scope": "tenant"
+    },
+    {
+      "id": "payroll-components",
+      "label": "Salary Components",
+      "href": "/admin/payroll/components",
+      "icon": "fas fa-sliders",
+      "group": "Configuration",
+      "workspace": "hr",
+      "order": 60,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/payroll/runs",
+      "handler": "payroll/server/payroll-runs.route"
+    },
+    {
+      "path": "/api/payroll/runs/[runId]",
+      "handler": "payroll/server/payroll-runs-run-id.route"
+    },
+    {
+      "path": "/api/payroll/runs/[runId]/process",
+      "handler": "payroll/server/payroll-runs-run-id-process.route"
+    },
+    {
+      "path": "/api/payroll/runs/[runId]/pay",
+      "handler": "payroll/server/payroll-runs-run-id-pay.route"
+    },
+    {
+      "path": "/api/payroll/payslips",
+      "handler": "payroll/server/payroll-payslips.route"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]",
+      "handler": "payroll/server/payroll-payslips-payslip-id.route"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/issue",
+      "handler": "payroll/server/payroll-payslips-payslip-id-issue.route"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/pay",
+      "handler": "payroll/server/payroll-payslips-payslip-id-pay.route"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/lines",
+      "handler": "payroll/server/payroll-payslips-payslip-id-lines.route"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
+      "handler": "payroll/server/payroll-payslips-payslip-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/payroll/components",
+      "handler": "payroll/server/payroll-components.route"
+    },
+    {
+      "path": "/api/payroll/components/[componentId]",
+      "handler": "payroll/server/payroll-components-component-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/payroll/runs",
+      "component": "payroll/ui/payroll-runs.page"
+    },
+    {
+      "path": "/admin/payroll/runs/[runId]",
+      "component": "payroll/ui/payroll-runs-run-id.page"
+    },
+    {
+      "path": "/admin/payroll/payslips",
+      "component": "payroll/ui/payroll-payslips.page"
+    },
+    {
+      "path": "/admin/payroll/payslips/[payslipId]",
+      "component": "payroll/ui/payroll-payslips-payslip-id.page"
+    },
+    {
+      "path": "/admin/payroll/components",
+      "component": "payroll/ui/payroll-components.page"
+    }
+  ]
+}
