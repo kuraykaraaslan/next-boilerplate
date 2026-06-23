@@ -23,7 +23,8 @@
     "./server": "./server/index.ts",
     "./ui/suppliers.page": "./ui/suppliers.page.tsx",
     "./ui/suppliers-supplier-id.page": "./ui/suppliers-supplier-id.page.tsx",
-    "./ui/supplier-categories.page": "./ui/supplier-categories.page.tsx",
+    "./ui/supplier-settings.page": "./ui/supplier-settings.page.tsx",
+    "./ui/supplier-categories-panel.component": "./ui/supplier-categories-panel.component.tsx",
     "./ui/supplier-contacts-panel.component": "./ui/supplier-contacts-panel.component.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"

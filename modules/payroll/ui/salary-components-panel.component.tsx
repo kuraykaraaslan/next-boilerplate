@@ -1,8 +1,7 @@
 'use client';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
-import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { Button } from '@kuraykaraaslan/common/ui/button.component';
@@ -34,8 +33,7 @@ function extractMessage(err: unknown, fallback: string) {
   return e?.response?.data?.message ?? e?.message ?? fallback;
 }
 
-export default function PayrollComponentsPage({ params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = use(params);
+export function SalaryComponentsPanel({ tenantId }: { tenantId: string }) {
   const [rows, setRows]         = useState<Component[]>([]);
   const [total, setTotal]       = useState(0);
   const [page, setPage]         = useState(1);
@@ -133,12 +131,6 @@ export default function PayrollComponentsPage({ params }: { params: Promise<{ te
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Salary Components"
-        subtitle={loading ? '…' : `${total} component${total !== 1 ? 's' : ''}`}
-        actions={[{ label: 'New Component', onClick: openCreate }]}
-      />
-
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
       <ServerDataTable
@@ -152,6 +144,9 @@ export default function PayrollComponentsPage({ params }: { params: Promise<{ te
         onPageChange={setPage}
         loading={loading}
         emptyMessage="No salary components yet. Create one to get started."
+        headerRight={
+          <Button variant="primary" size="sm" onClick={openCreate}>New Component</Button>
+        }
         toolbar={
           <div className="pb-4">
             <Input id="comp-search" label="Search" placeholder="Filter by name…"

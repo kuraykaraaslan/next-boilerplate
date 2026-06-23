@@ -1,8 +1,7 @@
 'use client';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
-import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';
 import { Button } from '@kuraykaraaslan/common/ui/button.component';
@@ -31,8 +30,7 @@ function extractMessage(err: unknown, fallback: string) {
   return e?.response?.data?.message ?? e?.message ?? fallback;
 }
 
-export default function SupplierCategoriesPage({ params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = use(params);
+export function SupplierCategoriesPanel({ tenantId }: { tenantId: string }) {
   const [rows, setRows]         = useState<Category[]>([]);
   const [total, setTotal]       = useState(0);
   const [page, setPage]         = useState(1);
@@ -125,13 +123,7 @@ export default function SupplierCategoriesPage({ params }: { params: Promise<{ t
   ];
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Categories"
-        subtitle={loading ? '…' : `${total} categor${total !== 1 ? 'ies' : 'y'}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Category</>, onClick: openCreate }]}
-      />
-
+    <div className="space-y-4">
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
       <ServerDataTable
@@ -145,6 +137,11 @@ export default function SupplierCategoriesPage({ params }: { params: Promise<{ t
         onPageChange={setPage}
         loading={loading}
         emptyMessage="No categories yet. Create one to get started."
+        headerRight={
+          <Button variant="primary" size="sm" onClick={openCreate}>
+            <FontAwesomeIcon icon={faPlus} /> New Category
+          </Button>
+        }
         toolbar={
           <div className="pb-4">
             <Input

@@ -36,10 +36,10 @@
       "scope": "tenant"
     },
     {
-      "id": "supplier-categories",
-      "label": "Categories",
-      "href": "/admin/suppliers/categories",
-      "icon": "fas fa-tags",
+      "id": "supplier-settings",
+      "label": "Supplier Settings",
+      "href": "/admin/suppliers/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "erp",
       "order": 90,
@@ -78,8 +78,8 @@
       "component": "supplier/ui/suppliers.page"
     },
     {
-      "path": "/admin/suppliers/categories",
-      "component": "supplier/ui/supplier-categories.page"
+      "path": "/admin/suppliers/settings",
+      "component": "supplier/ui/supplier-settings.page"
     },
     {
       "path": "/admin/suppliers/[supplierId]",

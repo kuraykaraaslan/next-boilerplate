@@ -1,8 +1,7 @@
 'use client';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
-import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
@@ -33,8 +32,7 @@ function extractMessage(err: unknown, fallback: string) {
   return e?.response?.data?.message ?? e?.message ?? fallback;
 }
 
-export default function HrLeaveTypesPage({ params }: { params: Promise<{ tenantId: string }> }) {
-  const { tenantId } = use(params);
+export function LeaveTypesPanel({ tenantId }: { tenantId: string }) {
   const [rows, setRows] = useState<LeaveType[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -143,13 +141,7 @@ export default function HrLeaveTypesPage({ params }: { params: Promise<{ tenantI
   ];
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Leave Types"
-        subtitle={loading ? '…' : `${total} leave type${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Leave Type</>, onClick: openCreate }]}
-      />
-
+    <div className="space-y-4">
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
 
       <ServerDataTable
@@ -163,6 +155,11 @@ export default function HrLeaveTypesPage({ params }: { params: Promise<{ tenantI
         onPageChange={setPage}
         loading={loading}
         emptyMessage="No leave types yet. Create one to get started."
+        headerRight={
+          <Button variant="primary" size="sm" onClick={openCreate}>
+            <FontAwesomeIcon icon={faPlus} /> New Leave Type
+          </Button>
+        }
         toolbar={
           <div className="pb-4">
             <Input

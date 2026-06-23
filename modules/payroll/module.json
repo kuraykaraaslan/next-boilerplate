@@ -45,13 +45,13 @@
       "scope": "tenant"
     },
     {
-      "id": "payroll-components",
-      "label": "Salary Components",
-      "href": "/admin/payroll/components",
-      "icon": "fas fa-sliders",
+      "id": "payroll-settings",
+      "label": "Payroll Settings",
+      "href": "/admin/payroll/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "hr",
-      "order": 60,
+      "order": 90,
       "scope": "tenant"
     }
   ],
@@ -123,8 +123,8 @@
       "component": "payroll/ui/payroll-payslips-payslip-id.page"
     },
     {
-      "path": "/admin/payroll/components",
-      "component": "payroll/ui/payroll-components.page"
+      "path": "/admin/payroll/settings",
+      "component": "payroll/ui/payroll-settings.page"
     }
   ]
 }

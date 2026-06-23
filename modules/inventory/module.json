@@ -66,23 +66,13 @@
       "scope": "tenant"
     },
     {
-      "id": "inventory-uoms",
-      "label": "Units of Measure",
-      "href": "/admin/inventory/uoms",
-      "icon": "fas fa-ruler",
+      "id": "inventory-settings",
+      "label": "Inventory Settings",
+      "href": "/admin/inventory/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "erp",
       "order": 90,
-      "scope": "tenant"
-    },
-    {
-      "id": "inventory-reasons",
-      "label": "Movement Reasons",
-      "href": "/admin/inventory/reasons",
-      "icon": "fas fa-tags",
-      "group": "Configuration",
-      "workspace": "erp",
-      "order": 91,
       "scope": "tenant"
     }
   ],
@@ -108,12 +98,8 @@
       "component": "inventory/ui/inventory-counts-count-id.page"
     },
     {
-      "path": "/admin/inventory/uoms",
-      "component": "inventory/ui/inventory-uoms.page"
-    },
-    {
-      "path": "/admin/inventory/reasons",
-      "component": "inventory/ui/inventory-reasons.page"
+      "path": "/admin/inventory/settings",
+      "component": "inventory/ui/inventory-settings.page"
     }
   ],
   "apiRoutes": [

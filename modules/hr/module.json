@@ -55,10 +55,10 @@
       "scope": "tenant"
     },
     {
-      "id": "hr-leave-types",
-      "label": "Leave Types",
-      "href": "/admin/hr/leave-types",
-      "icon": "fas fa-tags",
+      "id": "hr-settings",
+      "label": "HR Settings",
+      "href": "/admin/hr/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "hr",
       "order": 90,
@@ -117,16 +117,16 @@
       "component": "hr/ui/hr-employees-employee-id.page"
     },
     {
-      "path": "/admin/hr/leave-types",
-      "component": "hr/ui/hr-leave-types.page"
-    },
-    {
       "path": "/admin/hr/departments",
       "component": "hr/ui/hr-departments.page"
     },
     {
       "path": "/admin/hr/leave",
       "component": "hr/ui/hr-leave.page"
+    },
+    {
+      "path": "/admin/hr/settings",
+      "component": "hr/ui/hr-settings.page"
     }
   ]
 }

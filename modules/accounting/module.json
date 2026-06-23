@@ -66,13 +66,13 @@
       "scope": "tenant"
     },
     {
-      "id": "accounting-journals",
-      "label": "Journals",
-      "href": "/admin/accounting/journals",
-      "icon": "fas fa-folder-tree",
+      "id": "accounting-settings",
+      "label": "Accounting Settings",
+      "href": "/admin/accounting/settings",
+      "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "erp",
-      "order": 50,
+      "order": 90,
       "scope": "tenant"
     }
   ],
@@ -94,8 +94,8 @@
       "component": "accounting/ui/accounting-periods.page"
     },
     {
-      "path": "/admin/accounting/journals",
-      "component": "accounting/ui/accounting-journals.page"
+      "path": "/admin/accounting/settings",
+      "component": "accounting/ui/accounting-settings.page"
     },
     {
       "path": "/admin/accounting/journal/[entryId]",
