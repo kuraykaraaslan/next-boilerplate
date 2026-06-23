@@ -6,7 +6,7 @@
 - **dir:** `modules/order_fulfillment/`
 - **tags:** order, fulfillment, shipping, ecommerce
 - **icon:** `fas fa-box`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, status lifecycle, and an append-only event log.
 
@@ -50,6 +50,10 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 - `FulfillmentEvent` (system) — `modules/order_fulfillment/server/entities/fulfillment_event.entity.ts`
 - `FulfillmentItem` (system) — `modules/order_fulfillment/server/entities/fulfillment_item.entity.ts`
 - `Warehouse` (system) — `modules/order_fulfillment/server/entities/warehouse.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `order_fulfillment/ui/fulfillment.page` _(ui, client)_
 
 ## README
 

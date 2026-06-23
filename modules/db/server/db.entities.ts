@@ -118,6 +118,47 @@ import { PluginKv } from '@kuraykaraaslan/plugin_runtime/server/entities/plugin_
 import { DriveFile } from '@kuraykaraaslan/drive/server/entities/drive_file.entity';
 import { DriveShare } from '@kuraykaraaslan/drive/server/entities/drive_share.entity';
 import { DrivePublicLink } from '@kuraykaraaslan/drive/server/entities/drive_public_link.entity';
+// CMS (content workspace) — scaffolded modules
+import { NavigationMenu } from '@kuraykaraaslan/navigation/server/entities/navigation_menus.entity';
+import { NavigationItem } from '@kuraykaraaslan/navigation/server/entities/navigation_items.entity';
+import { Form } from '@kuraykaraaslan/form_builder/server/entities/forms.entity';
+import { FormField } from '@kuraykaraaslan/form_builder/server/entities/form_fields.entity';
+import { FormSubmission } from '@kuraykaraaslan/form_builder/server/entities/form_submissions.entity';
+import { RedirectRule } from '@kuraykaraaslan/redirect/server/entities/redirect_rules.entity';
+// ERP workspace — scaffolded modules
+import { InventoryWarehouse } from '@kuraykaraaslan/inventory/server/entities/inventory_warehouses.entity';
+import { InventoryLocation } from '@kuraykaraaslan/inventory/server/entities/inventory_locations.entity';
+import { InventoryStockItem } from '@kuraykaraaslan/inventory/server/entities/inventory_stock_items.entity';
+import { InventoryMovement } from '@kuraykaraaslan/inventory/server/entities/inventory_movements.entity';
+import { InventoryCount } from '@kuraykaraaslan/inventory/server/entities/inventory_counts.entity';
+import { InventoryCountLine } from '@kuraykaraaslan/inventory/server/entities/inventory_count_lines.entity';
+import { UnitOfMeasure } from '@kuraykaraaslan/inventory/server/entities/uoms.entity';
+import { MovementReason } from '@kuraykaraaslan/inventory/server/entities/inventory_movement_reasons.entity';
+import { Supplier } from '@kuraykaraaslan/supplier/server/entities/suppliers.entity';
+import { SupplierContact } from '@kuraykaraaslan/supplier/server/entities/supplier_contacts.entity';
+import { PurchaseOrder } from '@kuraykaraaslan/procurement/server/entities/purchase_orders.entity';
+import { PurchaseOrderLine } from '@kuraykaraaslan/procurement/server/entities/purchase_order_lines.entity';
+import { GoodsReceipt } from '@kuraykaraaslan/procurement/server/entities/goods_receipts.entity';
+import { GoodsReceiptLine } from '@kuraykaraaslan/procurement/server/entities/goods_receipt_lines.entity';
+import { LedgerAccount } from '@kuraykaraaslan/accounting/server/entities/ledger_accounts.entity';
+import { JournalEntry } from '@kuraykaraaslan/accounting/server/entities/journal_entries.entity';
+import { JournalLine } from '@kuraykaraaslan/accounting/server/entities/journal_lines.entity';
+import { FiscalPeriod } from '@kuraykaraaslan/accounting/server/entities/fiscal_periods.entity';
+import { Order } from '@kuraykaraaslan/order/server/entities/orders.entity';
+import { OrderLine } from '@kuraykaraaslan/order/server/entities/order_lines.entity';
+import { OrderStatusEvent } from '@kuraykaraaslan/order/server/entities/order_status_events.entity';
+// HR workspace — scaffolded modules
+import { Department } from '@kuraykaraaslan/hr/server/entities/departments.entity';
+import { Employee } from '@kuraykaraaslan/hr/server/entities/employees.entity';
+import { LeaveRequest } from '@kuraykaraaslan/hr/server/entities/leave_requests.entity';
+import { PayrollRun } from '@kuraykaraaslan/payroll/server/entities/payroll_runs.entity';
+import { Payslip } from '@kuraykaraaslan/payroll/server/entities/payslips.entity';
+import { SalaryComponent } from '@kuraykaraaslan/payroll/server/entities/salary_components.entity';
+// Odoo-depth configurable / line entities
+import { Journal } from '@kuraykaraaslan/accounting/server/entities/journals.entity';
+import { PayslipLine } from '@kuraykaraaslan/payroll/server/entities/payslip_lines.entity';
+import { LeaveType } from '@kuraykaraaslan/hr/server/entities/leave_types.entity';
+import { SupplierCategory } from '@kuraykaraaslan/supplier/server/entities/supplier_categories.entity';
 
 export const ENTITIES = [
   User, UserConsent, UserProfile, UserSecurity, UserPreferences, UserSession,
@@ -144,4 +185,13 @@ export const ENTITIES = [
   Connector, ConnectedApp, OAuthToken, IntegrationEvent,
   ModuleInstall, Publisher, PublishedModule, PublishedModuleVersion, CommunityInstall,
   PluginKv, DriveFile, DriveShare, DrivePublicLink,
+  // CMS (content workspace)
+  NavigationMenu, NavigationItem, Form, FormField, FormSubmission, RedirectRule,
+  // ERP workspace
+  InventoryWarehouse, InventoryLocation, InventoryStockItem, InventoryMovement, InventoryCount,
+  InventoryCountLine, UnitOfMeasure, MovementReason,
+  Supplier, SupplierContact, SupplierCategory, PurchaseOrder, PurchaseOrderLine, GoodsReceipt, GoodsReceiptLine,
+  LedgerAccount, JournalEntry, JournalLine, FiscalPeriod, Journal, Order, OrderLine, OrderStatusEvent,
+  // HR workspace
+  Department, Employee, LeaveRequest, LeaveType, PayrollRun, Payslip, PayslipLine, SalaryComponent,
 ];

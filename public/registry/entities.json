@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T08:53:57.457Z",
+  "generatedAt": "2026-06-23T15:27:01.997Z",
   "entities": [
     {
       "name": "Agreement",
@@ -492,6 +492,25 @@
       ]
     },
     {
+      "name": "Department",
+      "filePath": "modules/hr/server/entities/departments.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "departments",
+      "columns": [
+        "departmentId",
+        "tenantId",
+        "name",
+        "code",
+        "managerId",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "DriveFile",
       "filePath": "modules/drive/server/entities/drive_file.entity.ts",
       "module": "drive",
@@ -688,6 +707,29 @@
       "relations": []
     },
     {
+      "name": "Employee",
+      "filePath": "modules/hr/server/entities/employees.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "employees",
+      "columns": [
+        "employeeId",
+        "tenantId",
+        "firstName",
+        "lastName",
+        "email",
+        "departmentId",
+        "title",
+        "status",
+        "hiredAt",
+        "userId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "FeatureFlag",
       "filePath": "modules/feature_flags/server/entities/feature_flag.entity.ts",
       "module": "feature_flags",
@@ -722,6 +764,77 @@
         "subjectId",
         "enabled",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FiscalPeriod",
+      "filePath": "modules/accounting/server/entities/fiscal_periods.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "fiscal_periods",
+      "columns": [
+        "periodId",
+        "tenantId",
+        "name",
+        "startDate",
+        "endDate",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Form",
+      "filePath": "modules/form_builder/server/entities/forms.entity.ts",
+      "module": "form_builder",
+      "schema": "system",
+      "tableName": "forms",
+      "columns": [
+        "formId",
+        "tenantId",
+        "title",
+        "slug",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FormField",
+      "filePath": "modules/form_builder/server/entities/form_fields.entity.ts",
+      "module": "form_builder",
+      "schema": "system",
+      "tableName": "form_fields",
+      "columns": [
+        "fieldId",
+        "tenantId",
+        "formId",
+        "label",
+        "type",
+        "required",
+        "order",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FormSubmission",
+      "filePath": "modules/form_builder/server/entities/form_submissions.entity.ts",
+      "module": "form_builder",
+      "schema": "system",
+      "tableName": "form_submissions",
+      "columns": [
+        "submissionId",
+        "tenantId",
+        "formId",
+        "data",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },
@@ -858,6 +971,42 @@
       "relations": []
     },
     {
+      "name": "GoodsReceipt",
+      "filePath": "modules/procurement/server/entities/goods_receipts.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "goods_receipts",
+      "columns": [
+        "receiptId",
+        "tenantId",
+        "purchaseOrderId",
+        "number",
+        "status",
+        "receivedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "GoodsReceiptLine",
+      "filePath": "modules/procurement/server/entities/goods_receipt_lines.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "goods_receipt_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "receiptId",
+        "purchaseOrderLineId",
+        "quantity",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "IntegrationEvent",
       "filePath": "modules/integrations_hub/server/entities/integration_event.entity.ts",
       "module": "integrations_hub",
@@ -873,6 +1022,122 @@
         "payload",
         "error",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryCount",
+      "filePath": "modules/inventory/server/entities/inventory_counts.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_counts",
+      "columns": [
+        "countId",
+        "tenantId",
+        "warehouseId",
+        "status",
+        "reference",
+        "lineCount",
+        "totalDiff",
+        "countedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryCountLine",
+      "filePath": "modules/inventory/server/entities/inventory_count_lines.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_count_lines",
+      "columns": [
+        "countLineId",
+        "tenantId",
+        "countId",
+        "stockItemId",
+        "systemQty",
+        "countedQty",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryLocation",
+      "filePath": "modules/inventory/server/entities/inventory_locations.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_locations",
+      "columns": [
+        "locationId",
+        "tenantId",
+        "warehouseId",
+        "name",
+        "code",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryMovement",
+      "filePath": "modules/inventory/server/entities/inventory_movements.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_movements",
+      "columns": [
+        "movementId",
+        "tenantId",
+        "stockItemId",
+        "type",
+        "quantity",
+        "reason",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryStockItem",
+      "filePath": "modules/inventory/server/entities/inventory_stock_items.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_stock_items",
+      "columns": [
+        "stockItemId",
+        "tenantId",
+        "warehouseId",
+        "locationId",
+        "productId",
+        "variantId",
+        "uomId",
+        "sku",
+        "quantity",
+        "reserved",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryWarehouse",
+      "filePath": "modules/inventory/server/entities/inventory_warehouses.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_warehouses",
+      "columns": [
+        "warehouseId",
+        "tenantId",
+        "name",
+        "code",
+        "address",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -940,6 +1205,129 @@
         "sourceId",
         "metadata",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Journal",
+      "filePath": "modules/accounting/server/entities/journals.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "journals",
+      "columns": [
+        "journalId",
+        "tenantId",
+        "code",
+        "name",
+        "type",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "JournalEntry",
+      "filePath": "modules/accounting/server/entities/journal_entries.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "journal_entries",
+      "columns": [
+        "entryId",
+        "tenantId",
+        "journalId",
+        "number",
+        "description",
+        "status",
+        "totalDebit",
+        "totalCredit",
+        "entryDate",
+        "postedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "JournalLine",
+      "filePath": "modules/accounting/server/entities/journal_lines.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "journal_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "entryId",
+        "accountId",
+        "debit",
+        "credit",
+        "memo",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LeaveRequest",
+      "filePath": "modules/hr/server/entities/leave_requests.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "leave_requests",
+      "columns": [
+        "leaveId",
+        "tenantId",
+        "employeeId",
+        "type",
+        "leaveTypeId",
+        "startDate",
+        "endDate",
+        "status",
+        "reason",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LeaveType",
+      "filePath": "modules/hr/server/entities/leave_types.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "leave_types",
+      "columns": [
+        "leaveTypeId",
+        "tenantId",
+        "name",
+        "code",
+        "paid",
+        "maxDaysPerYear",
+        "color",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LedgerAccount",
+      "filePath": "modules/accounting/server/entities/ledger_accounts.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "ledger_accounts",
+      "columns": [
+        "accountId",
+        "tenantId",
+        "code",
+        "name",
+        "type",
+        "parentId",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -1186,6 +1574,62 @@
       "relations": []
     },
     {
+      "name": "MovementReason",
+      "filePath": "modules/inventory/server/entities/inventory_movement_reasons.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_movement_reasons",
+      "columns": [
+        "reasonId",
+        "tenantId",
+        "name",
+        "code",
+        "direction",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "NavigationItem",
+      "filePath": "modules/navigation/server/entities/navigation_items.entity.ts",
+      "module": "navigation",
+      "schema": "system",
+      "tableName": "navigation_items",
+      "columns": [
+        "itemId",
+        "tenantId",
+        "menuId",
+        "parentId",
+        "label",
+        "url",
+        "order",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "NavigationMenu",
+      "filePath": "modules/navigation/server/entities/navigation_menus.entity.ts",
+      "module": "navigation",
+      "schema": "system",
+      "tableName": "navigation_menus",
+      "columns": [
+        "menuId",
+        "tenantId",
+        "name",
+        "slug",
+        "location",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "NotificationLog",
       "filePath": "modules/notification_log/server/entities/notification_log.entity.ts",
       "module": "notification_log",
@@ -1224,6 +1668,66 @@
         "scope",
         "tokenType",
         "expiresAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Order",
+      "filePath": "modules/order/server/entities/orders.entity.ts",
+      "module": "order",
+      "schema": "system",
+      "tableName": "orders",
+      "columns": [
+        "orderId",
+        "tenantId",
+        "number",
+        "customerId",
+        "status",
+        "currency",
+        "reference",
+        "total",
+        "placedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "OrderLine",
+      "filePath": "modules/order/server/entities/order_lines.entity.ts",
+      "module": "order",
+      "schema": "system",
+      "tableName": "order_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "orderId",
+        "productId",
+        "variantId",
+        "description",
+        "quantity",
+        "unitPrice",
+        "amount",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "OrderStatusEvent",
+      "filePath": "modules/order/server/entities/order_status_events.entity.ts",
+      "module": "order",
+      "schema": "system",
+      "tableName": "order_status_events",
+      "columns": [
+        "eventId",
+        "tenantId",
+        "orderId",
+        "status",
+        "note",
         "createdAt",
         "updatedAt"
       ],
@@ -1358,6 +1862,62 @@
         "ipAddress",
         "userAgent",
         "processedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PayrollRun",
+      "filePath": "modules/payroll/server/entities/payroll_runs.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "payroll_runs",
+      "columns": [
+        "runId",
+        "tenantId",
+        "period",
+        "status",
+        "runDate",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Payslip",
+      "filePath": "modules/payroll/server/entities/payslips.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "payslips",
+      "columns": [
+        "payslipId",
+        "tenantId",
+        "runId",
+        "employeeId",
+        "gross",
+        "deductions",
+        "net",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PayslipLine",
+      "filePath": "modules/payroll/server/entities/payslip_lines.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "payslip_lines",
+      "columns": [
+        "payslipLineId",
+        "tenantId",
+        "payslipId",
+        "name",
+        "type",
+        "amount",
         "createdAt",
         "updatedAt"
       ],
@@ -1536,6 +2096,47 @@
       "relations": []
     },
     {
+      "name": "PurchaseOrder",
+      "filePath": "modules/procurement/server/entities/purchase_orders.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "purchase_orders",
+      "columns": [
+        "purchaseOrderId",
+        "tenantId",
+        "supplierId",
+        "number",
+        "status",
+        "currency",
+        "reference",
+        "total",
+        "orderedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PurchaseOrderLine",
+      "filePath": "modules/procurement/server/entities/purchase_order_lines.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "purchase_order_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "purchaseOrderId",
+        "productId",
+        "description",
+        "quantity",
+        "unitPrice",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PushSubscription",
       "filePath": "modules/notification_push/server/entities/push_subscription.entity.ts",
       "module": "notification_push",
@@ -1552,6 +2153,26 @@
         "consentAt",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "RedirectRule",
+      "filePath": "modules/redirect/server/entities/redirect_rules.entity.ts",
+      "module": "redirect",
+      "schema": "system",
+      "tableName": "redirect_rules",
+      "columns": [
+        "redirectId",
+        "tenantId",
+        "fromPath",
+        "toPath",
+        "statusCode",
+        "isActive",
+        "hits",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -1626,6 +2247,25 @@
         "receivedAt",
         "refundedAt",
         "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SalaryComponent",
+      "filePath": "modules/payroll/server/entities/salary_components.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "salary_components",
+      "columns": [
+        "componentId",
+        "tenantId",
+        "employeeId",
+        "type",
+        "name",
+        "amount",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -2216,6 +2856,65 @@
       "relations": []
     },
     {
+      "name": "Supplier",
+      "filePath": "modules/supplier/server/entities/suppliers.entity.ts",
+      "module": "supplier",
+      "schema": "system",
+      "tableName": "suppliers",
+      "columns": [
+        "supplierId",
+        "tenantId",
+        "name",
+        "code",
+        "categoryId",
+        "email",
+        "phone",
+        "taxNumber",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SupplierCategory",
+      "filePath": "modules/supplier/server/entities/supplier_categories.entity.ts",
+      "module": "supplier",
+      "schema": "system",
+      "tableName": "supplier_categories",
+      "columns": [
+        "categoryId",
+        "tenantId",
+        "name",
+        "code",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SupplierContact",
+      "filePath": "modules/supplier/server/entities/supplier_contacts.entity.ts",
+      "module": "supplier",
+      "schema": "system",
+      "tableName": "supplier_contacts",
+      "columns": [
+        "contactId",
+        "tenantId",
+        "supplierId",
+        "name",
+        "email",
+        "phone",
+        "role",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SupportTicket",
       "filePath": "modules/support/server/entities/support_ticket.entity.ts",
       "module": "support",
@@ -2496,6 +3195,25 @@
         "source",
         "fetchedAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UnitOfMeasure",
+      "filePath": "modules/inventory/server/entities/uoms.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "uoms",
+      "columns": [
+        "uomId",
+        "tenantId",
+        "name",
+        "code",
+        "ratio",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },

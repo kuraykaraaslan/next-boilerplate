@@ -44,6 +44,7 @@ Polymorphic SEO metadata (title, description, Open Graph, canonical, noIndex) at
 
 - `seo/ui/index` _(ui)_
 - `seo/ui/seo-panel.component` _(ui, client)_
+- `seo/ui/seo.page` _(ui, client)_
 - `seo/ui/web-vitals.client` _(ui, client)_
 
 ## README

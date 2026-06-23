@@ -3,7 +3,7 @@
   "name": "next-boilerplate",
   "version": "0.1.0",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T08:53:57.457Z",
+  "generatedAt": "2026-06-23T15:27:01.997Z",
   "description": "Production-grade multi-tenant SaaS starter on Next.js 16 with strict three-layer architecture.",
   "layers": {
     "app": "Next.js App Router — pages, layouts, route handlers. Thin glue importing both layers below.",
@@ -4887,7 +4887,18 @@
         ]
       },
       "enabled": true,
-      "menu": [],
+      "menu": [
+        {
+          "id": "invoice-list-erp",
+          "label": "Invoices",
+          "href": "/admin/invoices",
+          "icon": "fas fa-file-invoice",
+          "group": "Finance",
+          "workspace": "erp",
+          "order": 50,
+          "scope": "tenant"
+        }
+      ],
       "adminRoutes": [
         {
           "path": "/admin/invoices/[invoiceId]",
@@ -5884,8 +5895,24 @@
         ]
       },
       "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
+      "menu": [
+        {
+          "id": "seo-overview",
+          "label": "SEO",
+          "href": "/admin/seo",
+          "icon": "fas fa-magnifying-glass-chart",
+          "group": "SEO",
+          "workspace": "content",
+          "order": 30,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/seo",
+          "component": "seo/ui/seo.page"
+        }
+      ],
       "apiRoutes": [
         {
           "path": "/api/seo/[entityType]/[entityId]",
@@ -5925,6 +5952,7 @@
         "./ui/index",
         "./ui",
         "./ui/seo-panel.component",
+        "./ui/seo.page",
         "./ui/web-vitals.client",
         ".",
         "./module.json"
@@ -6071,8 +6099,24 @@
         ]
       },
       "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
+      "menu": [
+        {
+          "id": "media-library",
+          "label": "Media Library",
+          "href": "/admin/media",
+          "icon": "fas fa-images",
+          "group": "Media",
+          "workspace": "content",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/media",
+          "component": "media_gallery/ui/media-library.page"
+        }
+      ],
       "apiRoutes": [
         {
           "path": "/api/media-gallery/[entityType]/[entityId]/items/reorder",
@@ -6112,6 +6156,7 @@
         "./server/media_gallery.url",
         "./server/media_gallery.view",
         "./ui/gallery-panel.component",
+        "./ui/media-library.page",
         ".",
         "./module.json"
       ],
@@ -6676,6 +6721,16 @@
       "enabled": true,
       "menu": [
         {
+          "id": "store-products-erp",
+          "label": "Products",
+          "href": "/admin/store/products",
+          "icon": "fas fa-box",
+          "group": "Catalog",
+          "workspace": "erp",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
           "id": "store-categories",
           "label": "Categories",
           "href": "/admin/store/categories",
@@ -7124,8 +7179,24 @@
         ]
       },
       "enabled": true,
-      "menu": [],
-      "adminRoutes": [],
+      "menu": [
+        {
+          "id": "order-fulfillment-erp",
+          "label": "Fulfillment",
+          "href": "/admin/fulfillment",
+          "icon": "fas fa-box",
+          "group": "Sales",
+          "workspace": "erp",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/fulfillment",
+          "component": "order_fulfillment/ui/fulfillment.page"
+        }
+      ],
       "apiRoutes": [],
       "widgets": [],
       "slots": [],
@@ -7153,6 +7224,7 @@
         "./server/order_fulfillment.status.service",
         "./server/order_fulfillment.types",
         "./server/order_fulfillment.warehouse.service",
+        "./ui/fulfillment.page",
         ".",
         "./module.json"
       ],
@@ -7160,7 +7232,7 @@
       "modulePermissions": [],
       "hasReadme": true,
       "hasModuleJson": true,
-      "hasNextLayer": false,
+      "hasNextLayer": true,
       "readme": "# Order Fulfillment Module\n\nTenant-aware fulfillment and shipment tracking for orders. Manages packing, carrier tracking, a status lifecycle, and an append-only event log. Framework-agnostic — no `next/*`, `react`, or browser APIs.\n\n`orderId` is an external uuid reference — there is **no** `order` module yet, so it is stored as a plain indexed column (no TypeORM relation/FK). `shippingMethodId` is an optional uuid reference to a method in the `payment_shipping` module.\n\n---\n\n## Entities\n\nAll three entities live in the **tenant DB** (resolved via `tenantDataSourceFor`) and are scoped by an indexed `tenantId`.\n\n| Entity | Table | Description |\n|---|---|---|\n| `Fulfillment` | `fulfillments` | One shipment of an order. Holds `status`, `carrier` + tracking info (`trackingNumber`, `trackingUrl`), an optional `shippingMethodId`, free-form `notes` / `metadata`, and lifecycle timestamps (`packedAt`, `shippedAt`, `deliveredAt`, `cancelledAt`). Soft-deletable (`deletedAt`). |\n| `FulfillmentItem` | `fulfillment_items` | The line items packed into a fulfillment. Each carries optional `orderItemId` / `productId` / `variantId` / `sku` plus a required `name` and an `int` `quantity` (default `1`). |\n| `FulfillmentEvent` | `fulfillment_events` | Append-only status-change log. Every create / tracking change / status update writes one row (`status`, optional `message`, optional `metadata`). |\n\n---\n\n## Enums\n\n- `FulfillmentStatusEnum` — `PENDING`, `PROCESSING`, `PACKED`, `SHIPPED`, `IN_TRANSIT`, `DELIVERED`, `CANCELLED`, `RETURNED`.\n- `FulfillmentCarrierEnum` — `ARAS`, `YURTICI`, `MNG`, `PTT`, `UPS`, `FEDEX`, `DHL`, `TNT`, `CUSTOM`.\n\n### Status lifecycle\n\n```\nPENDING → PROCESSING → PACKED → SHIPPED → IN_TRANSIT → DELIVERED\n                                                  │\n                                       (terminal) │\n   CANCELLED ◄───────── any non-terminal ─────────┤\n   RETURNED  ◄──────────────────────────────────── \n```\n\n`DELIVERED`, `CANCELLED`, and `RETURNED` are **terminal** — `updateStatus` throws `INVALID_STATUS_TRANSITION` if you try to move out of them (to a different status). Transitions are otherwise validated loosely (any forward jump is allowed). Reaching `PACKED` / `SHIPPED` / `DELIVERED` / `CANCELLED` stamps the matching timestamp once.\n\n---\n\n## Service\n\n`OrderFulfillmentService` — static methods, all take `tenantId` first. Every read/write resolves the tenant DataSource via `tenantDataSourceFor(tenantId)` and filters by `tenantId`.\n\n| Method | Description |\n|---|---|\n| `create(tenantId, dto)` | Insert a fulfillment + its items + an initial `PENDING` event, then dispatch the `fulfillment.created` webhook. Returns `FulfillmentWithItems`. |\n| `getById(tenantId, fulfillmentId)` | Fetch fulfillment with `items` and `events` (both ordered `createdAt ASC`). `singleFlight`-cached. Throws `FULFILLMENT_NOT_FOUND` if missing. |\n| `list(tenantId, query)` | Paginated list filtered by `orderId` / `status` / `carrier` / `trackingNumber`, ordered `createdAt DESC`. Returns `{ data, total }`. |\n| `update(tenantId, fulfillmentId, dto)` | Patch carrier / tracking / notes / metadata. |\n| `addTracking(tenantId, fulfillmentId, dto)` | Set carrier + tracking number/url and log an event. |\n| `updateStatus(tenantId, fulfillmentId, dto)` | Change status, stamp the matching timestamp, append an event. Enforces the terminal-state rule and dispatches a webhook for `SHIPPED` / `DELIVERED` / `CANCELLED`. |\n| `markShipped(tenantId, fulfillmentId, tracking?)` | Convenience: optional `addTracking` then status `SHIPPED` (delegates to `updateStatus`). |\n| `cancel(tenantId, fulfillmentId, reason?)` | Status `CANCELLED` (delegates to `updateStatus`); `reason` becomes the event message. |\n| `listEvents(tenantId, fulfillmentId)` | Full event log, oldest first. |\n\n`logEvent` is a private helper that writes one `FulfillmentEvent` row; failures are logged (`EVENT_LOG_FAILED`) but never thrown.\n\n### Cache keys\n\n- `order:fulfillment:<fulfillmentId>` — `getById` result (`FulfillmentWithItems`). Written via `singleFlight` with TTL `CACHE_TTL` (`env.TENANT_CACHE_TTL ?? 300` seconds). Busted on every mutation (`update`, `addTracking`, `updateStatus`, and the convenience methods that wrap them).\n\n### Webhooks\n\nLifecycle events are dispatched per tenant via `WebhookService.dispatchEvent(tenantId, ...)`:\n\n- `fulfillment.created` — on `create`.\n- `fulfillment.shipped` / `fulfillment.delivered` / `fulfillment.cancelled` — on the matching `updateStatus` transition (so `markShipped` / `cancel` emit too). Other statuses (`PENDING` / `PROCESSING` / `PACKED` / `IN_TRANSIT` / `RETURNED`) do not emit. Endpoint configuration lives in the `webhook` module.\n\n---\n\n## Usage\n\n```ts\nimport { OrderFulfillmentService } from '@/modules/order_fulfillment'\n\nconst f = await OrderFulfillmentService.create(tenantId, {\n  orderId,\n  carrier: 'ARAS',\n  items: [{ productId, sku: 'TS-BLK-M', name: 'T-Shirt Black M', quantity: 2 }],\n})\n\nawait OrderFulfillmentService.markShipped(tenantId, f.fulfillmentId, {\n  carrier: 'ARAS',\n  trackingNumber: '1234567890',\n  trackingUrl: 'https://kargotakip.araskargo.com.tr/?code=1234567890',\n})\n\nawait OrderFulfillmentService.updateStatus(tenantId, f.fulfillmentId, { status: 'DELIVERED' })\n```\n\n---\n\n## Settings\n\nThis module exposes **no** per-tenant settings. All status / carrier / webhook policy is hardcoded (see *Tenant Variability*). The only tunable is the global `env.TENANT_CACHE_TTL` shared-infra cache TTL.\n\n---\n\n## Tenant Variability\n\n> What varies per tenant in this module — and what could. Audited 2026-06-03.\n\nA tenant-scoped order-fulfillment/shipment-tracking module that stores fulfillments, their items, and a status-event log per real tenant via tenantDataSourceFor, but exposes no per-tenant settings and applies all status/carrier/webhook policy uniformly (hardcoded) across tenants.\n\n### Tenant-scoped data\n\n| Entity | Table | Tenant-variable columns |\n|---|---|---|\n| `Fulfillment` | `fulfillments` | orderId, status, carrier, trackingNumber, trackingUrl, shippingMethodId, notes, metadata, packedAt, shippedAt, deliveredAt, cancelledAt |\n| `FulfillmentItem` | `fulfillment_items` | fulfillmentId, orderItemId, productId, variantId, sku, name, quantity |\n| `FulfillmentEvent` | `fulfillment_events` | fulfillmentId, status, message, metadata |\n\nAll rows isolated by `tenantId` via the per-tenant DataSource.\n\n### Per-tenant behavior\n\n- `order_fulfillment.service.ts` — All reads/writes go through tenantDataSourceFor(tenantId) and every query/insert is filtered by tenantId, so each tenant sees only its own fulfillments, items, and events; this is data isolation, not behavioral branching (no method branches on per-tenant settings, providers, or subscription feature-keys).\n- `order_fulfillment.service.ts:create/updateStatus` — Lifecycle webhooks (fulfillment.created / .shipped / .delivered / .cancelled) are dispatched per tenant via WebhookService.dispatchEvent(tenantId, ...), so each tenant receives events at its own configured webhook endpoints (endpoint config lives in the webhook module, not here).\n\n### Candidates (global / hardcoded today → could be per-tenant)\n\n| What | Where | Why per-tenant | Suggested key |\n|---|---|---|---|\n| Allowed shipping carriers are a single hardcoded global enum (ARAS, YURTICI, MNG, PTT, UPS, FEDEX, DHL, TNT, CUSTOM); every tenant is offered the exact same carrier list with no way to restrict or extend it. | `order_fulfillment.enums.ts:FulfillmentCarrierEnum (validated in order_fulfillment.types.ts; set on create/addTracking/update in order_fulfillment.service.ts)` | Different tenants operate in different regions/markets (the list mixes Turkish carriers like ARAS/YURTICI/MNG/PTT with global ones); a tenant admin would plausibly want to enable only the carriers they actually ship with. Today it is a compile-time constant. | `enabledShippingCarriers` |\n| Terminal-status policy (DELIVERED, CANCELLED, RETURNED) and the loose 'any forward jump allowed' transition rule are a hardcoded module-level constant set shared by all tenants. | `order_fulfillment.service.ts:TERMINAL_STATUSES (enforced in updateStatus)` | Some tenants may want stricter transition enforcement or to treat RETURNED as non-terminal (e.g. allow re-shipping a return); the workflow is currently fixed in code for everyone. | `fulfillmentTerminalStatuses` |\n| The status->webhook-event mapping is hardcoded so only SHIPPED/DELIVERED/CANCELLED (plus the implicit created event) emit webhooks; PENDING/PACKED/PROCESSING/IN_TRANSIT/RETURNED never do, identically for all tenants. | `order_fulfillment.service.ts:updateStatus (statusEvent map)` | A tenant may want webhooks on additional transitions (e.g. IN_TRANSIT or RETURNED) to drive their own notifications/integrations; which transitions notify is a plausible per-tenant preference rather than a platform constant. | `fulfillmentWebhookStatuses` |\n| getById cache TTL is taken from a single global env var (TENANT_CACHE_TTL, default 300s) rather than any per-tenant value. | `order_fulfillment.service.ts:CACHE_TTL` | Intentionally global shared-infra tuning (Redis cache TTL) — listed only for contrast; not a real per-tenant gap and should stay env/global. | — |\n\n---\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger` (declared in `module.json`). Also dispatches lifecycle events through the `webhook` module (`WebhookService`).\n"
     },
     {
@@ -7322,9 +7394,23 @@
           "workspace": "content",
           "order": 20,
           "scope": "tenant"
+        },
+        {
+          "id": "blog-comments",
+          "label": "Comments",
+          "href": "/admin/blog/comments",
+          "icon": "fas fa-comments",
+          "group": "Blog",
+          "workspace": "content",
+          "order": 30,
+          "scope": "tenant"
         }
       ],
       "adminRoutes": [
+        {
+          "path": "/admin/blog/comments",
+          "component": "blog/ui/blog-comments.page"
+        },
         {
           "path": "/admin/blog/categories",
           "component": "blog/ui/blog-categories.page"
@@ -7391,6 +7477,7 @@
         "./server/index",
         "./server",
         "./ui/blog-categories.page",
+        "./ui/blog-comments.page",
         "./ui/blog-post-create-modal.component",
         "./ui/blog-posts-post-id.page",
         "./ui/blog-posts.page",
@@ -9248,6 +9335,16 @@
           "workspace": "crm",
           "order": 10,
           "scope": "tenant"
+        },
+        {
+          "id": "search-content",
+          "label": "Search",
+          "href": "/admin/search",
+          "icon": "fas fa-magnifying-glass",
+          "group": "Search",
+          "workspace": "content",
+          "order": 60,
+          "scope": "tenant"
         }
       ],
       "adminRoutes": [
@@ -9402,6 +9499,1794 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# analytics\n\nTenant-scoped **product analytics** — track behavioural events and read\naggregates over them (active users, top events, daily timeseries).\nFramework-agnostic (`modules/` layer); the Next bindings (admin dashboard + API\nroutes) live under `app/` and `modules_next/`.\n\n> Not to be confused with `metering` (usage-based **billing**) or\n> `observability` (ops/infra metrics). This module is about *product behaviour*:\n> what users do.\n\n## What it does\n\nA single append-only `AnalyticsEvent` row is written per tracked event. Reads are\npure aggregates over a date range:\n\n- **summary** — `totalEvents`, `uniqueUsers` (COUNT DISTINCT userId),\n  `uniqueSessions` (COUNT DISTINCT sessionId), and the top 10 events by count.\n- **timeseries** — counts grouped by `date_trunc(interval, createdAt)`, returned\n  as a **dense** series (missing buckets filled with `0`) for charts/tables.\n- **topEvents** — the top N events by count.\n\nTracking works for **anonymous visitors** — every identity field is optional, so\na public page can post a `page_view` with only an `anonymousId`.\n\n## Public API\n\n```ts\nimport { AnalyticsService } from \"@/modules/analytics\";\n\n// Track (await the save; safe to fire-and-forget at the route layer)\nawait AnalyticsService.track(tenantId, {\n  name: \"page_view\",\n  anonymousId,\n  sessionId,\n  path: \"/pricing\",\n  referrer: document.referrer,\n});\n\n// Aggregates (from/to default to last 30 days → now)\nconst s  = await AnalyticsService.summary(tenantId, { from, to });\nconst ts = await AnalyticsService.timeseries(tenantId, { interval: \"day\", from, to });\nconst te = await AnalyticsService.topEvents(tenantId, { limit: 10 });\n```\n\nThe pure timeseries gap-filler is exported for unit use:\n`fillTimeseriesGaps(points, from, to, interval)` and `truncateToBucket(date, interval)`.\n\n## Entities\n\n| Entity | Table | Notes |\n|---|---|---|\n| `AnalyticsEvent` | `analytics_events` | Append-only (no `updatedAt`). Composite `(tenantId, name, createdAt)` index backs the aggregate queries; `properties` is `jsonb`. |\n\n## Caching\n\n`summary()` is cached in Redis under\n`analytics:summary:{tenantId}:{fromMs}:{toMs}` (`TENANT_CACHE_TTL`, default 60s,\njittered), behind a single-flight to collapse concurrent misses.\n\n## Dependencies\n\n`db`, `env`, `redis`, `common`.\n\n## HTTP surface\n\n- `POST /tenant/{tenantId}/api/analytics/track` — track an event (soft auth: attaches `userId` if signed in, otherwise anonymous). Rate-limited.\n- `GET /tenant/{tenantId}/api/analytics/summary` — top-line summary (admin).\n- `GET /tenant/{tenantId}/api/analytics/timeseries` — dense daily/weekly/… series (admin).\n\nAdmin UI: `/tenant/{tenantId}/admin/analytics`.\n"
+    },
+    {
+      "id": "accounting",
+      "name": "Accounting",
+      "version": "1.0.0",
+      "description": "Tenant-scoped double-entry accounting: chart of accounts, journal entries/lines, fiscal periods.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/accounting",
+      "dir": "modules/accounting",
+      "icon": "fas fa-book",
+      "tags": [
+        "accounting",
+        "ledger",
+        "finance",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "accounting.account.service.ts",
+          "accounting.journal-entry.service.ts",
+          "accounting.journal.service.ts",
+          "accounting.ledger-line.service.ts",
+          "accounting.period.service.ts"
+        ],
+        "dtos": [
+          "accounting.dto.ts"
+        ],
+        "enums": [
+          "accounting.enums.ts"
+        ],
+        "messageKeys": [
+          "accounting.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "fiscal_periods.entity.ts",
+          "journal_entries.entity.ts",
+          "journal_lines.entity.ts",
+          "journals.entity.ts",
+          "ledger_accounts.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "accounting-accounts",
+          "label": "Chart of Accounts",
+          "href": "/admin/accounting/accounts",
+          "icon": "fas fa-book",
+          "group": "Finance",
+          "workspace": "erp",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "accounting-journal",
+          "label": "Journal",
+          "href": "/admin/accounting/journal",
+          "icon": "fas fa-pen-nib",
+          "group": "Finance",
+          "workspace": "erp",
+          "order": 20,
+          "scope": "tenant"
+        },
+        {
+          "id": "accounting-ledger",
+          "label": "Ledger",
+          "href": "/admin/accounting/ledger",
+          "icon": "fas fa-scale-balanced",
+          "group": "Finance",
+          "workspace": "erp",
+          "order": 30,
+          "scope": "tenant"
+        },
+        {
+          "id": "accounting-periods",
+          "label": "Periods",
+          "href": "/admin/accounting/periods",
+          "icon": "fas fa-calendar",
+          "group": "Finance",
+          "workspace": "erp",
+          "order": 40,
+          "scope": "tenant"
+        },
+        {
+          "id": "accounting-journals",
+          "label": "Journals",
+          "href": "/admin/accounting/journals",
+          "icon": "fas fa-folder-tree",
+          "group": "Configuration",
+          "workspace": "erp",
+          "order": 50,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/accounting/accounts",
+          "component": "accounting/ui/accounting-accounts.page"
+        },
+        {
+          "path": "/admin/accounting/journal",
+          "component": "accounting/ui/accounting-journal.page"
+        },
+        {
+          "path": "/admin/accounting/ledger",
+          "component": "accounting/ui/accounting-ledger.page"
+        },
+        {
+          "path": "/admin/accounting/periods",
+          "component": "accounting/ui/accounting-periods.page"
+        },
+        {
+          "path": "/admin/accounting/journals",
+          "component": "accounting/ui/accounting-journals.page"
+        },
+        {
+          "path": "/admin/accounting/journal/[entryId]",
+          "component": "accounting/ui/accounting-journal-entry-id.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/accounting/accounts",
+          "handler": "accounting/server/accounting-accounts.route"
+        },
+        {
+          "path": "/api/accounting/accounts/[accountId]",
+          "handler": "accounting/server/accounting-accounts-account-id.route"
+        },
+        {
+          "path": "/api/accounting/journal",
+          "handler": "accounting/server/accounting-journal.route"
+        },
+        {
+          "path": "/api/accounting/journals",
+          "handler": "accounting/server/accounting-journals.route"
+        },
+        {
+          "path": "/api/accounting/journals/[journalId]",
+          "handler": "accounting/server/accounting-journals-journal-id.route"
+        },
+        {
+          "path": "/api/accounting/journal/[entryId]",
+          "handler": "accounting/server/accounting-journal-entry-id.route"
+        },
+        {
+          "path": "/api/accounting/journal/[entryId]/lines",
+          "handler": "accounting/server/accounting-journal-entry-id-lines.route"
+        },
+        {
+          "path": "/api/accounting/journal/[entryId]/lines/[lineId]",
+          "handler": "accounting/server/accounting-journal-entry-id-lines-line-id.route"
+        },
+        {
+          "path": "/api/accounting/journal/[entryId]/post",
+          "handler": "accounting/server/accounting-journal-entry-id-post.route"
+        },
+        {
+          "path": "/api/accounting/journal/[entryId]/void",
+          "handler": "accounting/server/accounting-journal-entry-id-void.route"
+        },
+        {
+          "path": "/api/accounting/ledger",
+          "handler": "accounting/server/accounting-ledger.route"
+        },
+        {
+          "path": "/api/accounting/ledger/[lineId]",
+          "handler": "accounting/server/accounting-ledger-line-id.route"
+        },
+        {
+          "path": "/api/accounting/periods",
+          "handler": "accounting/server/accounting-periods.route"
+        },
+        {
+          "path": "/api/accounting/periods/[periodId]",
+          "handler": "accounting/server/accounting-periods-period-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/accounting.account.service",
+        "./server/accounting.journal.service",
+        "./server/accounting.journal-entry.service",
+        "./server/accounting.ledger-line.service",
+        "./server/accounting.period.service",
+        "./server/accounting.types",
+        "./server/accounting.dto",
+        "./server/accounting.messages",
+        "./server/accounting.enums",
+        "./server/accounting-accounts.route",
+        "./server/accounting-accounts-account-id.route",
+        "./server/accounting-journals.route",
+        "./server/accounting-journals-journal-id.route",
+        "./server/accounting-journal.route",
+        "./server/accounting-journal-entry-id.route",
+        "./server/accounting-journal-entry-id-lines.route",
+        "./server/accounting-journal-entry-id-lines-line-id.route",
+        "./server/accounting-journal-entry-id-post.route",
+        "./server/accounting-journal-entry-id-void.route",
+        "./server/accounting-ledger.route",
+        "./server/accounting-ledger-line-id.route",
+        "./server/accounting-periods.route",
+        "./server/accounting-periods-period-id.route",
+        "./server/entities/journals.entity",
+        "./server/entities/ledger_accounts.entity",
+        "./server/entities/journal_entries.entity",
+        "./server/entities/journal_lines.entity",
+        "./server/entities/fiscal_periods.entity",
+        "./server/index",
+        "./server",
+        "./ui/accounting-accounts.page",
+        "./ui/accounting-journals.page",
+        "./ui/accounting-journal.page",
+        "./ui/accounting-journal-entry-id.page",
+        "./ui/accounting-ledger.page",
+        "./ui/accounting-periods.page",
+        "./ui/journal-entry-status-badge.component",
+        "./ui/journal-lines-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Accounting Module\n\nTenant-scoped double-entry accounting: chart of accounts, journal entries/lines\nand fiscal periods. Every row is isolated by `tenantId`, and service methods take\n`tenantId` as their first argument (per `multi-tenancy-patterns.md`).\n\n> This module is **scaffolded** — entities, types, DTOs and a placeholder page\n> exist, but business logic and API routes are coming soon.\n\n## Entities\n\n- `LedgerAccount` (`ledger_accounts`) — chart-of-accounts node: `code`, `name`, `type` (`ASSET`/`LIABILITY`/`EQUITY`/`REVENUE`/`EXPENSE`), optional `parentId`, `isActive`.\n- `JournalEntry` (`journal_entries`) — a posting header: `number`, `description`, `status` (`DRAFT`/`POSTED`/`VOID`), `entryDate`, `postedAt`.\n- `JournalLine` (`journal_lines`) — a debit/credit line: `entryId`, `accountId`, `debit`, `credit`, `memo`.\n- `FiscalPeriod` (`fiscal_periods`) — an accounting period: `name`, `startDate`, `endDate`, `status`.\n\n## Menu\n\n- **Chart of Accounts** → `/admin/accounting/accounts`\n- **Journal** → `/admin/accounting/journal`\n- **Ledger** → `/admin/accounting/ledger`\n- **Periods** → `/admin/accounting/periods`\n\nAll items live in the `Finance` group of the `erp` workspace, scoped to `tenant`.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "form_builder",
+      "name": "Form Builder",
+      "version": "1.0.0",
+      "description": "Tenant-scoped form builder: custom forms, fields, and captured submissions.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/form_builder",
+      "dir": "modules/form_builder",
+      "icon": "fas fa-wpforms",
+      "tags": [
+        "forms",
+        "form-builder",
+        "cms",
+        "content"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "form_builder.field.service.ts",
+          "form_builder.form.service.ts",
+          "form_builder.service.ts",
+          "form_builder.submission.service.ts"
+        ],
+        "dtos": [
+          "form_builder.dto.ts"
+        ],
+        "enums": [
+          "form_builder.enums.ts"
+        ],
+        "messageKeys": [
+          "form_builder.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "form_fields.entity.ts",
+          "form_submissions.entity.ts",
+          "forms.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "form-builder-forms",
+          "label": "Forms",
+          "href": "/admin/forms",
+          "icon": "fas fa-wpforms",
+          "group": "Forms",
+          "workspace": "content",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "form-builder-submissions",
+          "label": "Submissions",
+          "href": "/admin/forms/submissions",
+          "icon": "fas fa-inbox",
+          "group": "Forms",
+          "workspace": "content",
+          "order": 20,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/forms",
+          "component": "form_builder/ui/forms.page"
+        },
+        {
+          "path": "/admin/forms/submissions",
+          "component": "form_builder/ui/form-submissions.page"
+        },
+        {
+          "path": "/admin/forms/[formId]",
+          "component": "form_builder/ui/forms-form-id.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/forms",
+          "handler": "form_builder/server/forms.route"
+        },
+        {
+          "path": "/api/forms/[formId]",
+          "handler": "form_builder/server/forms-form-id.route"
+        },
+        {
+          "path": "/api/forms/[formId]/lines",
+          "handler": "form_builder/server/forms-form-id-lines.route"
+        },
+        {
+          "path": "/api/forms/[formId]/lines/[fieldId]",
+          "handler": "form_builder/server/forms-form-id-lines-field-id.route"
+        },
+        {
+          "path": "/api/forms/[formId]/publish",
+          "handler": "form_builder/server/forms-form-id-publish.route"
+        },
+        {
+          "path": "/api/forms/[formId]/archive",
+          "handler": "form_builder/server/forms-form-id-archive.route"
+        },
+        {
+          "path": "/api/form-submissions",
+          "handler": "form_builder/server/form-submissions.route"
+        },
+        {
+          "path": "/api/form-submissions/[submissionId]",
+          "handler": "form_builder/server/form-submissions-submission-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/form_builder.service",
+        "./server/form_builder.form.service",
+        "./server/form_builder.field.service",
+        "./server/form_builder.submission.service",
+        "./server/forms.route",
+        "./server/forms-form-id.route",
+        "./server/forms-form-id-lines.route",
+        "./server/forms-form-id-lines-field-id.route",
+        "./server/forms-form-id-publish.route",
+        "./server/forms-form-id-archive.route",
+        "./server/form-submissions.route",
+        "./server/form-submissions-submission-id.route",
+        "./server/form_builder.types",
+        "./server/form_builder.dto",
+        "./server/form_builder.messages",
+        "./server/form_builder.enums",
+        "./server/entities/forms.entity",
+        "./server/entities/form_fields.entity",
+        "./server/entities/form_submissions.entity",
+        "./server/index",
+        "./server",
+        "./ui/forms.page",
+        "./ui/forms-form-id.page",
+        "./ui/form-fields-panel.component",
+        "./ui/form-submissions-panel.component",
+        "./ui/form-status-badge.component",
+        "./ui/form-submissions.page",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Form Builder Module\n\nTenant-scoped form builder: custom forms, configurable fields, and captured\nsubmissions. Every row is isolated by `tenantId` and every service method takes\n`tenantId` as its first argument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities, types and a placeholder service only.\n> Business logic and API routes are coming soon.\n\n## Entities\n\n- `Form` (`forms`) — `title`, `slug`, `status` (`DRAFT`/`PUBLISHED`/`ARCHIVED`); soft-deletable.\n- `FormField` (`form_fields`) — `formId`, `label`, `type`, `required`, `order`.\n- `FormSubmission` (`form_submissions`) — `formId`, `data` (captured JSON payload).\n\n## Menu\n\n- **Forms** — `/admin/forms` (workspace `content`).\n- **Submissions** — `/admin/forms/submissions` (workspace `content`).\n\n## Public API\n\nImport from the barrel `@kuraykaraaslan/form_builder`:\n\n| Export | Type | Use |\n|---|---|---|\n| `FormBuilderService` | class | Facade (placeholder — methods are future work) |\n| `FormStatusEnum` | Zod | Form lifecycle status |\n| `Create*DTO` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `FORM_BUILDER_MESSAGES` | object | Error/message constants |\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "hr",
+      "name": "HR",
+      "version": "1.0.0",
+      "description": "Tenant-scoped HR: employees, departments and leave requests.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr",
+      "dir": "modules/hr",
+      "icon": "fas fa-user-tie",
+      "tags": [
+        "hr",
+        "employees",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "hr.department.service.ts",
+          "hr.employee.service.ts",
+          "hr.leave-type.service.ts",
+          "hr.leave.service.ts"
+        ],
+        "dtos": [
+          "hr.dto.ts"
+        ],
+        "enums": [
+          "hr.enums.ts"
+        ],
+        "messageKeys": [
+          "hr.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "departments.entity.ts",
+          "employees.entity.ts",
+          "leave_requests.entity.ts",
+          "leave_types.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "hr-employees",
+          "label": "Employees",
+          "href": "/admin/hr/employees",
+          "icon": "fas fa-user-tie",
+          "group": "Employees",
+          "workspace": "hr",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "hr-departments",
+          "label": "Departments",
+          "href": "/admin/hr/departments",
+          "icon": "fas fa-sitemap",
+          "group": "Departments",
+          "workspace": "hr",
+          "order": 20,
+          "scope": "tenant"
+        },
+        {
+          "id": "hr-leave",
+          "label": "Leave",
+          "href": "/admin/hr/leave",
+          "icon": "fas fa-plane-departure",
+          "group": "Leave",
+          "workspace": "hr",
+          "order": 30,
+          "scope": "tenant"
+        },
+        {
+          "id": "hr-leave-types",
+          "label": "Leave Types",
+          "href": "/admin/hr/leave-types",
+          "icon": "fas fa-tags",
+          "group": "Configuration",
+          "workspace": "hr",
+          "order": 90,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/hr/employees",
+          "component": "hr/ui/hr-employees.page"
+        },
+        {
+          "path": "/admin/hr/employees/[employeeId]",
+          "component": "hr/ui/hr-employees-employee-id.page"
+        },
+        {
+          "path": "/admin/hr/leave-types",
+          "component": "hr/ui/hr-leave-types.page"
+        },
+        {
+          "path": "/admin/hr/departments",
+          "component": "hr/ui/hr-departments.page"
+        },
+        {
+          "path": "/admin/hr/leave",
+          "component": "hr/ui/hr-leave.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/hr/employees",
+          "handler": "hr/server/hr-employees.route"
+        },
+        {
+          "path": "/api/hr/employees/[employeeId]",
+          "handler": "hr/server/hr-employees-employee-id.route"
+        },
+        {
+          "path": "/api/hr/departments",
+          "handler": "hr/server/hr-departments.route"
+        },
+        {
+          "path": "/api/hr/departments/[departmentId]",
+          "handler": "hr/server/hr-departments-department-id.route"
+        },
+        {
+          "path": "/api/hr/leave",
+          "handler": "hr/server/hr-leave.route"
+        },
+        {
+          "path": "/api/hr/leave/[leaveId]",
+          "handler": "hr/server/hr-leave-leave-id.route"
+        },
+        {
+          "path": "/api/hr/leave/[leaveId]/approve",
+          "handler": "hr/server/hr-leave-leave-id-approve.route"
+        },
+        {
+          "path": "/api/hr/leave/[leaveId]/reject",
+          "handler": "hr/server/hr-leave-leave-id-reject.route"
+        },
+        {
+          "path": "/api/hr/leave-types",
+          "handler": "hr/server/hr-leave-types.route"
+        },
+        {
+          "path": "/api/hr/leave-types/[leaveTypeId]",
+          "handler": "hr/server/hr-leave-types-leave-type-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/hr.employee.service",
+        "./server/hr.department.service",
+        "./server/hr.leave.service",
+        "./server/hr.leave-type.service",
+        "./server/hr-employees.route",
+        "./server/hr-employees-employee-id.route",
+        "./server/hr-departments.route",
+        "./server/hr-departments-department-id.route",
+        "./server/hr-leave.route",
+        "./server/hr-leave-leave-id.route",
+        "./server/hr-leave-leave-id-approve.route",
+        "./server/hr-leave-leave-id-reject.route",
+        "./server/hr-leave-types.route",
+        "./server/hr-leave-types-leave-type-id.route",
+        "./server/hr.enums",
+        "./server/hr.types",
+        "./server/hr.dto",
+        "./server/hr.messages",
+        "./server/entities/departments.entity",
+        "./server/entities/employees.entity",
+        "./server/entities/leave_requests.entity",
+        "./server/entities/leave_types.entity",
+        "./server/index",
+        "./server",
+        "./ui/hr-employees.page",
+        "./ui/hr-employees-employee-id.page",
+        "./ui/hr-departments.page",
+        "./ui/hr-leave.page",
+        "./ui/hr-leave-types.page",
+        "./ui/hr-status-badge.component",
+        "./ui/employee-leave-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# HR Module\n\nTenant-scoped HR: employees, departments and leave requests. Every row is\nisolated by `tenantId` and service methods take `tenantId` as their first\nargument (per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@kuraykaraaslan/hr`:\n\n| Export | Type | Use |\n|---|---|---|\n| `EmployeeService` | class | Employee CRUD |\n| `DepartmentService` | class | Department CRUD |\n| `LeaveRequestService` | class | Leave request CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Row shapes |\n| `HR_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `Department` (`departments`) — `name`, `code`, `managerId?`, `isActive`.\n- `Employee` (`employees`) — `firstName`, `lastName`, `email`, `departmentId?`, `title?`, `status`, `hiredAt?`, `userId?`.\n- `LeaveRequest` (`leave_requests`) — `employeeId`, `type`, `startDate`, `endDate`, `status`, `reason?`.\n\n## Menu\n\n- **Employees** (`/admin/hr/employees`, workspace `hr`).\n- **Departments** (`/admin/hr/departments`, workspace `hr`).\n- **Leave** (`/admin/hr/leave`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "inventory",
+      "name": "Inventory",
+      "version": "1.0.0",
+      "description": "Tenant-scoped inventory: warehouses, stock locations, stock items, movements and counts.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/inventory",
+      "dir": "modules/inventory",
+      "icon": "fas fa-warehouse",
+      "tags": [
+        "inventory",
+        "warehouse",
+        "stock",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "inventory.count.service.ts",
+          "inventory.countLine.service.ts",
+          "inventory.movement.service.ts",
+          "inventory.reason.service.ts",
+          "inventory.service.ts",
+          "inventory.stockItem.service.ts",
+          "inventory.uom.service.ts",
+          "inventory.warehouse.service.ts"
+        ],
+        "dtos": [
+          "inventory.dto.ts"
+        ],
+        "enums": [
+          "inventory.enums.ts"
+        ],
+        "messageKeys": [
+          "inventory.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "inventory_count_lines.entity.ts",
+          "inventory_counts.entity.ts",
+          "inventory_locations.entity.ts",
+          "inventory_movement_reasons.entity.ts",
+          "inventory_movements.entity.ts",
+          "inventory_stock_items.entity.ts",
+          "inventory_warehouses.entity.ts",
+          "uoms.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "inventory-warehouses",
+          "label": "Warehouses",
+          "href": "/admin/inventory/warehouses",
+          "icon": "fas fa-warehouse",
+          "group": "Inventory",
+          "workspace": "erp",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "inventory-stock",
+          "label": "Stock",
+          "href": "/admin/inventory/stock",
+          "icon": "fas fa-boxes-stacked",
+          "group": "Inventory",
+          "workspace": "erp",
+          "order": 20,
+          "scope": "tenant"
+        },
+        {
+          "id": "inventory-movements",
+          "label": "Movements",
+          "href": "/admin/inventory/movements",
+          "icon": "fas fa-right-left",
+          "group": "Inventory",
+          "workspace": "erp",
+          "order": 30,
+          "scope": "tenant"
+        },
+        {
+          "id": "inventory-counts",
+          "label": "Counts",
+          "href": "/admin/inventory/counts",
+          "icon": "fas fa-list-check",
+          "group": "Inventory",
+          "workspace": "erp",
+          "order": 40,
+          "scope": "tenant"
+        },
+        {
+          "id": "inventory-uoms",
+          "label": "Units of Measure",
+          "href": "/admin/inventory/uoms",
+          "icon": "fas fa-ruler",
+          "group": "Configuration",
+          "workspace": "erp",
+          "order": 90,
+          "scope": "tenant"
+        },
+        {
+          "id": "inventory-reasons",
+          "label": "Movement Reasons",
+          "href": "/admin/inventory/reasons",
+          "icon": "fas fa-tags",
+          "group": "Configuration",
+          "workspace": "erp",
+          "order": 91,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/inventory/warehouses",
+          "component": "inventory/ui/inventory-warehouses.page"
+        },
+        {
+          "path": "/admin/inventory/stock",
+          "component": "inventory/ui/inventory-stock.page"
+        },
+        {
+          "path": "/admin/inventory/movements",
+          "component": "inventory/ui/inventory-movements.page"
+        },
+        {
+          "path": "/admin/inventory/counts",
+          "component": "inventory/ui/inventory-counts.page"
+        },
+        {
+          "path": "/admin/inventory/counts/[countId]",
+          "component": "inventory/ui/inventory-counts-count-id.page"
+        },
+        {
+          "path": "/admin/inventory/uoms",
+          "component": "inventory/ui/inventory-uoms.page"
+        },
+        {
+          "path": "/admin/inventory/reasons",
+          "component": "inventory/ui/inventory-reasons.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/inventory/warehouses",
+          "handler": "inventory/server/inventory-warehouses.route"
+        },
+        {
+          "path": "/api/inventory/warehouses/[warehouseId]",
+          "handler": "inventory/server/inventory-warehouses-warehouse-id.route"
+        },
+        {
+          "path": "/api/inventory/stock",
+          "handler": "inventory/server/inventory-stock.route"
+        },
+        {
+          "path": "/api/inventory/stock/[stockItemId]",
+          "handler": "inventory/server/inventory-stock-stock-item-id.route"
+        },
+        {
+          "path": "/api/inventory/movements",
+          "handler": "inventory/server/inventory-movements.route"
+        },
+        {
+          "path": "/api/inventory/movements/[movementId]",
+          "handler": "inventory/server/inventory-movements-movement-id.route"
+        },
+        {
+          "path": "/api/inventory/counts",
+          "handler": "inventory/server/inventory-counts.route"
+        },
+        {
+          "path": "/api/inventory/counts/[countId]",
+          "handler": "inventory/server/inventory-counts-count-id.route"
+        },
+        {
+          "path": "/api/inventory/counts/[countId]/lines",
+          "handler": "inventory/server/inventory-counts-count-id-lines.route"
+        },
+        {
+          "path": "/api/inventory/counts/[countId]/lines/[countLineId]",
+          "handler": "inventory/server/inventory-counts-count-id-lines-line-id.route"
+        },
+        {
+          "path": "/api/inventory/counts/[countId]/start",
+          "handler": "inventory/server/inventory-counts-count-id-start.route"
+        },
+        {
+          "path": "/api/inventory/counts/[countId]/close",
+          "handler": "inventory/server/inventory-counts-count-id-close.route"
+        },
+        {
+          "path": "/api/inventory/uoms",
+          "handler": "inventory/server/inventory-uoms.route"
+        },
+        {
+          "path": "/api/inventory/uoms/[uomId]",
+          "handler": "inventory/server/inventory-uoms-uom-id.route"
+        },
+        {
+          "path": "/api/inventory/reasons",
+          "handler": "inventory/server/inventory-reasons.route"
+        },
+        {
+          "path": "/api/inventory/reasons/[reasonId]",
+          "handler": "inventory/server/inventory-reasons-reason-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/inventory.service",
+        "./server/inventory.warehouse.service",
+        "./server/inventory.stockItem.service",
+        "./server/inventory.movement.service",
+        "./server/inventory.count.service",
+        "./server/inventory.countLine.service",
+        "./server/inventory.uom.service",
+        "./server/inventory.reason.service",
+        "./server/inventory.types",
+        "./server/inventory.dto",
+        "./server/inventory.messages",
+        "./server/inventory.enums",
+        "./server/inventory-warehouses.route",
+        "./server/inventory-warehouses-warehouse-id.route",
+        "./server/inventory-stock.route",
+        "./server/inventory-stock-stock-item-id.route",
+        "./server/inventory-movements.route",
+        "./server/inventory-movements-movement-id.route",
+        "./server/inventory-counts.route",
+        "./server/inventory-counts-count-id.route",
+        "./server/inventory-counts-count-id-lines.route",
+        "./server/inventory-counts-count-id-lines-line-id.route",
+        "./server/inventory-counts-count-id-start.route",
+        "./server/inventory-counts-count-id-close.route",
+        "./server/inventory-uoms.route",
+        "./server/inventory-uoms-uom-id.route",
+        "./server/inventory-reasons.route",
+        "./server/inventory-reasons-reason-id.route",
+        "./server/entities/inventory_warehouses.entity",
+        "./server/entities/inventory_locations.entity",
+        "./server/entities/inventory_stock_items.entity",
+        "./server/entities/inventory_movements.entity",
+        "./server/entities/inventory_counts.entity",
+        "./server/entities/inventory_count_lines.entity",
+        "./server/entities/uoms.entity",
+        "./server/entities/inventory_movement_reasons.entity",
+        "./server/index",
+        "./server",
+        "./ui/inventory-warehouses.page",
+        "./ui/inventory-stock.page",
+        "./ui/inventory-movements.page",
+        "./ui/inventory-counts.page",
+        "./ui/inventory-counts-count-id.page",
+        "./ui/inventory-uoms.page",
+        "./ui/inventory-reasons.page",
+        "./ui/count-status-badge.component",
+        "./ui/count-lines-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Inventory Module\n\nTenant-scoped inventory management: warehouses, stock locations, stock items,\nmovements and counts. Every row is isolated by `tenantId` and service methods\ntake `tenantId` as their first argument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities and types are in place; service logic and API\n> routes are coming soon.\n\n## Entities\n\n- `InventoryWarehouse` (`inventory_warehouses`) — a stock-holding site with `name`, `code` and `isActive` flag (soft-deletable).\n- `InventoryLocation` (`inventory_locations`) — a bin/zone within a warehouse, keyed by `warehouseId` (soft-deletable).\n- `InventoryStockItem` (`inventory_stock_items`) — on-hand `quantity`/`reserved` for a `sku` at a `warehouseId`/`locationId`, optionally linked to `productId`/`variantId`.\n- `InventoryMovement` (`inventory_movements`) — a stock change for a `stockItemId` with a `type` (`IN`/`OUT`/`TRANSFER`/`ADJUSTMENT`) and `quantity`.\n- `InventoryCount` (`inventory_counts`) — a stocktake against a `warehouseId` with a `status` and `countedAt` (soft-deletable).\n\n## Menu items\n\n- **Warehouses** — `/admin/inventory/warehouses`\n- **Stock** — `/admin/inventory/stock`\n- **Movements** — `/admin/inventory/movements`\n- **Counts** — `/admin/inventory/counts`\n\nAll live in the `Inventory` group of the `erp` workspace, tenant-scoped.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "navigation",
+      "name": "Navigation",
+      "version": "1.0.0",
+      "description": "Tenant-scoped site navigation menus (header/footer) with nested menu items.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/navigation",
+      "dir": "modules/navigation",
+      "icon": "fas fa-bars",
+      "tags": [
+        "navigation",
+        "menu",
+        "cms",
+        "content"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "navigation.item.service.ts",
+          "navigation.service.ts"
+        ],
+        "dtos": [
+          "navigation.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "navigation.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "navigation_items.entity.ts",
+          "navigation_menus.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "navigation-menus",
+          "label": "Menus",
+          "href": "/admin/navigation",
+          "icon": "fas fa-bars",
+          "group": "Navigation",
+          "workspace": "content",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/navigation",
+          "component": "navigation/ui/navigation.page"
+        },
+        {
+          "path": "/admin/navigation/[menuId]",
+          "component": "navigation/ui/navigation-menu-id.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/navigation/menus",
+          "handler": "navigation/server/navigation-menus.route"
+        },
+        {
+          "path": "/api/navigation/menus/[menuId]",
+          "handler": "navigation/server/navigation-menus-menu-id.route"
+        },
+        {
+          "path": "/api/navigation/menus/[menuId]/lines",
+          "handler": "navigation/server/navigation-menus-menu-id-lines.route"
+        },
+        {
+          "path": "/api/navigation/menus/[menuId]/lines/[itemId]",
+          "handler": "navigation/server/navigation-menus-menu-id-lines-item-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/navigation.service",
+        "./server/navigation.item.service",
+        "./server/navigation-menus.route",
+        "./server/navigation-menus-menu-id.route",
+        "./server/navigation-menus-menu-id-lines.route",
+        "./server/navigation-menus-menu-id-lines-item-id.route",
+        "./server/navigation.types",
+        "./server/navigation.dto",
+        "./server/navigation.messages",
+        "./server/entities/navigation_menus.entity",
+        "./server/entities/navigation_items.entity",
+        "./server/index",
+        "./server",
+        "./ui/navigation.page",
+        "./ui/navigation-menu-id.page",
+        "./ui/navigation-items-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Navigation Module\n\nTenant-scoped site navigation menus (header/footer) with nested menu items.\nEvery row is isolated by `tenantId` and every service method takes `tenantId`\nas its first argument (per `multi-tenancy-patterns.md`).\n\n## Entities\n\n- `NavigationMenu` (`navigation_menus`) — a named menu bound to a `location` (e.g. header/footer) with a `slug`.\n- `NavigationItem` (`navigation_items`) — a `label`/`url` entry belonging to a `menuId`, optionally nested under a `parentId`, with an `order`.\n\n## Menu\n\n- `Menus` (`/admin/navigation`) — manage a tenant's navigation menus.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "order",
+      "name": "Orders",
+      "version": "1.0.0",
+      "description": "Tenant-scoped core sales orders, order lines and status events. Bridges Commerce and ERP.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order",
+      "dir": "modules/order",
+      "icon": "fas fa-receipt",
+      "tags": [
+        "order",
+        "sales",
+        "commerce",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "order.line.service.ts",
+          "order.service.ts"
+        ],
+        "dtos": [
+          "order.dto.ts"
+        ],
+        "enums": [
+          "order.enums.ts"
+        ],
+        "messageKeys": [
+          "order.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "order_lines.entity.ts",
+          "order_status_events.entity.ts",
+          "orders.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "order-list-erp",
+          "label": "Orders",
+          "href": "/admin/orders",
+          "icon": "fas fa-receipt",
+          "group": "Sales",
+          "workspace": "erp",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "order-list-commerce",
+          "label": "Orders",
+          "href": "/admin/orders",
+          "icon": "fas fa-receipt",
+          "group": "Orders",
+          "workspace": "commerce",
+          "order": 5,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/orders",
+          "component": "order/ui/orders.page"
+        },
+        {
+          "path": "/admin/orders/[orderId]",
+          "component": "order/ui/orders-order-id.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/orders",
+          "handler": "order/server/orders.route"
+        },
+        {
+          "path": "/api/orders/[orderId]",
+          "handler": "order/server/orders-order-id.route"
+        },
+        {
+          "path": "/api/orders/[orderId]/lines",
+          "handler": "order/server/orders-order-id-lines.route"
+        },
+        {
+          "path": "/api/orders/[orderId]/lines/[lineId]",
+          "handler": "order/server/orders-order-id-lines-line-id.route"
+        },
+        {
+          "path": "/api/orders/[orderId]/confirm",
+          "handler": "order/server/orders-order-id-confirm.route"
+        },
+        {
+          "path": "/api/orders/[orderId]/fulfill",
+          "handler": "order/server/orders-order-id-fulfill.route"
+        },
+        {
+          "path": "/api/orders/[orderId]/cancel",
+          "handler": "order/server/orders-order-id-cancel.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/order.service",
+        "./server/order.line.service",
+        "./server/orders.route",
+        "./server/orders-order-id.route",
+        "./server/orders-order-id-lines.route",
+        "./server/orders-order-id-lines-line-id.route",
+        "./server/orders-order-id-confirm.route",
+        "./server/orders-order-id-fulfill.route",
+        "./server/orders-order-id-cancel.route",
+        "./server/order.types",
+        "./server/order.dto",
+        "./server/order.messages",
+        "./server/order.enums",
+        "./server/entities/orders.entity",
+        "./server/entities/order_lines.entity",
+        "./server/entities/order_status_events.entity",
+        "./server/index",
+        "./server",
+        "./ui/orders.page",
+        "./ui/orders-order-id.page",
+        "./ui/order-lines-panel.component",
+        "./ui/order-status-badge.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Order Module\n\nTenant-scoped core sales orders that bridge Commerce and ERP. Every row is\nisolated by `tenantId` and every service method takes `tenantId` as its first\nargument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities, types and DTOs are in place; service methods\n> and API routes are future work.\n\n## Entities\n\n- `Order` (`orders`) — `number`, `customerId`, `status` (`DRAFT`/`PENDING`/`PAID`/`FULFILLED`/`CANCELLED`/`REFUNDED`), `currency`, `total`, `placedAt`. Soft-deletable.\n- `OrderLine` (`order_lines`) — `orderId`, `productId`, `variantId`, `description`, `quantity`, `unitPrice`.\n- `OrderStatusEvent` (`order_status_events`) — `orderId`, `status`, `note` — an append-only status timeline.\n\n## Public API\n\nImport from the barrel `@/modules/order`:\n\n| Export | Type | Use |\n|---|---|---|\n| `OrderService` | class | Order/line/status-event management (placeholder) |\n| `Create*DTO` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `OrderStatusEnum` | Zod | Order status values |\n| `ORDER_MESSAGES` | object | Error/message constants |\n\n## Menu\n\n- **Orders** — `/admin/orders` (ERP workspace, *Sales* group)\n- **Orders** — `/admin/orders` (Commerce workspace, *Orders* group)\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "payroll",
+      "name": "Payroll",
+      "version": "1.0.0",
+      "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payroll",
+      "dir": "modules/payroll",
+      "icon": "fas fa-money-check-dollar",
+      "tags": [
+        "payroll",
+        "hr",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payroll.component.service.ts",
+          "payroll.line.service.ts",
+          "payroll.payslip.service.ts",
+          "payroll.run.service.ts"
+        ],
+        "dtos": [
+          "payroll.dto.ts"
+        ],
+        "enums": [
+          "payroll.enums.ts"
+        ],
+        "messageKeys": [
+          "payroll.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "payroll_runs.entity.ts",
+          "payslip_lines.entity.ts",
+          "payslips.entity.ts",
+          "salary_components.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "payroll-runs",
+          "label": "Payroll Runs",
+          "href": "/admin/payroll/runs",
+          "icon": "fas fa-money-check-dollar",
+          "group": "Payroll",
+          "workspace": "hr",
+          "order": 40,
+          "scope": "tenant"
+        },
+        {
+          "id": "payroll-payslips",
+          "label": "Payslips",
+          "href": "/admin/payroll/payslips",
+          "icon": "fas fa-file-invoice-dollar",
+          "group": "Payroll",
+          "workspace": "hr",
+          "order": 50,
+          "scope": "tenant"
+        },
+        {
+          "id": "payroll-components",
+          "label": "Salary Components",
+          "href": "/admin/payroll/components",
+          "icon": "fas fa-sliders",
+          "group": "Configuration",
+          "workspace": "hr",
+          "order": 60,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/payroll/runs",
+          "component": "payroll/ui/payroll-runs.page"
+        },
+        {
+          "path": "/admin/payroll/runs/[runId]",
+          "component": "payroll/ui/payroll-runs-run-id.page"
+        },
+        {
+          "path": "/admin/payroll/payslips",
+          "component": "payroll/ui/payroll-payslips.page"
+        },
+        {
+          "path": "/admin/payroll/payslips/[payslipId]",
+          "component": "payroll/ui/payroll-payslips-payslip-id.page"
+        },
+        {
+          "path": "/admin/payroll/components",
+          "component": "payroll/ui/payroll-components.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/payroll/runs",
+          "handler": "payroll/server/payroll-runs.route"
+        },
+        {
+          "path": "/api/payroll/runs/[runId]",
+          "handler": "payroll/server/payroll-runs-run-id.route"
+        },
+        {
+          "path": "/api/payroll/runs/[runId]/process",
+          "handler": "payroll/server/payroll-runs-run-id-process.route"
+        },
+        {
+          "path": "/api/payroll/runs/[runId]/pay",
+          "handler": "payroll/server/payroll-runs-run-id-pay.route"
+        },
+        {
+          "path": "/api/payroll/payslips",
+          "handler": "payroll/server/payroll-payslips.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]",
+          "handler": "payroll/server/payroll-payslips-payslip-id.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/issue",
+          "handler": "payroll/server/payroll-payslips-payslip-id-issue.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/pay",
+          "handler": "payroll/server/payroll-payslips-payslip-id-pay.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/lines",
+          "handler": "payroll/server/payroll-payslips-payslip-id-lines.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
+          "handler": "payroll/server/payroll-payslips-payslip-id-lines-line-id.route"
+        },
+        {
+          "path": "/api/payroll/components",
+          "handler": "payroll/server/payroll-components.route"
+        },
+        {
+          "path": "/api/payroll/components/[componentId]",
+          "handler": "payroll/server/payroll-components-component-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/payroll.run.service",
+        "./server/payroll.payslip.service",
+        "./server/payroll.line.service",
+        "./server/payroll.component.service",
+        "./server/payroll-runs.route",
+        "./server/payroll-runs-run-id.route",
+        "./server/payroll-runs-run-id-process.route",
+        "./server/payroll-runs-run-id-pay.route",
+        "./server/payroll-payslips.route",
+        "./server/payroll-payslips-payslip-id.route",
+        "./server/payroll-payslips-payslip-id-issue.route",
+        "./server/payroll-payslips-payslip-id-pay.route",
+        "./server/payroll-payslips-payslip-id-lines.route",
+        "./server/payroll-payslips-payslip-id-lines-line-id.route",
+        "./server/payroll-components.route",
+        "./server/payroll-components-component-id.route",
+        "./server/payroll.enums",
+        "./server/payroll.types",
+        "./server/payroll.dto",
+        "./server/payroll.messages",
+        "./server/entities/payroll_runs.entity",
+        "./server/entities/payslips.entity",
+        "./server/entities/payslip_lines.entity",
+        "./server/entities/salary_components.entity",
+        "./server/index",
+        "./server",
+        "./ui/payroll-runs.page",
+        "./ui/payroll-runs-run-id.page",
+        "./ui/payroll-payslips.page",
+        "./ui/payroll-payslips-payslip-id.page",
+        "./ui/payroll-components.page",
+        "./ui/payroll-status-badge.component",
+        "./ui/payslip-lines-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Payroll Module\n\nTenant-scoped payroll: payroll runs, payslips and salary components. Every row is\nisolated by `tenantId` and service methods take `tenantId` as their first argument\n(per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@/modules/payroll`:\n\n| Export | Type | Use |\n|---|---|---|\n| `PayrollRunService` | class | Payroll run CRUD |\n| `PayslipService` | class | Payslip CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Output typing |\n| `PAYROLL_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `PayrollRun` (`payroll_runs`) — `period`, `status`, `runDate` (soft-deletable).\n- `Payslip` (`payslips`) — `runId`, `employeeId`, `gross`, `deductions`, `net`, `status`.\n- `SalaryComponent` (`salary_components`) — `employeeId`, `type`, `name`, `amount` (soft-deletable).\n\n## Menu\n\n- **Payroll Runs** (`/admin/payroll/runs`, workspace `hr`).\n- **Payslips** (`/admin/payroll/payslips`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "procurement",
+      "name": "Procurement",
+      "version": "1.0.0",
+      "description": "Tenant-scoped procurement: purchase orders, their lines, and goods receipts.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/procurement",
+      "dir": "modules/procurement",
+      "icon": "fas fa-clipboard-list",
+      "tags": [
+        "procurement",
+        "purchase-order",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "procurement.goodsReceipt.service.ts",
+          "procurement.purchaseOrder.service.ts",
+          "procurement.purchaseOrderLine.service.ts",
+          "procurement.service.ts"
+        ],
+        "dtos": [
+          "procurement.dto.ts"
+        ],
+        "enums": [
+          "procurement.enums.ts"
+        ],
+        "messageKeys": [
+          "procurement.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "goods_receipt_lines.entity.ts",
+          "goods_receipts.entity.ts",
+          "purchase_order_lines.entity.ts",
+          "purchase_orders.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "procurement-purchase-orders",
+          "label": "Purchase Orders",
+          "href": "/admin/procurement/purchase-orders",
+          "icon": "fas fa-clipboard-list",
+          "group": "Procurement",
+          "workspace": "erp",
+          "order": 20,
+          "scope": "tenant"
+        },
+        {
+          "id": "procurement-receipts",
+          "label": "Goods Receipts",
+          "href": "/admin/procurement/receipts",
+          "icon": "fas fa-box-open",
+          "group": "Procurement",
+          "workspace": "erp",
+          "order": 30,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/procurement/purchase-orders",
+          "component": "procurement/ui/procurement-purchase-orders.page"
+        },
+        {
+          "path": "/admin/procurement/purchase-orders/[purchaseOrderId]",
+          "component": "procurement/ui/procurement-purchase-orders-purchase-order-id.page"
+        },
+        {
+          "path": "/admin/procurement/receipts",
+          "component": "procurement/ui/procurement-receipts.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/procurement/purchase-orders",
+          "handler": "procurement/server/procurement-purchase-orders.route"
+        },
+        {
+          "path": "/api/procurement/purchase-orders/[purchaseOrderId]",
+          "handler": "procurement/server/procurement-purchase-orders-purchase-order-id.route"
+        },
+        {
+          "path": "/api/procurement/purchase-orders/[purchaseOrderId]/lines",
+          "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-lines.route"
+        },
+        {
+          "path": "/api/procurement/purchase-orders/[purchaseOrderId]/lines/[lineId]",
+          "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-lines-line-id.route"
+        },
+        {
+          "path": "/api/procurement/purchase-orders/[purchaseOrderId]/order",
+          "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-order.route"
+        },
+        {
+          "path": "/api/procurement/purchase-orders/[purchaseOrderId]/receive",
+          "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-receive.route"
+        },
+        {
+          "path": "/api/procurement/purchase-orders/[purchaseOrderId]/cancel",
+          "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-cancel.route"
+        },
+        {
+          "path": "/api/procurement/receipts",
+          "handler": "procurement/server/procurement-receipts.route"
+        },
+        {
+          "path": "/api/procurement/receipts/[receiptId]",
+          "handler": "procurement/server/procurement-receipts-receipt-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/procurement.service",
+        "./server/procurement.purchaseOrder.service",
+        "./server/procurement.purchaseOrderLine.service",
+        "./server/procurement.goodsReceipt.service",
+        "./server/procurement-purchase-orders.route",
+        "./server/procurement-purchase-orders-purchase-order-id.route",
+        "./server/procurement-purchase-orders-purchase-order-id-lines.route",
+        "./server/procurement-purchase-orders-purchase-order-id-lines-line-id.route",
+        "./server/procurement-purchase-orders-purchase-order-id-order.route",
+        "./server/procurement-purchase-orders-purchase-order-id-receive.route",
+        "./server/procurement-purchase-orders-purchase-order-id-cancel.route",
+        "./server/procurement-receipts.route",
+        "./server/procurement-receipts-receipt-id.route",
+        "./server/procurement.types",
+        "./server/procurement.dto",
+        "./server/procurement.messages",
+        "./server/procurement.enums",
+        "./server/entities/purchase_orders.entity",
+        "./server/entities/purchase_order_lines.entity",
+        "./server/entities/goods_receipts.entity",
+        "./server/entities/goods_receipt_lines.entity",
+        "./server/index",
+        "./server",
+        "./ui/procurement-purchase-orders.page",
+        "./ui/procurement-purchase-orders-purchase-order-id.page",
+        "./ui/purchase-order-lines-panel.component",
+        "./ui/purchase-order-status-badge.component",
+        "./ui/procurement-receipts.page",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Procurement Module\n\nTenant-scoped procurement: purchase orders, their lines, and goods receipts.\nEvery row is isolated by `tenantId` and every service method takes `tenantId`\nas its first argument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities and types are defined; service logic and API\n> routes are future work.\n\n## Entities\n\n- `PurchaseOrder` (`purchase_orders`) — a supplier order with `number`, `status` (`DRAFT`/`ORDERED`/`RECEIVED`/`CANCELLED`), `currency`, `total`, `orderedAt`.\n- `PurchaseOrderLine` (`purchase_order_lines`) — a line on a purchase order with `productId`, `description`, `quantity`, `unitPrice`.\n- `GoodsReceipt` (`goods_receipts`) — a receipt against a purchase order with `number`, `status`, `receivedAt`.\n- `GoodsReceiptLine` (`goods_receipt_lines`) — a received line linking a receipt back to a `purchaseOrderLineId` with a `quantity`.\n\n## Menu\n\n- **Purchase Orders** — `/admin/procurement/purchase-orders` (workspace `erp`).\n- **Goods Receipts** — `/admin/procurement/receipts` (workspace `erp`).\n\n## Public API\n\nImport from the barrel `@/modules/procurement`:\n\n| Export | Type | Use |\n|---|---|---|\n| `ProcurementService` | class | Service facade (TODO) |\n| `PurchaseOrderStatusEnum` | Zod | Status enum |\n| `Create*DTO` | Zod | Input validation stubs |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `PROCUREMENT_MESSAGES` | object | Error/message constants |\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "redirect",
+      "name": "Redirects",
+      "version": "1.0.0",
+      "description": "Tenant-scoped URL redirect (301/302) rules for SEO-safe content moves.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redirect",
+      "dir": "modules/redirect",
+      "icon": "fas fa-arrow-right-arrow-left",
+      "tags": [
+        "redirect",
+        "seo",
+        "cms",
+        "content"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "redirect.service.ts"
+        ],
+        "dtos": [
+          "redirect.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "redirect.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "redirect_rules.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "redirect-rules",
+          "label": "Redirects",
+          "href": "/admin/redirects",
+          "icon": "fas fa-arrow-right-arrow-left",
+          "group": "Redirects",
+          "workspace": "content",
+          "order": 10,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/redirects",
+          "component": "redirect/ui/redirects.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/redirects",
+          "handler": "redirect/server/redirects.route"
+        },
+        {
+          "path": "/api/redirects/[redirectId]",
+          "handler": "redirect/server/redirects-redirect-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/redirect.service",
+        "./server/redirects.route",
+        "./server/redirects-redirect-id.route",
+        "./server/redirect.types",
+        "./server/redirect.dto",
+        "./server/redirect.messages",
+        "./server/entities/redirect_rules.entity",
+        "./server/index",
+        "./server",
+        "./ui/redirects.page",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Redirect Module\n\nTenant-scoped URL redirect (301/302) rules for SEO-safe content moves. Every row\nis isolated by `tenantId` and service methods take `tenantId` as their first\nargument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities, types and a placeholder service/page only.\n> Business logic and API routes are coming soon.\n\n## Public API\n\nImport from the barrel `@/modules/redirect`:\n\n| Export | Type | Use |\n|---|---|---|\n| `RedirectService` | class | Redirect-rule CRUD + lookup (placeholder) |\n| `Create*DTO` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `REDIRECT_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `RedirectRule` (`redirect_rules`) — `fromPath`, `toPath`, `statusCode` (301/302), `isActive`, `hits`.\n\n## Menu\n\n- **Redirects** (`/admin/redirects`, workspace `content`) — manage redirect rules.\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "supplier",
+      "name": "Suppliers",
+      "version": "1.0.0",
+      "description": "Tenant-scoped supplier/vendor master records and their contacts.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/supplier",
+      "dir": "modules/supplier",
+      "icon": "fas fa-truck",
+      "tags": [
+        "supplier",
+        "vendor",
+        "procurement",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "supplier.category.service.ts",
+          "supplier.contact.service.ts",
+          "supplier.service.ts"
+        ],
+        "dtos": [
+          "supplier.dto.ts"
+        ],
+        "enums": [],
+        "messageKeys": [
+          "supplier.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "supplier_categories.entity.ts",
+          "supplier_contacts.entity.ts",
+          "suppliers.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "supplier-list",
+          "label": "Suppliers",
+          "href": "/admin/suppliers",
+          "icon": "fas fa-truck",
+          "group": "Procurement",
+          "workspace": "erp",
+          "order": 10,
+          "scope": "tenant"
+        },
+        {
+          "id": "supplier-categories",
+          "label": "Categories",
+          "href": "/admin/suppliers/categories",
+          "icon": "fas fa-tags",
+          "group": "Configuration",
+          "workspace": "erp",
+          "order": 90,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/suppliers",
+          "component": "supplier/ui/suppliers.page"
+        },
+        {
+          "path": "/admin/suppliers/categories",
+          "component": "supplier/ui/supplier-categories.page"
+        },
+        {
+          "path": "/admin/suppliers/[supplierId]",
+          "component": "supplier/ui/suppliers-supplier-id.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/suppliers",
+          "handler": "supplier/server/suppliers.route"
+        },
+        {
+          "path": "/api/suppliers/categories",
+          "handler": "supplier/server/suppliers-categories.route"
+        },
+        {
+          "path": "/api/suppliers/categories/[categoryId]",
+          "handler": "supplier/server/suppliers-categories-category-id.route"
+        },
+        {
+          "path": "/api/suppliers/[supplierId]",
+          "handler": "supplier/server/suppliers-supplier-id.route"
+        },
+        {
+          "path": "/api/suppliers/[supplierId]/lines",
+          "handler": "supplier/server/suppliers-supplier-id-lines.route"
+        },
+        {
+          "path": "/api/suppliers/[supplierId]/lines/[contactId]",
+          "handler": "supplier/server/suppliers-supplier-id-lines-contact-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/supplier.service",
+        "./server/supplier.category.service",
+        "./server/supplier.contact.service",
+        "./server/suppliers.route",
+        "./server/suppliers-supplier-id.route",
+        "./server/suppliers-supplier-id-lines.route",
+        "./server/suppliers-supplier-id-lines-contact-id.route",
+        "./server/suppliers-categories.route",
+        "./server/suppliers-categories-category-id.route",
+        "./server/supplier.dto",
+        "./server/supplier.messages",
+        "./server/supplier.types",
+        "./server/entities/suppliers.entity",
+        "./server/entities/supplier_contacts.entity",
+        "./server/entities/supplier_categories.entity",
+        "./server/index",
+        "./server",
+        "./ui/suppliers.page",
+        "./ui/suppliers-supplier-id.page",
+        "./ui/supplier-categories.page",
+        "./ui/supplier-contacts-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Supplier Module\n\nTenant-scoped supplier/vendor master records and their contacts. Every row is\nisolated by `tenantId` and every service method takes `tenantId` as its first\nargument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities, types and barrel exports only. Service methods\n> and API routes are future work.\n\n## Public API\n\nImport from the barrel `@/modules/supplier`:\n\n| Export | Type | Use |\n|---|---|---|\n| `SupplierService` | class | Supplier + contact CRUD (placeholder) |\n| `Create*DTO` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `SUPPLIER_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `Supplier` (`suppliers`) — vendor master record: `name`, `code`, `email`, `phone`, `taxNumber`, `isActive` (soft-deletable).\n- `SupplierContact` (`supplier_contacts`) — a person at a supplier: `supplierId`, `name`, `email`, `phone`, `role`.\n\n## Menu\n\n- `Suppliers` → `/admin/suppliers` (group `Procurement`, workspace `erp`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
     },
     {
       "id": "api_doc",
@@ -10138,6 +12023,25 @@
       ]
     },
     {
+      "name": "Department",
+      "filePath": "modules/hr/server/entities/departments.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "departments",
+      "columns": [
+        "departmentId",
+        "tenantId",
+        "name",
+        "code",
+        "managerId",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "DriveFile",
       "filePath": "modules/drive/server/entities/drive_file.entity.ts",
       "module": "drive",
@@ -10334,6 +12238,29 @@
       "relations": []
     },
     {
+      "name": "Employee",
+      "filePath": "modules/hr/server/entities/employees.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "employees",
+      "columns": [
+        "employeeId",
+        "tenantId",
+        "firstName",
+        "lastName",
+        "email",
+        "departmentId",
+        "title",
+        "status",
+        "hiredAt",
+        "userId",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "FeatureFlag",
       "filePath": "modules/feature_flags/server/entities/feature_flag.entity.ts",
       "module": "feature_flags",
@@ -10368,6 +12295,77 @@
         "subjectId",
         "enabled",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FiscalPeriod",
+      "filePath": "modules/accounting/server/entities/fiscal_periods.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "fiscal_periods",
+      "columns": [
+        "periodId",
+        "tenantId",
+        "name",
+        "startDate",
+        "endDate",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Form",
+      "filePath": "modules/form_builder/server/entities/forms.entity.ts",
+      "module": "form_builder",
+      "schema": "system",
+      "tableName": "forms",
+      "columns": [
+        "formId",
+        "tenantId",
+        "title",
+        "slug",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FormField",
+      "filePath": "modules/form_builder/server/entities/form_fields.entity.ts",
+      "module": "form_builder",
+      "schema": "system",
+      "tableName": "form_fields",
+      "columns": [
+        "fieldId",
+        "tenantId",
+        "formId",
+        "label",
+        "type",
+        "required",
+        "order",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "FormSubmission",
+      "filePath": "modules/form_builder/server/entities/form_submissions.entity.ts",
+      "module": "form_builder",
+      "schema": "system",
+      "tableName": "form_submissions",
+      "columns": [
+        "submissionId",
+        "tenantId",
+        "formId",
+        "data",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },
@@ -10504,6 +12502,42 @@
       "relations": []
     },
     {
+      "name": "GoodsReceipt",
+      "filePath": "modules/procurement/server/entities/goods_receipts.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "goods_receipts",
+      "columns": [
+        "receiptId",
+        "tenantId",
+        "purchaseOrderId",
+        "number",
+        "status",
+        "receivedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "GoodsReceiptLine",
+      "filePath": "modules/procurement/server/entities/goods_receipt_lines.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "goods_receipt_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "receiptId",
+        "purchaseOrderLineId",
+        "quantity",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "IntegrationEvent",
       "filePath": "modules/integrations_hub/server/entities/integration_event.entity.ts",
       "module": "integrations_hub",
@@ -10519,6 +12553,122 @@
         "payload",
         "error",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryCount",
+      "filePath": "modules/inventory/server/entities/inventory_counts.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_counts",
+      "columns": [
+        "countId",
+        "tenantId",
+        "warehouseId",
+        "status",
+        "reference",
+        "lineCount",
+        "totalDiff",
+        "countedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryCountLine",
+      "filePath": "modules/inventory/server/entities/inventory_count_lines.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_count_lines",
+      "columns": [
+        "countLineId",
+        "tenantId",
+        "countId",
+        "stockItemId",
+        "systemQty",
+        "countedQty",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryLocation",
+      "filePath": "modules/inventory/server/entities/inventory_locations.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_locations",
+      "columns": [
+        "locationId",
+        "tenantId",
+        "warehouseId",
+        "name",
+        "code",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryMovement",
+      "filePath": "modules/inventory/server/entities/inventory_movements.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_movements",
+      "columns": [
+        "movementId",
+        "tenantId",
+        "stockItemId",
+        "type",
+        "quantity",
+        "reason",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryStockItem",
+      "filePath": "modules/inventory/server/entities/inventory_stock_items.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_stock_items",
+      "columns": [
+        "stockItemId",
+        "tenantId",
+        "warehouseId",
+        "locationId",
+        "productId",
+        "variantId",
+        "uomId",
+        "sku",
+        "quantity",
+        "reserved",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "InventoryWarehouse",
+      "filePath": "modules/inventory/server/entities/inventory_warehouses.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_warehouses",
+      "columns": [
+        "warehouseId",
+        "tenantId",
+        "name",
+        "code",
+        "address",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -10586,6 +12736,129 @@
         "sourceId",
         "metadata",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Journal",
+      "filePath": "modules/accounting/server/entities/journals.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "journals",
+      "columns": [
+        "journalId",
+        "tenantId",
+        "code",
+        "name",
+        "type",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "JournalEntry",
+      "filePath": "modules/accounting/server/entities/journal_entries.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "journal_entries",
+      "columns": [
+        "entryId",
+        "tenantId",
+        "journalId",
+        "number",
+        "description",
+        "status",
+        "totalDebit",
+        "totalCredit",
+        "entryDate",
+        "postedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "JournalLine",
+      "filePath": "modules/accounting/server/entities/journal_lines.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "journal_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "entryId",
+        "accountId",
+        "debit",
+        "credit",
+        "memo",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LeaveRequest",
+      "filePath": "modules/hr/server/entities/leave_requests.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "leave_requests",
+      "columns": [
+        "leaveId",
+        "tenantId",
+        "employeeId",
+        "type",
+        "leaveTypeId",
+        "startDate",
+        "endDate",
+        "status",
+        "reason",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LeaveType",
+      "filePath": "modules/hr/server/entities/leave_types.entity.ts",
+      "module": "hr",
+      "schema": "system",
+      "tableName": "leave_types",
+      "columns": [
+        "leaveTypeId",
+        "tenantId",
+        "name",
+        "code",
+        "paid",
+        "maxDaysPerYear",
+        "color",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "LedgerAccount",
+      "filePath": "modules/accounting/server/entities/ledger_accounts.entity.ts",
+      "module": "accounting",
+      "schema": "system",
+      "tableName": "ledger_accounts",
+      "columns": [
+        "accountId",
+        "tenantId",
+        "code",
+        "name",
+        "type",
+        "parentId",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -10832,6 +13105,62 @@
       "relations": []
     },
     {
+      "name": "MovementReason",
+      "filePath": "modules/inventory/server/entities/inventory_movement_reasons.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "inventory_movement_reasons",
+      "columns": [
+        "reasonId",
+        "tenantId",
+        "name",
+        "code",
+        "direction",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "NavigationItem",
+      "filePath": "modules/navigation/server/entities/navigation_items.entity.ts",
+      "module": "navigation",
+      "schema": "system",
+      "tableName": "navigation_items",
+      "columns": [
+        "itemId",
+        "tenantId",
+        "menuId",
+        "parentId",
+        "label",
+        "url",
+        "order",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "NavigationMenu",
+      "filePath": "modules/navigation/server/entities/navigation_menus.entity.ts",
+      "module": "navigation",
+      "schema": "system",
+      "tableName": "navigation_menus",
+      "columns": [
+        "menuId",
+        "tenantId",
+        "name",
+        "slug",
+        "location",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "NotificationLog",
       "filePath": "modules/notification_log/server/entities/notification_log.entity.ts",
       "module": "notification_log",
@@ -10870,6 +13199,66 @@
         "scope",
         "tokenType",
         "expiresAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Order",
+      "filePath": "modules/order/server/entities/orders.entity.ts",
+      "module": "order",
+      "schema": "system",
+      "tableName": "orders",
+      "columns": [
+        "orderId",
+        "tenantId",
+        "number",
+        "customerId",
+        "status",
+        "currency",
+        "reference",
+        "total",
+        "placedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "OrderLine",
+      "filePath": "modules/order/server/entities/order_lines.entity.ts",
+      "module": "order",
+      "schema": "system",
+      "tableName": "order_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "orderId",
+        "productId",
+        "variantId",
+        "description",
+        "quantity",
+        "unitPrice",
+        "amount",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "OrderStatusEvent",
+      "filePath": "modules/order/server/entities/order_status_events.entity.ts",
+      "module": "order",
+      "schema": "system",
+      "tableName": "order_status_events",
+      "columns": [
+        "eventId",
+        "tenantId",
+        "orderId",
+        "status",
+        "note",
         "createdAt",
         "updatedAt"
       ],
@@ -11004,6 +13393,62 @@
         "ipAddress",
         "userAgent",
         "processedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PayrollRun",
+      "filePath": "modules/payroll/server/entities/payroll_runs.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "payroll_runs",
+      "columns": [
+        "runId",
+        "tenantId",
+        "period",
+        "status",
+        "runDate",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Payslip",
+      "filePath": "modules/payroll/server/entities/payslips.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "payslips",
+      "columns": [
+        "payslipId",
+        "tenantId",
+        "runId",
+        "employeeId",
+        "gross",
+        "deductions",
+        "net",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PayslipLine",
+      "filePath": "modules/payroll/server/entities/payslip_lines.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "payslip_lines",
+      "columns": [
+        "payslipLineId",
+        "tenantId",
+        "payslipId",
+        "name",
+        "type",
+        "amount",
         "createdAt",
         "updatedAt"
       ],
@@ -11182,6 +13627,47 @@
       "relations": []
     },
     {
+      "name": "PurchaseOrder",
+      "filePath": "modules/procurement/server/entities/purchase_orders.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "purchase_orders",
+      "columns": [
+        "purchaseOrderId",
+        "tenantId",
+        "supplierId",
+        "number",
+        "status",
+        "currency",
+        "reference",
+        "total",
+        "orderedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "PurchaseOrderLine",
+      "filePath": "modules/procurement/server/entities/purchase_order_lines.entity.ts",
+      "module": "procurement",
+      "schema": "system",
+      "tableName": "purchase_order_lines",
+      "columns": [
+        "lineId",
+        "tenantId",
+        "purchaseOrderId",
+        "productId",
+        "description",
+        "quantity",
+        "unitPrice",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PushSubscription",
       "filePath": "modules/notification_push/server/entities/push_subscription.entity.ts",
       "module": "notification_push",
@@ -11198,6 +13684,26 @@
         "consentAt",
         "createdAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "RedirectRule",
+      "filePath": "modules/redirect/server/entities/redirect_rules.entity.ts",
+      "module": "redirect",
+      "schema": "system",
+      "tableName": "redirect_rules",
+      "columns": [
+        "redirectId",
+        "tenantId",
+        "fromPath",
+        "toPath",
+        "statusCode",
+        "isActive",
+        "hits",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -11272,6 +13778,25 @@
         "receivedAt",
         "refundedAt",
         "cancelledAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SalaryComponent",
+      "filePath": "modules/payroll/server/entities/salary_components.entity.ts",
+      "module": "payroll",
+      "schema": "system",
+      "tableName": "salary_components",
+      "columns": [
+        "componentId",
+        "tenantId",
+        "employeeId",
+        "type",
+        "name",
+        "amount",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -11862,6 +14387,65 @@
       "relations": []
     },
     {
+      "name": "Supplier",
+      "filePath": "modules/supplier/server/entities/suppliers.entity.ts",
+      "module": "supplier",
+      "schema": "system",
+      "tableName": "suppliers",
+      "columns": [
+        "supplierId",
+        "tenantId",
+        "name",
+        "code",
+        "categoryId",
+        "email",
+        "phone",
+        "taxNumber",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SupplierCategory",
+      "filePath": "modules/supplier/server/entities/supplier_categories.entity.ts",
+      "module": "supplier",
+      "schema": "system",
+      "tableName": "supplier_categories",
+      "columns": [
+        "categoryId",
+        "tenantId",
+        "name",
+        "code",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SupplierContact",
+      "filePath": "modules/supplier/server/entities/supplier_contacts.entity.ts",
+      "module": "supplier",
+      "schema": "system",
+      "tableName": "supplier_contacts",
+      "columns": [
+        "contactId",
+        "tenantId",
+        "supplierId",
+        "name",
+        "email",
+        "phone",
+        "role",
+        "createdAt",
+        "updatedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "SupportTicket",
       "filePath": "modules/support/server/entities/support_ticket.entity.ts",
       "module": "support",
@@ -12142,6 +14726,25 @@
         "source",
         "fetchedAt",
         "updatedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "UnitOfMeasure",
+      "filePath": "modules/inventory/server/entities/uoms.entity.ts",
+      "module": "inventory",
+      "schema": "system",
+      "tableName": "uoms",
+      "columns": [
+        "uomId",
+        "tenantId",
+        "name",
+        "code",
+        "ratio",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -12558,6 +15161,91 @@
     }
   ],
   "components": [
+    {
+      "id": "accounting/ui/accounting-accounts.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-accounts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-accounts.page"
+    },
+    {
+      "id": "accounting/ui/accounting-journal-entry-id.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journal-entry-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journal-entry-id.page"
+    },
+    {
+      "id": "accounting/ui/accounting-journal.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journal.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journal.page"
+    },
+    {
+      "id": "accounting/ui/accounting-journals.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journals.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journals.page"
+    },
+    {
+      "id": "accounting/ui/accounting-ledger.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-ledger.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-ledger.page"
+    },
+    {
+      "id": "accounting/ui/accounting-periods.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-periods.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-periods.page"
+    },
+    {
+      "id": "accounting/ui/journal-entry-status-badge.component",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/journal-entry-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "EntryStatus",
+        "JournalEntryStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "journal-entry-status-badge.component"
+    },
+    {
+      "id": "accounting/ui/journal-lines-panel.component",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/journal-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "JournalLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "journal-lines-panel.component"
+    },
     {
       "id": "ai_chat/ui/ai-chat-box.component",
       "module": "ai_chat",
@@ -13244,6 +15932,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "blog-categories.page"
+    },
+    {
+      "id": "blog/ui/blog-comments.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-comments.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-comments.page"
     },
     {
       "id": "blog/ui/blog-post-create-modal.component",
@@ -15556,6 +18254,73 @@
       "baseName": "feature-flags.page"
     },
     {
+      "id": "form_builder/ui/form-fields-panel.component",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-fields-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FormFieldsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-fields-panel.component"
+    },
+    {
+      "id": "form_builder/ui/form-status-badge.component",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FormStatus",
+        "FormStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-status-badge.component"
+    },
+    {
+      "id": "form_builder/ui/form-submissions-panel.component",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-submissions-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FormSubmissionsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-submissions-panel.component"
+    },
+    {
+      "id": "form_builder/ui/form-submissions.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-submissions.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-submissions.page"
+    },
+    {
+      "id": "form_builder/ui/forms-form-id.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/forms-form-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "forms-form-id.page"
+    },
+    {
+      "id": "form_builder/ui/forms.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/forms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "forms.page"
+    },
+    {
       "id": "gift_card/ui/gift-card-issue-modal.component",
       "module": "gift_card",
       "filePath": "modules/gift_card/ui/gift-card-issue-modal.component.tsx",
@@ -15601,6 +18366,81 @@
       "baseName": "gift-cards.page"
     },
     {
+      "id": "hr/ui/employee-leave-panel.component",
+      "module": "hr",
+      "filePath": "modules/hr/ui/employee-leave-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmployeeLeavePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "employee-leave-panel.component"
+    },
+    {
+      "id": "hr/ui/hr-departments.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-departments.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-departments.page"
+    },
+    {
+      "id": "hr/ui/hr-employees-employee-id.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-employees-employee-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-employees-employee-id.page"
+    },
+    {
+      "id": "hr/ui/hr-employees.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-employees.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-employees.page"
+    },
+    {
+      "id": "hr/ui/hr-leave-types.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-leave-types.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave-types.page"
+    },
+    {
+      "id": "hr/ui/hr-leave.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-leave.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave.page"
+    },
+    {
+      "id": "hr/ui/hr-status-badge.component",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LeaveStatusBadge",
+        "EmployeeStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-status-badge.component"
+    },
+    {
       "id": "integrations_hub/ui/connected-apps-columns.component",
       "module": "integrations_hub",
       "filePath": "modules/integrations_hub/ui/connected-apps-columns.component.tsx",
@@ -15644,6 +18484,101 @@
       "isClient": true,
       "isServer": false,
       "baseName": "integrations.page"
+    },
+    {
+      "id": "inventory/ui/count-lines-panel.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/count-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CountLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "count-lines-panel.component"
+    },
+    {
+      "id": "inventory/ui/count-status-badge.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/count-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CountStatus",
+        "CountStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "count-status-badge.component"
+    },
+    {
+      "id": "inventory/ui/inventory-counts-count-id.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-counts-count-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-counts-count-id.page"
+    },
+    {
+      "id": "inventory/ui/inventory-counts.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-counts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-counts.page"
+    },
+    {
+      "id": "inventory/ui/inventory-movements.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-movements.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-movements.page"
+    },
+    {
+      "id": "inventory/ui/inventory-reasons.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-reasons.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-reasons.page"
+    },
+    {
+      "id": "inventory/ui/inventory-stock.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-stock.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-stock.page"
+    },
+    {
+      "id": "inventory/ui/inventory-uoms.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-uoms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-uoms.page"
+    },
+    {
+      "id": "inventory/ui/inventory-warehouses.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-warehouses.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-warehouses.page"
     },
     {
       "id": "invoice/ui/earsiv-sms-sign-modal.component",
@@ -15855,6 +18790,16 @@
       "baseName": "gallery-panel.component"
     },
     {
+      "id": "media_gallery/ui/media-library.page",
+      "module": "media_gallery",
+      "filePath": "modules/media_gallery/ui/media-library.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "media-library.page"
+    },
+    {
       "id": "metering/ui/metering-columns.component",
       "module": "metering",
       "filePath": "modules/metering/ui/metering-columns.component.tsx",
@@ -15880,6 +18825,38 @@
       "isClient": true,
       "isServer": false,
       "baseName": "metering.page"
+    },
+    {
+      "id": "navigation/ui/navigation-items-panel.component",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation-items-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavigationItemsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation-items-panel.component"
+    },
+    {
+      "id": "navigation/ui/navigation-menu-id.page",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation-menu-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation-menu-id.page"
+    },
+    {
+      "id": "navigation/ui/navigation.page",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation.page"
     },
     {
       "id": "notification_inapp/hooks/use-notifications.hook",
@@ -15974,6 +18951,61 @@
       "isClient": false,
       "isServer": false,
       "baseName": "health.types"
+    },
+    {
+      "id": "order_fulfillment/ui/fulfillment.page",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/fulfillment.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fulfillment.page"
+    },
+    {
+      "id": "order/ui/order-lines-panel.component",
+      "module": "order",
+      "filePath": "modules/order/ui/order-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "OrderLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "order-lines-panel.component"
+    },
+    {
+      "id": "order/ui/order-status-badge.component",
+      "module": "order",
+      "filePath": "modules/order/ui/order-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "OrderStatus",
+        "OrderStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "order-status-badge.component"
+    },
+    {
+      "id": "order/ui/orders-order-id.page",
+      "module": "order",
+      "filePath": "modules/order/ui/orders-order-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "orders-order-id.page"
+    },
+    {
+      "id": "order/ui/orders.page",
+      "module": "order",
+      "filePath": "modules/order/ui/orders.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "orders.page"
     },
     {
       "id": "payment/ui/billing-profile-tab.component",
@@ -16188,6 +19220,83 @@
       "baseName": "wallet-badges.component"
     },
     {
+      "id": "payroll/ui/payroll-components.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-components.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-components.page"
+    },
+    {
+      "id": "payroll/ui/payroll-payslips-payslip-id.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-payslips-payslip-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-payslips-payslip-id.page"
+    },
+    {
+      "id": "payroll/ui/payroll-payslips.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-payslips.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-payslips.page"
+    },
+    {
+      "id": "payroll/ui/payroll-runs-run-id.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-runs-run-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-runs-run-id.page"
+    },
+    {
+      "id": "payroll/ui/payroll-runs.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-runs.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-runs.page"
+    },
+    {
+      "id": "payroll/ui/payroll-status-badge.component",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PayslipStatus",
+        "RunStatus",
+        "PayslipStatusBadge",
+        "RunStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-status-badge.component"
+    },
+    {
+      "id": "payroll/ui/payslip-lines-panel.component",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payslip-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PayslipLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payslip-lines-panel.component"
+    },
+    {
       "id": "plugin_runtime/ui/plugin-frame.component",
       "module": "plugin_runtime",
       "filePath": "modules/plugin_runtime/ui/plugin-frame.component.tsx",
@@ -16208,6 +19317,71 @@
       "isClient": true,
       "isServer": false,
       "baseName": "plugin-host.page"
+    },
+    {
+      "id": "procurement/ui/procurement-purchase-orders-purchase-order-id.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-purchase-orders-purchase-order-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-purchase-orders-purchase-order-id.page"
+    },
+    {
+      "id": "procurement/ui/procurement-purchase-orders.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-purchase-orders.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-purchase-orders.page"
+    },
+    {
+      "id": "procurement/ui/procurement-receipts.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-receipts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-receipts.page"
+    },
+    {
+      "id": "procurement/ui/purchase-order-lines-panel.component",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/purchase-order-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PurchaseOrderLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "purchase-order-lines-panel.component"
+    },
+    {
+      "id": "procurement/ui/purchase-order-status-badge.component",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/purchase-order-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PurchaseOrderStatus",
+        "PurchaseOrderStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "purchase-order-status-badge.component"
+    },
+    {
+      "id": "redirect/ui/redirects.page",
+      "module": "redirect",
+      "filePath": "modules/redirect/ui/redirects.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "redirects.page"
     },
     {
       "id": "search/ui/search.page",
@@ -16242,6 +19416,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "seo-panel.component"
+    },
+    {
+      "id": "seo/ui/seo.page",
+      "module": "seo",
+      "filePath": "modules/seo/ui/seo.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "seo.page"
     },
     {
       "id": "seo/ui/web-vitals.client",
@@ -16765,6 +19949,48 @@
       "isClient": true,
       "isServer": false,
       "baseName": "store-products.page"
+    },
+    {
+      "id": "supplier/ui/supplier-categories.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/supplier-categories.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "supplier-categories.page"
+    },
+    {
+      "id": "supplier/ui/supplier-contacts-panel.component",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/supplier-contacts-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SupplierContactsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "supplier-contacts-panel.component"
+    },
+    {
+      "id": "supplier/ui/suppliers-supplier-id.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/suppliers-supplier-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "suppliers-supplier-id.page"
+    },
+    {
+      "id": "supplier/ui/suppliers.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/suppliers.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "suppliers.page"
     },
     {
       "id": "support/ui/support-ticket-columns.component",

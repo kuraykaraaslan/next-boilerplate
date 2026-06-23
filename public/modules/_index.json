@@ -769,7 +769,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 1,
-    "componentCount": 3,
+    "componentCount": 4,
     "file": "seo.md"
   },
   "auth_e_signature": {
@@ -798,7 +798,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 2,
-    "componentCount": 1,
+    "componentCount": 2,
     "file": "media_gallery.md"
   },
   "drive": {
@@ -879,10 +879,10 @@
       "shipping",
       "ecommerce"
     ],
-    "hasNextLayer": false,
+    "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 4,
-    "componentCount": 0,
+    "componentCount": 1,
     "file": "order_fulfillment.md"
   },
   "product_review": {
@@ -913,7 +913,7 @@
     "hasNextLayer": true,
     "routeCount": 0,
     "entityCount": 3,
-    "componentCount": 5,
+    "componentCount": 6,
     "file": "blog.md"
   },
   "messaging": {
@@ -1130,6 +1130,153 @@
     "entityCount": 1,
     "componentCount": 1,
     "file": "analytics.md"
+  },
+  "accounting": {
+    "name": "Accounting",
+    "tier": "other",
+    "tags": [
+      "accounting",
+      "ledger",
+      "finance",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 5,
+    "componentCount": 8,
+    "file": "accounting.md"
+  },
+  "form_builder": {
+    "name": "Form Builder",
+    "tier": "other",
+    "tags": [
+      "forms",
+      "form-builder",
+      "cms",
+      "content"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 6,
+    "file": "form_builder.md"
+  },
+  "hr": {
+    "name": "HR",
+    "tier": "other",
+    "tags": [
+      "hr",
+      "employees",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 4,
+    "componentCount": 7,
+    "file": "hr.md"
+  },
+  "inventory": {
+    "name": "Inventory",
+    "tier": "other",
+    "tags": [
+      "inventory",
+      "warehouse",
+      "stock",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 8,
+    "componentCount": 9,
+    "file": "inventory.md"
+  },
+  "navigation": {
+    "name": "Navigation",
+    "tier": "other",
+    "tags": [
+      "navigation",
+      "menu",
+      "cms",
+      "content"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 3,
+    "file": "navigation.md"
+  },
+  "order": {
+    "name": "Orders",
+    "tier": "other",
+    "tags": [
+      "order",
+      "sales",
+      "commerce",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 4,
+    "file": "order.md"
+  },
+  "payroll": {
+    "name": "Payroll",
+    "tier": "other",
+    "tags": [
+      "payroll",
+      "hr",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 4,
+    "componentCount": 7,
+    "file": "payroll.md"
+  },
+  "procurement": {
+    "name": "Procurement",
+    "tier": "other",
+    "tags": [
+      "procurement",
+      "purchase-order",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 4,
+    "componentCount": 5,
+    "file": "procurement.md"
+  },
+  "redirect": {
+    "name": "Redirects",
+    "tier": "other",
+    "tags": [
+      "redirect",
+      "seo",
+      "cms",
+      "content"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 1,
+    "componentCount": 1,
+    "file": "redirect.md"
+  },
+  "supplier": {
+    "name": "Suppliers",
+    "tier": "other",
+    "tags": [
+      "supplier",
+      "vendor",
+      "procurement",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 3,
+    "componentCount": 4,
+    "file": "supplier.md"
   },
   "api_doc": {
     "name": "API Documentation",

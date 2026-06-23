@@ -104,6 +104,30 @@ There are **47 modules** under `modules/`. Eighteen of them also have a Next/Rea
 
 ---
 
+### Content / CMS
+
+> Surfaced in the **Content** workspace. `navigation`, `form_builder` and `redirect` are scaffolded skeletons (entities + manifest + placeholder admin pages); business logic is incremental.
+
+| Module | Description | Key entities | Deps |
+|---|---|---|---|
+| [navigation](navigation/) | Site navigation menus (header/footer) with nested items. | `navigation_menus`, `navigation_items` | db, redis, setting |
+| [form_builder](form_builder/) | Custom forms, fields and captured submissions. | `forms`, `form_fields`, `form_submissions` | db, redis, setting |
+| [redirect](redirect/) | URL redirect (301/302) rules for SEO-safe content moves. | `redirect_rules` | db, redis, setting |
+
+### ERP / back-office
+
+> Surfaced in the new **ERP** workspace. All scaffolded skeletons; `order` also cross-lists into the Commerce workspace.
+
+| Module | Description | Key entities | Deps |
+|---|---|---|---|
+| [order](order/) | Core sales orders, lines and status events. Bridges Commerce/ERP. | `orders`, `order_lines`, `order_status_events` | db, redis, setting |
+| [inventory](inventory/) | Warehouses, locations, stock items, movements and counts. | `inventory_warehouses`, `inventory_locations`, `inventory_stock_items`, `inventory_movements`, `inventory_counts` | db, redis, setting |
+| [supplier](supplier/) | Supplier/vendor master records and contacts. | `suppliers`, `supplier_contacts` | db, redis, setting |
+| [procurement](procurement/) | Purchase orders, their lines and goods receipts. | `purchase_orders`, `purchase_order_lines`, `goods_receipts`, `goods_receipt_lines` | db, redis, setting |
+| [accounting](accounting/) | Chart of accounts, journal entries/lines, fiscal periods. | `ledger_accounts`, `journal_entries`, `journal_lines`, `fiscal_periods` | db, redis, setting |
+
+---
+
 ## Dependency snapshot
 
 Most-imported modules (from grep counts across `modules/`):

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T08:53:57.457Z",
+  "generatedAt": "2026-06-23T15:27:01.997Z",
   "menu": [
     {
       "id": "settings",
@@ -26,6 +26,18 @@
       "moduleId": "marketplace"
     },
     {
+      "id": "order-list-commerce",
+      "label": "Orders",
+      "href": "/admin/orders",
+      "icon": "fas fa-receipt",
+      "group": "Orders",
+      "workspace": "commerce",
+      "order": 5,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "order"
+    },
+    {
       "id": "marketplace-developer",
       "label": "Developer",
       "href": "/admin/developer",
@@ -36,6 +48,18 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "marketplace"
+    },
+    {
+      "id": "accounting-accounts",
+      "label": "Chart of Accounts",
+      "href": "/admin/accounting/accounts",
+      "icon": "fas fa-book",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "accounting"
     },
     {
       "id": "agreements",
@@ -170,6 +194,18 @@
       "moduleId": "feature_flags"
     },
     {
+      "id": "form-builder-forms",
+      "label": "Forms",
+      "href": "/admin/forms",
+      "icon": "fas fa-wpforms",
+      "group": "Forms",
+      "workspace": "content",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
       "id": "gift-cards",
       "label": "Gift Cards",
       "href": "/admin/gift-cards",
@@ -182,6 +218,18 @@
       "moduleId": "gift_card"
     },
     {
+      "id": "hr-employees",
+      "label": "Employees",
+      "href": "/admin/hr/employees",
+      "icon": "fas fa-user-tie",
+      "group": "Employees",
+      "workspace": "hr",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
       "id": "integrations",
       "label": "Integrations",
       "href": "/admin/integrations",
@@ -192,6 +240,18 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "integrations_hub"
+    },
+    {
+      "id": "inventory-warehouses",
+      "label": "Warehouses",
+      "href": "/admin/inventory/warehouses",
+      "icon": "fas fa-warehouse",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "inventory"
     },
     {
       "id": "invitations",
@@ -228,6 +288,30 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "metering"
+    },
+    {
+      "id": "navigation-menus",
+      "label": "Menus",
+      "href": "/admin/navigation",
+      "icon": "fas fa-bars",
+      "group": "Navigation",
+      "workspace": "content",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "navigation"
+    },
+    {
+      "id": "order-list-erp",
+      "label": "Orders",
+      "href": "/admin/orders",
+      "icon": "fas fa-receipt",
+      "group": "Sales",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "order"
     },
     {
       "id": "pages",
@@ -290,6 +374,18 @@
       "moduleId": "user"
     },
     {
+      "id": "redirect-rules",
+      "label": "Redirects",
+      "href": "/admin/redirects",
+      "icon": "fas fa-arrow-right-arrow-left",
+      "group": "Redirects",
+      "workspace": "content",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "redirect"
+    },
+    {
       "id": "saml",
       "label": "SAML SSO",
       "href": "/admin/saml",
@@ -326,6 +422,18 @@
       "moduleId": "store"
     },
     {
+      "id": "store-products-erp",
+      "label": "Products",
+      "href": "/admin/store/products",
+      "icon": "fas fa-box",
+      "group": "Catalog",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
       "id": "subscription",
       "label": "Subscription",
       "href": "/admin/subscription",
@@ -336,6 +444,18 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "tenant_subscription"
+    },
+    {
+      "id": "supplier-list",
+      "label": "Suppliers",
+      "href": "/admin/suppliers",
+      "icon": "fas fa-truck",
+      "group": "Procurement",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "supplier"
     },
     {
       "id": "support",
@@ -410,6 +530,18 @@
       "moduleId": "payment"
     },
     {
+      "id": "accounting-journal",
+      "label": "Journal",
+      "href": "/admin/accounting/journal",
+      "icon": "fas fa-pen-nib",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
       "id": "blocks",
       "label": "Blocks",
       "href": "/admin/blocks",
@@ -458,6 +590,78 @@
       "moduleId": "drive"
     },
     {
+      "id": "form-builder-submissions",
+      "label": "Submissions",
+      "href": "/admin/forms/submissions",
+      "icon": "fas fa-inbox",
+      "group": "Forms",
+      "workspace": "content",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
+      "id": "hr-departments",
+      "label": "Departments",
+      "href": "/admin/hr/departments",
+      "icon": "fas fa-sitemap",
+      "group": "Departments",
+      "workspace": "hr",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "id": "inventory-stock",
+      "label": "Stock",
+      "href": "/admin/inventory/stock",
+      "icon": "fas fa-boxes-stacked",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "id": "media-library",
+      "label": "Media Library",
+      "href": "/admin/media",
+      "icon": "fas fa-images",
+      "group": "Media",
+      "workspace": "content",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "media_gallery"
+    },
+    {
+      "id": "order-fulfillment-erp",
+      "label": "Fulfillment",
+      "href": "/admin/fulfillment",
+      "icon": "fas fa-box",
+      "group": "Sales",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "id": "procurement-purchase-orders",
+      "label": "Purchase Orders",
+      "href": "/admin/procurement/purchase-orders",
+      "icon": "fas fa-clipboard-list",
+      "group": "Procurement",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
       "id": "store-products",
       "label": "Products",
       "href": "/admin/store/products",
@@ -468,6 +672,54 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "store"
+    },
+    {
+      "id": "accounting-ledger",
+      "label": "Ledger",
+      "href": "/admin/accounting/ledger",
+      "icon": "fas fa-scale-balanced",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "id": "blog-comments",
+      "label": "Comments",
+      "href": "/admin/blog/comments",
+      "icon": "fas fa-comments",
+      "group": "Blog",
+      "workspace": "content",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "blog"
+    },
+    {
+      "id": "hr-leave",
+      "label": "Leave",
+      "href": "/admin/hr/leave",
+      "icon": "fas fa-plane-departure",
+      "group": "Leave",
+      "workspace": "hr",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "id": "inventory-movements",
+      "label": "Movements",
+      "href": "/admin/inventory/movements",
+      "icon": "fas fa-right-left",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "inventory"
     },
     {
       "id": "marketplace-review",
@@ -482,6 +734,30 @@
       "moduleId": "marketplace"
     },
     {
+      "id": "procurement-receipts",
+      "label": "Goods Receipts",
+      "href": "/admin/procurement/receipts",
+      "icon": "fas fa-box-open",
+      "group": "Procurement",
+      "workspace": "erp",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
+      "id": "seo-overview",
+      "label": "SEO",
+      "href": "/admin/seo",
+      "icon": "fas fa-magnifying-glass-chart",
+      "group": "SEO",
+      "workspace": "content",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "seo"
+    },
+    {
       "id": "store-bundles",
       "label": "Bundles",
       "href": "/admin/store/bundles",
@@ -492,6 +768,150 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "store"
+    },
+    {
+      "id": "accounting-periods",
+      "label": "Periods",
+      "href": "/admin/accounting/periods",
+      "icon": "fas fa-calendar",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 40,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "id": "inventory-counts",
+      "label": "Counts",
+      "href": "/admin/inventory/counts",
+      "icon": "fas fa-list-check",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 40,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "id": "payroll-runs",
+      "label": "Payroll Runs",
+      "href": "/admin/payroll/runs",
+      "icon": "fas fa-money-check-dollar",
+      "group": "Payroll",
+      "workspace": "hr",
+      "order": 40,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "id": "accounting-journals",
+      "label": "Journals",
+      "href": "/admin/accounting/journals",
+      "icon": "fas fa-folder-tree",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 50,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "id": "invoice-list-erp",
+      "label": "Invoices",
+      "href": "/admin/invoices",
+      "icon": "fas fa-file-invoice",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 50,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "invoice"
+    },
+    {
+      "id": "payroll-payslips",
+      "label": "Payslips",
+      "href": "/admin/payroll/payslips",
+      "icon": "fas fa-file-invoice-dollar",
+      "group": "Payroll",
+      "workspace": "hr",
+      "order": 50,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "id": "payroll-components",
+      "label": "Salary Components",
+      "href": "/admin/payroll/components",
+      "icon": "fas fa-sliders",
+      "group": "Configuration",
+      "workspace": "hr",
+      "order": 60,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "id": "search-content",
+      "label": "Search",
+      "href": "/admin/search",
+      "icon": "fas fa-magnifying-glass",
+      "group": "Search",
+      "workspace": "content",
+      "order": 60,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "search"
+    },
+    {
+      "id": "hr-leave-types",
+      "label": "Leave Types",
+      "href": "/admin/hr/leave-types",
+      "icon": "fas fa-tags",
+      "group": "Configuration",
+      "workspace": "hr",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "id": "inventory-uoms",
+      "label": "Units of Measure",
+      "href": "/admin/inventory/uoms",
+      "icon": "fas fa-ruler",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "id": "supplier-categories",
+      "label": "Categories",
+      "href": "/admin/suppliers/categories",
+      "icon": "fas fa-tags",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "supplier"
+    },
+    {
+      "id": "inventory-reasons",
+      "label": "Movement Reasons",
+      "href": "/admin/inventory/reasons",
+      "icon": "fas fa-tags",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 91,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "inventory"
     }
   ],
   "pageRoutes": [
@@ -500,6 +920,42 @@
       "componentId": "common/ui/admin-dashboard.page",
       "permissions": [],
       "moduleId": "common"
+    },
+    {
+      "path": "/admin/accounting/accounts",
+      "componentId": "accounting/ui/accounting-accounts.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/journal",
+      "componentId": "accounting/ui/accounting-journal.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/journal/[entryId]",
+      "componentId": "accounting/ui/accounting-journal-entry-id.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/journals",
+      "componentId": "accounting/ui/accounting-journals.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/ledger",
+      "componentId": "accounting/ui/accounting-ledger.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/periods",
+      "componentId": "accounting/ui/accounting-periods.page",
+      "permissions": [],
+      "moduleId": "accounting"
     },
     {
       "path": "/admin/ai",
@@ -592,6 +1048,12 @@
       "moduleId": "blog"
     },
     {
+      "path": "/admin/blog/comments",
+      "componentId": "blog/ui/blog-comments.page",
+      "permissions": [],
+      "moduleId": "blog"
+    },
+    {
       "path": "/admin/blog/posts",
       "componentId": "blog/ui/blog-posts.page",
       "permissions": [],
@@ -664,6 +1126,30 @@
       "moduleId": "observability"
     },
     {
+      "path": "/admin/forms",
+      "componentId": "form_builder/ui/forms.page",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/admin/forms/[formId]",
+      "componentId": "form_builder/ui/forms-form-id.page",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/admin/forms/submissions",
+      "componentId": "form_builder/ui/form-submissions.page",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/admin/fulfillment",
+      "componentId": "order_fulfillment/ui/fulfillment.page",
+      "permissions": [],
+      "moduleId": "order_fulfillment"
+    },
+    {
       "path": "/admin/gift-cards",
       "componentId": "gift_card/ui/gift-cards.page",
       "permissions": [],
@@ -682,6 +1168,36 @@
       "moduleId": "observability"
     },
     {
+      "path": "/admin/hr/departments",
+      "componentId": "hr/ui/hr-departments.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "path": "/admin/hr/employees",
+      "componentId": "hr/ui/hr-employees.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "path": "/admin/hr/employees/[employeeId]",
+      "componentId": "hr/ui/hr-employees-employee-id.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "path": "/admin/hr/leave",
+      "componentId": "hr/ui/hr-leave.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "path": "/admin/hr/leave-types",
+      "componentId": "hr/ui/hr-leave-types.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
       "path": "/admin/impersonation/settings",
       "componentId": "auth_impersonation/ui/impersonation-settings.page",
       "permissions": [],
@@ -698,6 +1214,48 @@
       "componentId": "integrations_hub/ui/integrations-connected.page",
       "permissions": [],
       "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/admin/inventory/counts",
+      "componentId": "inventory/ui/inventory-counts.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/counts/[countId]",
+      "componentId": "inventory/ui/inventory-counts-count-id.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/movements",
+      "componentId": "inventory/ui/inventory-movements.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/reasons",
+      "componentId": "inventory/ui/inventory-reasons.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/stock",
+      "componentId": "inventory/ui/inventory-stock.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/uoms",
+      "componentId": "inventory/ui/inventory-uoms.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/warehouses",
+      "componentId": "inventory/ui/inventory-warehouses.page",
+      "permissions": [],
+      "moduleId": "inventory"
     },
     {
       "path": "/admin/invitations",
@@ -742,6 +1300,12 @@
       "moduleId": "user"
     },
     {
+      "path": "/admin/media",
+      "componentId": "media_gallery/ui/media-library.page",
+      "permissions": [],
+      "moduleId": "media_gallery"
+    },
+    {
       "path": "/admin/members",
       "componentId": "tenant_member/ui/members.page",
       "permissions": [],
@@ -758,6 +1322,30 @@
       "componentId": "metering/ui/metering.page",
       "permissions": [],
       "moduleId": "metering"
+    },
+    {
+      "path": "/admin/navigation",
+      "componentId": "navigation/ui/navigation.page",
+      "permissions": [],
+      "moduleId": "navigation"
+    },
+    {
+      "path": "/admin/navigation/[menuId]",
+      "componentId": "navigation/ui/navigation-menu-id.page",
+      "permissions": [],
+      "moduleId": "navigation"
+    },
+    {
+      "path": "/admin/orders",
+      "componentId": "order/ui/orders.page",
+      "permissions": [],
+      "moduleId": "order"
+    },
+    {
+      "path": "/admin/orders/[orderId]",
+      "componentId": "order/ui/orders-order-id.page",
+      "permissions": [],
+      "moduleId": "order"
     },
     {
       "path": "/admin/pages",
@@ -790,6 +1378,36 @@
       "moduleId": "payment"
     },
     {
+      "path": "/admin/payroll/components",
+      "componentId": "payroll/ui/payroll-components.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/admin/payroll/payslips",
+      "componentId": "payroll/ui/payroll-payslips.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/admin/payroll/payslips/[payslipId]",
+      "componentId": "payroll/ui/payroll-payslips-payslip-id.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/admin/payroll/runs",
+      "componentId": "payroll/ui/payroll-runs.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/admin/payroll/runs/[runId]",
+      "componentId": "payroll/ui/payroll-runs-run-id.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
       "path": "/admin/plans",
       "componentId": "payment/ui/plans.page",
       "permissions": [],
@@ -806,6 +1424,30 @@
       "componentId": "plugin_runtime/ui/plugin-host.page",
       "permissions": [],
       "moduleId": "plugin_runtime"
+    },
+    {
+      "path": "/admin/procurement/purchase-orders",
+      "componentId": "procurement/ui/procurement-purchase-orders.page",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/admin/procurement/purchase-orders/[purchaseOrderId]",
+      "componentId": "procurement/ui/procurement-purchase-orders-purchase-order-id.page",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/admin/procurement/receipts",
+      "componentId": "procurement/ui/procurement-receipts.page",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/admin/redirects",
+      "componentId": "redirect/ui/redirects.page",
+      "permissions": [],
+      "moduleId": "redirect"
     },
     {
       "path": "/admin/saml",
@@ -830,6 +1472,12 @@
       "componentId": "search/ui/search.page",
       "permissions": [],
       "moduleId": "search"
+    },
+    {
+      "path": "/admin/seo",
+      "componentId": "seo/ui/seo.page",
+      "permissions": [],
+      "moduleId": "seo"
     },
     {
       "path": "/admin/settings",
@@ -952,6 +1600,24 @@
       "moduleId": "tenant_subscription"
     },
     {
+      "path": "/admin/suppliers",
+      "componentId": "supplier/ui/suppliers.page",
+      "permissions": [],
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/admin/suppliers/[supplierId]",
+      "componentId": "supplier/ui/suppliers-supplier-id.page",
+      "permissions": [],
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/admin/suppliers/categories",
+      "componentId": "supplier/ui/supplier-categories.page",
+      "permissions": [],
+      "moduleId": "supplier"
+    },
+    {
       "path": "/admin/support",
       "componentId": "support/ui/support.page",
       "permissions": [],
@@ -1061,6 +1727,76 @@
     }
   ],
   "apiRoutes": [
+    {
+      "path": "/api/accounting/accounts",
+      "handlerId": "accounting/server/accounting-accounts.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/accounts/[accountId]",
+      "handlerId": "accounting/server/accounting-accounts-account-id.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journal",
+      "handlerId": "accounting/server/accounting-journal.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]",
+      "handlerId": "accounting/server/accounting-journal-entry-id.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/lines",
+      "handlerId": "accounting/server/accounting-journal-entry-id-lines.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/lines/[lineId]",
+      "handlerId": "accounting/server/accounting-journal-entry-id-lines-line-id.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/post",
+      "handlerId": "accounting/server/accounting-journal-entry-id-post.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/void",
+      "handlerId": "accounting/server/accounting-journal-entry-id-void.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journals",
+      "handlerId": "accounting/server/accounting-journals.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/journals/[journalId]",
+      "handlerId": "accounting/server/accounting-journals-journal-id.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/ledger",
+      "handlerId": "accounting/server/accounting-ledger.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/ledger/[lineId]",
+      "handlerId": "accounting/server/accounting-ledger-line-id.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/periods",
+      "handlerId": "accounting/server/accounting-periods.route",
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/api/accounting/periods/[periodId]",
+      "handlerId": "accounting/server/accounting-periods-period-id.route",
+      "moduleId": "accounting"
+    },
     {
       "path": "/api/admin-settings",
       "handlerId": "setting/server/admin-settings.route",
@@ -1827,6 +2563,46 @@
       "moduleId": "feature_flags"
     },
     {
+      "path": "/api/form-submissions",
+      "handlerId": "form_builder/server/form-submissions.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/form-submissions/[submissionId]",
+      "handlerId": "form_builder/server/form-submissions-submission-id.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/forms",
+      "handlerId": "form_builder/server/forms.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/forms/[formId]",
+      "handlerId": "form_builder/server/forms-form-id.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/forms/[formId]/archive",
+      "handlerId": "form_builder/server/forms-form-id-archive.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/forms/[formId]/lines",
+      "handlerId": "form_builder/server/forms-form-id-lines.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/forms/[formId]/lines/[fieldId]",
+      "handlerId": "form_builder/server/forms-form-id-lines-field-id.route",
+      "moduleId": "form_builder"
+    },
+    {
+      "path": "/api/forms/[formId]/publish",
+      "handlerId": "form_builder/server/forms-form-id-publish.route",
+      "moduleId": "form_builder"
+    },
+    {
       "path": "/api/gift-cards",
       "handlerId": "gift_card/server/gift-cards.route",
       "moduleId": "gift_card"
@@ -1855,6 +2631,56 @@
       "path": "/api/health",
       "handlerId": "observability/server/health.route",
       "moduleId": "observability"
+    },
+    {
+      "path": "/api/hr/departments",
+      "handlerId": "hr/server/hr-departments.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/departments/[departmentId]",
+      "handlerId": "hr/server/hr-departments-department-id.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/employees",
+      "handlerId": "hr/server/hr-employees.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/employees/[employeeId]",
+      "handlerId": "hr/server/hr-employees-employee-id.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/leave",
+      "handlerId": "hr/server/hr-leave.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/leave-types",
+      "handlerId": "hr/server/hr-leave-types.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/leave-types/[leaveTypeId]",
+      "handlerId": "hr/server/hr-leave-types-leave-type-id.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]",
+      "handlerId": "hr/server/hr-leave-leave-id.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]/approve",
+      "handlerId": "hr/server/hr-leave-leave-id-approve.route",
+      "moduleId": "hr"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]/reject",
+      "handlerId": "hr/server/hr-leave-leave-id-reject.route",
+      "moduleId": "hr"
     },
     {
       "path": "/api/integrations/actions/[actionKey]",
@@ -1900,6 +2726,86 @@
       "path": "/api/integrations/triggers",
       "handlerId": "integrations_hub/server/integrations-triggers.route",
       "moduleId": "integrations_hub"
+    },
+    {
+      "path": "/api/inventory/counts",
+      "handlerId": "inventory/server/inventory-counts.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]",
+      "handlerId": "inventory/server/inventory-counts-count-id.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/close",
+      "handlerId": "inventory/server/inventory-counts-count-id-close.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/lines",
+      "handlerId": "inventory/server/inventory-counts-count-id-lines.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/lines/[countLineId]",
+      "handlerId": "inventory/server/inventory-counts-count-id-lines-line-id.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/start",
+      "handlerId": "inventory/server/inventory-counts-count-id-start.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/movements",
+      "handlerId": "inventory/server/inventory-movements.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/movements/[movementId]",
+      "handlerId": "inventory/server/inventory-movements-movement-id.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/reasons",
+      "handlerId": "inventory/server/inventory-reasons.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/reasons/[reasonId]",
+      "handlerId": "inventory/server/inventory-reasons-reason-id.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/stock",
+      "handlerId": "inventory/server/inventory-stock.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/stock/[stockItemId]",
+      "handlerId": "inventory/server/inventory-stock-stock-item-id.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/uoms",
+      "handlerId": "inventory/server/inventory-uoms.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/uoms/[uomId]",
+      "handlerId": "inventory/server/inventory-uoms-uom-id.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/warehouses",
+      "handlerId": "inventory/server/inventory-warehouses.route",
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/api/inventory/warehouses/[warehouseId]",
+      "handlerId": "inventory/server/inventory-warehouses-warehouse-id.route",
+      "moduleId": "inventory"
     },
     {
       "path": "/api/invitations",
@@ -2112,6 +3018,26 @@
       "moduleId": "setting"
     },
     {
+      "path": "/api/navigation/menus",
+      "handlerId": "navigation/server/navigation-menus.route",
+      "moduleId": "navigation"
+    },
+    {
+      "path": "/api/navigation/menus/[menuId]",
+      "handlerId": "navigation/server/navigation-menus-menu-id.route",
+      "moduleId": "navigation"
+    },
+    {
+      "path": "/api/navigation/menus/[menuId]/lines",
+      "handlerId": "navigation/server/navigation-menus-menu-id-lines.route",
+      "moduleId": "navigation"
+    },
+    {
+      "path": "/api/navigation/menus/[menuId]/lines/[itemId]",
+      "handlerId": "navigation/server/navigation-menus-menu-id-lines-item-id.route",
+      "moduleId": "navigation"
+    },
+    {
       "path": "/api/notifications/push/subscribe",
       "handlerId": "notification_inapp/server/notifications-push-subscribe.route",
       "moduleId": "notification_inapp"
@@ -2120,6 +3046,41 @@
       "path": "/api/notifications/sms/send",
       "handlerId": "notification_inapp/server/notifications-sms-send.route",
       "moduleId": "notification_inapp"
+    },
+    {
+      "path": "/api/orders",
+      "handlerId": "order/server/orders.route",
+      "moduleId": "order"
+    },
+    {
+      "path": "/api/orders/[orderId]",
+      "handlerId": "order/server/orders-order-id.route",
+      "moduleId": "order"
+    },
+    {
+      "path": "/api/orders/[orderId]/cancel",
+      "handlerId": "order/server/orders-order-id-cancel.route",
+      "moduleId": "order"
+    },
+    {
+      "path": "/api/orders/[orderId]/confirm",
+      "handlerId": "order/server/orders-order-id-confirm.route",
+      "moduleId": "order"
+    },
+    {
+      "path": "/api/orders/[orderId]/fulfill",
+      "handlerId": "order/server/orders-order-id-fulfill.route",
+      "moduleId": "order"
+    },
+    {
+      "path": "/api/orders/[orderId]/lines",
+      "handlerId": "order/server/orders-order-id-lines.route",
+      "moduleId": "order"
+    },
+    {
+      "path": "/api/orders/[orderId]/lines/[lineId]",
+      "handlerId": "order/server/orders-order-id-lines-line-id.route",
+      "moduleId": "order"
     },
     {
       "path": "/api/payments",
@@ -2167,6 +3128,66 @@
       "moduleId": "payment"
     },
     {
+      "path": "/api/payroll/components",
+      "handlerId": "payroll/server/payroll-components.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/components/[componentId]",
+      "handlerId": "payroll/server/payroll-components-component-id.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/payslips",
+      "handlerId": "payroll/server/payroll-payslips.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]",
+      "handlerId": "payroll/server/payroll-payslips-payslip-id.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/issue",
+      "handlerId": "payroll/server/payroll-payslips-payslip-id-issue.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/lines",
+      "handlerId": "payroll/server/payroll-payslips-payslip-id-lines.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
+      "handlerId": "payroll/server/payroll-payslips-payslip-id-lines-line-id.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/payslips/[payslipId]/pay",
+      "handlerId": "payroll/server/payroll-payslips-payslip-id-pay.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/runs",
+      "handlerId": "payroll/server/payroll-runs.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/runs/[runId]",
+      "handlerId": "payroll/server/payroll-runs-run-id.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/runs/[runId]/pay",
+      "handlerId": "payroll/server/payroll-runs-run-id-pay.route",
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/api/payroll/runs/[runId]/process",
+      "handlerId": "payroll/server/payroll-runs-run-id-process.route",
+      "moduleId": "payroll"
+    },
+    {
       "path": "/api/plans",
       "handlerId": "payment/server/plans.route",
       "moduleId": "payment"
@@ -2195,6 +3216,61 @@
       "path": "/api/plans/public",
       "handlerId": "payment/server/plans-public.route",
       "moduleId": "payment"
+    },
+    {
+      "path": "/api/procurement/purchase-orders",
+      "handlerId": "procurement/server/procurement-purchase-orders.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]",
+      "handlerId": "procurement/server/procurement-purchase-orders-purchase-order-id.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/cancel",
+      "handlerId": "procurement/server/procurement-purchase-orders-purchase-order-id-cancel.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/lines",
+      "handlerId": "procurement/server/procurement-purchase-orders-purchase-order-id-lines.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/lines/[lineId]",
+      "handlerId": "procurement/server/procurement-purchase-orders-purchase-order-id-lines-line-id.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/order",
+      "handlerId": "procurement/server/procurement-purchase-orders-purchase-order-id-order.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/receive",
+      "handlerId": "procurement/server/procurement-purchase-orders-purchase-order-id-receive.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/receipts",
+      "handlerId": "procurement/server/procurement-receipts.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/procurement/receipts/[receiptId]",
+      "handlerId": "procurement/server/procurement-receipts-receipt-id.route",
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/api/redirects",
+      "handlerId": "redirect/server/redirects.route",
+      "moduleId": "redirect"
+    },
+    {
+      "path": "/api/redirects/[redirectId]",
+      "handlerId": "redirect/server/redirects-redirect-id.route",
+      "moduleId": "redirect"
     },
     {
       "path": "/api/saml/config",
@@ -2425,6 +3501,36 @@
       "path": "/api/subscription/quote",
       "handlerId": "tenant_subscription/server/subscription-quote.route",
       "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/suppliers",
+      "handlerId": "supplier/server/suppliers.route",
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/api/suppliers/[supplierId]",
+      "handlerId": "supplier/server/suppliers-supplier-id.route",
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/api/suppliers/[supplierId]/lines",
+      "handlerId": "supplier/server/suppliers-supplier-id-lines.route",
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/api/suppliers/[supplierId]/lines/[contactId]",
+      "handlerId": "supplier/server/suppliers-supplier-id-lines-contact-id.route",
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/api/suppliers/categories",
+      "handlerId": "supplier/server/suppliers-categories.route",
+      "moduleId": "supplier"
+    },
+    {
+      "path": "/api/suppliers/categories/[categoryId]",
+      "handlerId": "supplier/server/suppliers-categories-category-id.route",
+      "moduleId": "supplier"
     },
     {
       "path": "/api/support/tickets",
@@ -2704,6 +3810,32 @@
   "settingsTabs": [],
   "permissions": [],
   "modules": [
+    {
+      "id": "accounting",
+      "name": "Accounting",
+      "icon": "fas fa-book",
+      "version": "1.0.0",
+      "description": "Tenant-scoped double-entry accounting: chart of accounts, journal entries/lines, fiscal periods.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/accounting",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "accounting",
+        "ledger",
+        "finance",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
     {
       "id": "ai",
       "name": "AI",
@@ -3339,6 +4471,32 @@
       ]
     },
     {
+      "id": "form_builder",
+      "name": "Form Builder",
+      "icon": "fas fa-wpforms",
+      "version": "1.0.0",
+      "description": "Tenant-scoped form builder: custom forms, fields, and captured submissions.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/form_builder",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "forms",
+        "form-builder",
+        "cms",
+        "content"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
+    {
       "id": "gift_card",
       "name": "Gift Card",
       "icon": "fas fa-gift",
@@ -3366,6 +4524,31 @@
         "payment",
         "webhook",
         "tenant_subscription"
+      ]
+    },
+    {
+      "id": "hr",
+      "name": "HR",
+      "icon": "fas fa-user-tie",
+      "version": "1.0.0",
+      "description": "Tenant-scoped HR: employees, departments and leave requests.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "hr",
+        "employees",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
       ]
     },
     {
@@ -3398,6 +4581,32 @@
         "setting",
         "tenant_subscription",
         "audit_log"
+      ]
+    },
+    {
+      "id": "inventory",
+      "name": "Inventory",
+      "icon": "fas fa-warehouse",
+      "version": "1.0.0",
+      "description": "Tenant-scoped inventory: warehouses, stock locations, stock items, movements and counts.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/inventory",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "inventory",
+        "warehouse",
+        "stock",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
       ]
     },
     {
@@ -3583,6 +4792,32 @@
       ]
     },
     {
+      "id": "navigation",
+      "name": "Navigation",
+      "icon": "fas fa-bars",
+      "version": "1.0.0",
+      "description": "Tenant-scoped site navigation menus (header/footer) with nested menu items.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/navigation",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "navigation",
+        "menu",
+        "cms",
+        "content"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
+    {
       "id": "network",
       "name": "Network",
       "icon": "fas fa-network-wired",
@@ -3729,6 +4964,32 @@
       "requires": [
         "env",
         "logger"
+      ]
+    },
+    {
+      "id": "order",
+      "name": "Orders",
+      "icon": "fas fa-receipt",
+      "version": "1.0.0",
+      "description": "Tenant-scoped core sales orders, order lines and status events. Bridges Commerce and ERP.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "order",
+        "sales",
+        "commerce",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
       ]
     },
     {
@@ -3996,6 +5257,31 @@
       ]
     },
     {
+      "id": "payroll",
+      "name": "Payroll",
+      "icon": "fas fa-money-check-dollar",
+      "version": "1.0.0",
+      "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payroll",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "payroll",
+        "hr",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
+    {
       "id": "plugin_runtime",
       "name": "Plugin Runtime",
       "icon": "fas fa-shield-halved",
@@ -4024,6 +5310,31 @@
       ]
     },
     {
+      "id": "procurement",
+      "name": "Procurement",
+      "icon": "fas fa-clipboard-list",
+      "version": "1.0.0",
+      "description": "Tenant-scoped procurement: purchase orders, their lines, and goods receipts.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/procurement",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "procurement",
+        "purchase-order",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
+    {
       "id": "product_review",
       "name": "Product Review",
       "icon": "fas fa-star",
@@ -4046,6 +5357,32 @@
         "env",
         "redis",
         "logger"
+      ]
+    },
+    {
+      "id": "redirect",
+      "name": "Redirects",
+      "icon": "fas fa-arrow-right-arrow-left",
+      "version": "1.0.0",
+      "description": "Tenant-scoped URL redirect (301/302) rules for SEO-safe content moves.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/redirect",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "redirect",
+        "seo",
+        "cms",
+        "content"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
       ]
     },
     {
@@ -4249,6 +5586,32 @@
         "env",
         "redis",
         "logger"
+      ]
+    },
+    {
+      "id": "supplier",
+      "name": "Suppliers",
+      "icon": "fas fa-truck",
+      "version": "1.0.0",
+      "description": "Tenant-scoped supplier/vendor master records and their contacts.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/supplier",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "supplier",
+        "vendor",
+        "procurement",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
       ]
     },
     {

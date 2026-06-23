@@ -47,6 +47,7 @@ Polymorphic ordered image gallery attachable to any entity type. Items wrap Uplo
 ## Next layer (modules_next/) surface
 
 - `media_gallery/ui/gallery-panel.component` _(ui, client)_
+- `media_gallery/ui/media-library.page` _(ui, client)_
 
 ## README
 

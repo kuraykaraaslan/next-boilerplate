@@ -1,8 +1,93 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T08:53:57.457Z",
+  "generatedAt": "2026-06-23T15:27:01.997Z",
   "components": [
+    {
+      "id": "accounting/ui/accounting-accounts.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-accounts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-accounts.page"
+    },
+    {
+      "id": "accounting/ui/accounting-journal-entry-id.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journal-entry-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journal-entry-id.page"
+    },
+    {
+      "id": "accounting/ui/accounting-journal.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journal.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journal.page"
+    },
+    {
+      "id": "accounting/ui/accounting-journals.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journals.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journals.page"
+    },
+    {
+      "id": "accounting/ui/accounting-ledger.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-ledger.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-ledger.page"
+    },
+    {
+      "id": "accounting/ui/accounting-periods.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-periods.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-periods.page"
+    },
+    {
+      "id": "accounting/ui/journal-entry-status-badge.component",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/journal-entry-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "EntryStatus",
+        "JournalEntryStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "journal-entry-status-badge.component"
+    },
+    {
+      "id": "accounting/ui/journal-lines-panel.component",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/journal-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "JournalLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "journal-lines-panel.component"
+    },
     {
       "id": "ai_chat/ui/ai-chat-box.component",
       "module": "ai_chat",
@@ -689,6 +774,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "blog-categories.page"
+    },
+    {
+      "id": "blog/ui/blog-comments.page",
+      "module": "blog",
+      "filePath": "modules/blog/ui/blog-comments.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "blog-comments.page"
     },
     {
       "id": "blog/ui/blog-post-create-modal.component",
@@ -3001,6 +3096,73 @@
       "baseName": "feature-flags.page"
     },
     {
+      "id": "form_builder/ui/form-fields-panel.component",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-fields-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FormFieldsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-fields-panel.component"
+    },
+    {
+      "id": "form_builder/ui/form-status-badge.component",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FormStatus",
+        "FormStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-status-badge.component"
+    },
+    {
+      "id": "form_builder/ui/form-submissions-panel.component",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-submissions-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FormSubmissionsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-submissions-panel.component"
+    },
+    {
+      "id": "form_builder/ui/form-submissions.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-submissions.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-submissions.page"
+    },
+    {
+      "id": "form_builder/ui/forms-form-id.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/forms-form-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "forms-form-id.page"
+    },
+    {
+      "id": "form_builder/ui/forms.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/forms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "forms.page"
+    },
+    {
       "id": "gift_card/ui/gift-card-issue-modal.component",
       "module": "gift_card",
       "filePath": "modules/gift_card/ui/gift-card-issue-modal.component.tsx",
@@ -3046,6 +3208,81 @@
       "baseName": "gift-cards.page"
     },
     {
+      "id": "hr/ui/employee-leave-panel.component",
+      "module": "hr",
+      "filePath": "modules/hr/ui/employee-leave-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmployeeLeavePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "employee-leave-panel.component"
+    },
+    {
+      "id": "hr/ui/hr-departments.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-departments.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-departments.page"
+    },
+    {
+      "id": "hr/ui/hr-employees-employee-id.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-employees-employee-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-employees-employee-id.page"
+    },
+    {
+      "id": "hr/ui/hr-employees.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-employees.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-employees.page"
+    },
+    {
+      "id": "hr/ui/hr-leave-types.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-leave-types.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave-types.page"
+    },
+    {
+      "id": "hr/ui/hr-leave.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-leave.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave.page"
+    },
+    {
+      "id": "hr/ui/hr-status-badge.component",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LeaveStatusBadge",
+        "EmployeeStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-status-badge.component"
+    },
+    {
       "id": "integrations_hub/ui/connected-apps-columns.component",
       "module": "integrations_hub",
       "filePath": "modules/integrations_hub/ui/connected-apps-columns.component.tsx",
@@ -3089,6 +3326,101 @@
       "isClient": true,
       "isServer": false,
       "baseName": "integrations.page"
+    },
+    {
+      "id": "inventory/ui/count-lines-panel.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/count-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CountLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "count-lines-panel.component"
+    },
+    {
+      "id": "inventory/ui/count-status-badge.component",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/count-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CountStatus",
+        "CountStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "count-status-badge.component"
+    },
+    {
+      "id": "inventory/ui/inventory-counts-count-id.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-counts-count-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-counts-count-id.page"
+    },
+    {
+      "id": "inventory/ui/inventory-counts.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-counts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-counts.page"
+    },
+    {
+      "id": "inventory/ui/inventory-movements.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-movements.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-movements.page"
+    },
+    {
+      "id": "inventory/ui/inventory-reasons.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-reasons.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-reasons.page"
+    },
+    {
+      "id": "inventory/ui/inventory-stock.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-stock.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-stock.page"
+    },
+    {
+      "id": "inventory/ui/inventory-uoms.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-uoms.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-uoms.page"
+    },
+    {
+      "id": "inventory/ui/inventory-warehouses.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-warehouses.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-warehouses.page"
     },
     {
       "id": "invoice/ui/earsiv-sms-sign-modal.component",
@@ -3300,6 +3632,16 @@
       "baseName": "gallery-panel.component"
     },
     {
+      "id": "media_gallery/ui/media-library.page",
+      "module": "media_gallery",
+      "filePath": "modules/media_gallery/ui/media-library.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "media-library.page"
+    },
+    {
       "id": "metering/ui/metering-columns.component",
       "module": "metering",
       "filePath": "modules/metering/ui/metering-columns.component.tsx",
@@ -3325,6 +3667,38 @@
       "isClient": true,
       "isServer": false,
       "baseName": "metering.page"
+    },
+    {
+      "id": "navigation/ui/navigation-items-panel.component",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation-items-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "NavigationItemsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation-items-panel.component"
+    },
+    {
+      "id": "navigation/ui/navigation-menu-id.page",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation-menu-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation-menu-id.page"
+    },
+    {
+      "id": "navigation/ui/navigation.page",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation.page"
     },
     {
       "id": "notification_inapp/hooks/use-notifications.hook",
@@ -3419,6 +3793,61 @@
       "isClient": false,
       "isServer": false,
       "baseName": "health.types"
+    },
+    {
+      "id": "order_fulfillment/ui/fulfillment.page",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/fulfillment.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fulfillment.page"
+    },
+    {
+      "id": "order/ui/order-lines-panel.component",
+      "module": "order",
+      "filePath": "modules/order/ui/order-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "OrderLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "order-lines-panel.component"
+    },
+    {
+      "id": "order/ui/order-status-badge.component",
+      "module": "order",
+      "filePath": "modules/order/ui/order-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "OrderStatus",
+        "OrderStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "order-status-badge.component"
+    },
+    {
+      "id": "order/ui/orders-order-id.page",
+      "module": "order",
+      "filePath": "modules/order/ui/orders-order-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "orders-order-id.page"
+    },
+    {
+      "id": "order/ui/orders.page",
+      "module": "order",
+      "filePath": "modules/order/ui/orders.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "orders.page"
     },
     {
       "id": "payment/ui/billing-profile-tab.component",
@@ -3633,6 +4062,83 @@
       "baseName": "wallet-badges.component"
     },
     {
+      "id": "payroll/ui/payroll-components.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-components.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-components.page"
+    },
+    {
+      "id": "payroll/ui/payroll-payslips-payslip-id.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-payslips-payslip-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-payslips-payslip-id.page"
+    },
+    {
+      "id": "payroll/ui/payroll-payslips.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-payslips.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-payslips.page"
+    },
+    {
+      "id": "payroll/ui/payroll-runs-run-id.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-runs-run-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-runs-run-id.page"
+    },
+    {
+      "id": "payroll/ui/payroll-runs.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-runs.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-runs.page"
+    },
+    {
+      "id": "payroll/ui/payroll-status-badge.component",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PayslipStatus",
+        "RunStatus",
+        "PayslipStatusBadge",
+        "RunStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-status-badge.component"
+    },
+    {
+      "id": "payroll/ui/payslip-lines-panel.component",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payslip-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PayslipLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payslip-lines-panel.component"
+    },
+    {
       "id": "plugin_runtime/ui/plugin-frame.component",
       "module": "plugin_runtime",
       "filePath": "modules/plugin_runtime/ui/plugin-frame.component.tsx",
@@ -3653,6 +4159,71 @@
       "isClient": true,
       "isServer": false,
       "baseName": "plugin-host.page"
+    },
+    {
+      "id": "procurement/ui/procurement-purchase-orders-purchase-order-id.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-purchase-orders-purchase-order-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-purchase-orders-purchase-order-id.page"
+    },
+    {
+      "id": "procurement/ui/procurement-purchase-orders.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-purchase-orders.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-purchase-orders.page"
+    },
+    {
+      "id": "procurement/ui/procurement-receipts.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-receipts.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-receipts.page"
+    },
+    {
+      "id": "procurement/ui/purchase-order-lines-panel.component",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/purchase-order-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PurchaseOrderLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "purchase-order-lines-panel.component"
+    },
+    {
+      "id": "procurement/ui/purchase-order-status-badge.component",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/purchase-order-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PurchaseOrderStatus",
+        "PurchaseOrderStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "purchase-order-status-badge.component"
+    },
+    {
+      "id": "redirect/ui/redirects.page",
+      "module": "redirect",
+      "filePath": "modules/redirect/ui/redirects.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "redirects.page"
     },
     {
       "id": "search/ui/search.page",
@@ -3687,6 +4258,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "seo-panel.component"
+    },
+    {
+      "id": "seo/ui/seo.page",
+      "module": "seo",
+      "filePath": "modules/seo/ui/seo.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "seo.page"
     },
     {
       "id": "seo/ui/web-vitals.client",
@@ -4210,6 +4791,48 @@
       "isClient": true,
       "isServer": false,
       "baseName": "store-products.page"
+    },
+    {
+      "id": "supplier/ui/supplier-categories.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/supplier-categories.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "supplier-categories.page"
+    },
+    {
+      "id": "supplier/ui/supplier-contacts-panel.component",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/supplier-contacts-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SupplierContactsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "supplier-contacts-panel.component"
+    },
+    {
+      "id": "supplier/ui/suppliers-supplier-id.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/suppliers-supplier-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "suppliers-supplier-id.page"
+    },
+    {
+      "id": "supplier/ui/suppliers.page",
+      "module": "supplier",
+      "filePath": "modules/supplier/ui/suppliers.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "suppliers.page"
     },
     {
       "id": "support/ui/support-ticket-columns.component",

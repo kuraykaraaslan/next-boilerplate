@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T08:53:57.457Z",
+  "generatedAt": "2026-06-23T15:27:01.997Z",
   "modules": {
     "terms_consent": [
       {
@@ -170,6 +170,28 @@
         "hasTenantId": true
       }
     ],
+    "hr": [
+      {
+        "tableName": "departments",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "employees",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "leave_requests",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "leave_types",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
     "drive": [
       {
         "tableName": "drive_files",
@@ -231,6 +253,50 @@
         "hasTenantId": true
       }
     ],
+    "accounting": [
+      {
+        "tableName": "fiscal_periods",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "journals",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "journal_entries",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "journal_lines",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "ledger_accounts",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "form_builder": [
+      {
+        "tableName": "forms",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "form_fields",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "form_submissions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
     "order_fulfillment": [
       {
         "tableName": "fulfillments",
@@ -261,6 +327,70 @@
       },
       {
         "tableName": "gift_card_transactions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "procurement": [
+      {
+        "tableName": "goods_receipts",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "goods_receipt_lines",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "purchase_orders",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "purchase_order_lines",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "inventory": [
+      {
+        "tableName": "inventory_counts",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "inventory_count_lines",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "inventory_locations",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "inventory_movements",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "inventory_stock_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "inventory_warehouses",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "inventory_movement_reasons",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "uoms",
         "schema": "system",
         "hasTenantId": true
       }
@@ -323,9 +453,38 @@
         "hasTenantId": true
       }
     ],
+    "navigation": [
+      {
+        "tableName": "navigation_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "navigation_menus",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
     "notification_log": [
       {
         "tableName": "notification_logs",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "order": [
+      {
+        "tableName": "orders",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "order_lines",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "order_status_events",
         "schema": "system",
         "hasTenantId": true
       }
@@ -362,6 +521,28 @@
         "tableName": "payment_transactions",
         "schema": "system",
         "hasTenantId": false
+      }
+    ],
+    "payroll": [
+      {
+        "tableName": "payroll_runs",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "payslips",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "payslip_lines",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "salary_components",
+        "schema": "system",
+        "hasTenantId": true
       }
     ],
     "payment_subscription": [
@@ -403,6 +584,13 @@
     "notification_push": [
       {
         "tableName": "push_subscriptions",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "redirect": [
+      {
+        "tableName": "redirect_rules",
         "schema": "system",
         "hasTenantId": true
       }
@@ -546,6 +734,23 @@
       },
       {
         "tableName": "store_variation_types",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "supplier": [
+      {
+        "tableName": "suppliers",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "supplier_categories",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "supplier_contacts",
         "schema": "system",
         "hasTenantId": true
       }

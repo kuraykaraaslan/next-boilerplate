@@ -52,6 +52,7 @@ Tenant-scoped blog with posts, categories and threaded comments. Posts have a dr
 ## Next layer (modules_next/) surface
 
 - `blog/ui/blog-categories.page` _(ui, client)_
+- `blog/ui/blog-comments.page` _(ui, client)_
 - `blog/ui/blog-post-create-modal.component` _(ui, client)_
 - `blog/ui/blog-posts-post-id.page` _(ui, client)_
 - `blog/ui/blog-posts.page` _(ui, client)_
