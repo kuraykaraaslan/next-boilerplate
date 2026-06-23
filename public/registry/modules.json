@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T19:29:16.657Z",
+  "generatedAt": "2026-06-23T19:40:51.503Z",
   "modules": [
     {
       "id": "common",
@@ -10459,7 +10459,7 @@
       "id": "hr",
       "name": "HR",
       "version": "1.0.0",
-      "description": "Tenant-scoped HR: employees, departments and leave requests.",
+      "description": "Tenant-scoped HR: employees and departments.",
       "author": "Kuray Karaaslan",
       "license": "CC-BY-NC-ND-4.0",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr",
@@ -10484,9 +10484,7 @@
       "exports": {
         "services": [
           "hr.department.service.ts",
-          "hr.employee.service.ts",
-          "hr.leave-type.service.ts",
-          "hr.leave.service.ts"
+          "hr.employee.service.ts"
         ],
         "dtos": [
           "hr.dto.ts"
@@ -10502,9 +10500,7 @@
         "jobs": [],
         "entities": [
           "departments.entity.ts",
-          "employees.entity.ts",
-          "leave_requests.entity.ts",
-          "leave_types.entity.ts"
+          "employees.entity.ts"
         ]
       },
       "enabled": true,
@@ -10528,26 +10524,6 @@
           "workspace": "hr",
           "order": 20,
           "scope": "tenant"
-        },
-        {
-          "id": "hr-leave",
-          "label": "Leave",
-          "href": "/admin/hr/leave",
-          "icon": "fas fa-plane-departure",
-          "group": "Leave",
-          "workspace": "hr",
-          "order": 30,
-          "scope": "tenant"
-        },
-        {
-          "id": "hr-settings",
-          "label": "HR Settings",
-          "href": "/admin/hr/settings",
-          "icon": "fas fa-gear",
-          "group": "Configuration",
-          "workspace": "hr",
-          "order": 90,
-          "scope": "tenant"
         }
       ],
       "adminRoutes": [
@@ -10570,18 +10546,6 @@
         {
           "path": "/admin/hr/departments/settings",
           "component": "hr/ui/hr-departments-settings.page"
-        },
-        {
-          "path": "/admin/hr/leave",
-          "component": "hr/ui/hr-leave.page"
-        },
-        {
-          "path": "/admin/hr/leave/settings",
-          "component": "hr/ui/hr-leave-settings.page"
-        },
-        {
-          "path": "/admin/hr/settings",
-          "component": "hr/ui/hr-settings.page"
         }
       ],
       "apiRoutes": [
@@ -10600,30 +10564,6 @@
         {
           "path": "/api/hr/departments/[departmentId]",
           "handler": "hr/server/hr-departments-department-id.route"
-        },
-        {
-          "path": "/api/hr/leave",
-          "handler": "hr/server/hr-leave.route"
-        },
-        {
-          "path": "/api/hr/leave/[leaveId]",
-          "handler": "hr/server/hr-leave-leave-id.route"
-        },
-        {
-          "path": "/api/hr/leave/[leaveId]/approve",
-          "handler": "hr/server/hr-leave-leave-id-approve.route"
-        },
-        {
-          "path": "/api/hr/leave/[leaveId]/reject",
-          "handler": "hr/server/hr-leave-leave-id-reject.route"
-        },
-        {
-          "path": "/api/hr/leave-types",
-          "handler": "hr/server/hr-leave-types.route"
-        },
-        {
-          "path": "/api/hr/leave-types/[leaveTypeId]",
-          "handler": "hr/server/hr-leave-types-leave-type-id.route"
         }
       ],
       "widgets": [],
@@ -10633,26 +10573,16 @@
       "pkgExports": [
         "./server/hr.employee.service",
         "./server/hr.department.service",
-        "./server/hr.leave.service",
-        "./server/hr.leave-type.service",
         "./server/hr-employees.route",
         "./server/hr-employees-employee-id.route",
         "./server/hr-departments.route",
         "./server/hr-departments-department-id.route",
-        "./server/hr-leave.route",
-        "./server/hr-leave-leave-id.route",
-        "./server/hr-leave-leave-id-approve.route",
-        "./server/hr-leave-leave-id-reject.route",
-        "./server/hr-leave-types.route",
-        "./server/hr-leave-types-leave-type-id.route",
         "./server/hr.enums",
         "./server/hr.types",
         "./server/hr.dto",
         "./server/hr.messages",
         "./server/entities/departments.entity",
         "./server/entities/employees.entity",
-        "./server/entities/leave_requests.entity",
-        "./server/entities/leave_types.entity",
         "./server/index",
         "./server",
         "./ui/hr-employees.page",
@@ -10660,12 +10590,7 @@
         "./ui/hr-employees-settings.page",
         "./ui/hr-departments.page",
         "./ui/hr-departments-settings.page",
-        "./ui/hr-leave.page",
-        "./ui/hr-leave-settings.page",
-        "./ui/hr-settings.page",
-        "./ui/leave-types-panel.component",
         "./ui/hr-status-badge.component",
-        "./ui/employee-leave-panel.component",
         ".",
         "./module.json"
       ],
@@ -10674,7 +10599,155 @@
       "hasReadme": true,
       "hasModuleJson": true,
       "hasNextLayer": true,
-      "readme": "# HR Module\n\nTenant-scoped HR: employees, departments and leave requests. Every row is\nisolated by `tenantId` and service methods take `tenantId` as their first\nargument (per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@kuraykaraaslan/hr`:\n\n| Export | Type | Use |\n|---|---|---|\n| `EmployeeService` | class | Employee CRUD |\n| `DepartmentService` | class | Department CRUD |\n| `LeaveRequestService` | class | Leave request CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Row shapes |\n| `HR_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `Department` (`departments`) — `name`, `code`, `managerId?`, `isActive`.\n- `Employee` (`employees`) — `firstName`, `lastName`, `email`, `departmentId?`, `title?`, `status`, `hiredAt?`, `userId?`.\n- `LeaveRequest` (`leave_requests`) — `employeeId`, `type`, `startDate`, `endDate`, `status`, `reason?`.\n\n## Menu\n\n- **Employees** (`/admin/hr/employees`, workspace `hr`).\n- **Departments** (`/admin/hr/departments`, workspace `hr`).\n- **Leave** (`/admin/hr/leave`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+      "readme": "# HR Module\n\nTenant-scoped HR: employees and departments. Every row is isolated by\n`tenantId` and service methods take `tenantId` as their first argument\n(per `multi-tenancy-patterns.md`). Leave lives in the `hr_leave` module.\n\n## Public API\n\nImport from the barrel `@kuraykaraaslan/hr`:\n\n| Export | Type | Use |\n|---|---|---|\n| `EmployeeService` | class | Employee CRUD |\n| `DepartmentService` | class | Department CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Row shapes |\n| `HR_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `Department` (`departments`) — `name`, `code`, `managerId?`, `isActive`.\n- `Employee` (`employees`) — `firstName`, `lastName`, `email`, `departmentId?`, `title?`, `status`, `hiredAt?`, `userId?`.\n\n## Menu\n\n- **Employees** (`/admin/hr/employees`, workspace `hr`).\n- **Departments** (`/admin/hr/departments`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
+      "id": "hr_leave",
+      "name": "HR Leave",
+      "version": "1.0.0",
+      "description": "Tenant-scoped HR leave: leave requests and leave types.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr_leave",
+      "dir": "modules/hr_leave",
+      "icon": "fas fa-plane-departure",
+      "tags": [
+        "hr",
+        "leave",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "hr_leave.leave-type.service.ts",
+          "hr_leave.leave.service.ts"
+        ],
+        "dtos": [
+          "hr_leave.dto.ts"
+        ],
+        "enums": [
+          "hr_leave.enums.ts"
+        ],
+        "messageKeys": [
+          "hr_leave.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "leave_requests.entity.ts",
+          "leave_types.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "hr-leave",
+          "label": "Leave",
+          "href": "/admin/hr/leave",
+          "icon": "fas fa-plane-departure",
+          "group": "Leave",
+          "workspace": "hr",
+          "order": 30,
+          "scope": "tenant"
+        },
+        {
+          "id": "hr-leave-settings",
+          "label": "Leave Settings",
+          "href": "/admin/hr-leave/settings",
+          "icon": "fas fa-gear",
+          "group": "Configuration",
+          "workspace": "hr",
+          "order": 90,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/hr/leave",
+          "component": "hr_leave/ui/hr-leave.page"
+        },
+        {
+          "path": "/admin/hr/leave/settings",
+          "component": "hr_leave/ui/hr-leave-settings.page"
+        },
+        {
+          "path": "/admin/hr-leave/settings",
+          "component": "hr_leave/ui/hr_leave-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/hr/leave",
+          "handler": "hr_leave/server/hr-leave.route"
+        },
+        {
+          "path": "/api/hr/leave/[leaveId]",
+          "handler": "hr_leave/server/hr-leave-leave-id.route"
+        },
+        {
+          "path": "/api/hr/leave/[leaveId]/approve",
+          "handler": "hr_leave/server/hr-leave-leave-id-approve.route"
+        },
+        {
+          "path": "/api/hr/leave/[leaveId]/reject",
+          "handler": "hr_leave/server/hr-leave-leave-id-reject.route"
+        },
+        {
+          "path": "/api/hr/leave-types",
+          "handler": "hr_leave/server/hr-leave-types.route"
+        },
+        {
+          "path": "/api/hr/leave-types/[leaveTypeId]",
+          "handler": "hr_leave/server/hr-leave-types-leave-type-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/hr_leave.leave.service",
+        "./server/hr_leave.leave-type.service",
+        "./server/hr-leave.route",
+        "./server/hr-leave-leave-id.route",
+        "./server/hr-leave-leave-id-approve.route",
+        "./server/hr-leave-leave-id-reject.route",
+        "./server/hr-leave-types.route",
+        "./server/hr-leave-types-leave-type-id.route",
+        "./server/hr_leave.enums",
+        "./server/hr_leave.types",
+        "./server/hr_leave.dto",
+        "./server/hr_leave.messages",
+        "./server/entities/leave_requests.entity",
+        "./server/entities/leave_types.entity",
+        "./server/index",
+        "./server",
+        "./ui/hr-leave.page",
+        "./ui/hr-leave-settings.page",
+        "./ui/hr_leave-settings.page",
+        "./ui/leave-types-panel.component",
+        "./ui/employee-leave-panel.component",
+        "./ui/hr_leave-status-badge.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# HR Leave Module\n\nTenant-scoped HR leave: leave requests and leave types. Every row is isolated\nby `tenantId` and service methods take `tenantId` as their first argument\n(per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@kuraykaraaslan/hr_leave`:\n\n| Export | Type | Use |\n|---|---|---|\n| `LeaveRequestService` | class | Leave request CRUD + approve/reject |\n| `LeaveTypeService` | class | Leave type (master-data) CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Row shapes |\n| `HR_LEAVE_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `LeaveRequest` (`leave_requests`) — `employeeId`, `type`, `startDate`, `endDate`, `status`, `reason?`.\n- `LeaveType` (`leave_types`) — `name`, `code`, `paid`, `maxDaysPerYear`, `color?`.\n\n## Menu\n\n- **Leave** (`/admin/hr/leave`, workspace `hr`).\n- **Leave Settings** (`/admin/hr-leave/settings`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
     },
     {
       "id": "hr_payroll",

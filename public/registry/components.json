@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T19:29:16.657Z",
+  "generatedAt": "2026-06-23T19:40:51.503Z",
   "components": [
     {
       "id": "accounting/ui/accounting-accounts-settings.page",
@@ -3280,6 +3280,72 @@
       "baseName": "gift-cards.page"
     },
     {
+      "id": "hr_leave/ui/employee-leave-panel.component",
+      "module": "hr_leave",
+      "filePath": "modules/hr_leave/ui/employee-leave-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "EmployeeLeavePanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "employee-leave-panel.component"
+    },
+    {
+      "id": "hr_leave/ui/hr_leave-settings.page",
+      "module": "hr_leave",
+      "filePath": "modules/hr_leave/ui/hr_leave-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr_leave-settings.page"
+    },
+    {
+      "id": "hr_leave/ui/hr_leave-status-badge.component",
+      "module": "hr_leave",
+      "filePath": "modules/hr_leave/ui/hr_leave-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LeaveStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr_leave-status-badge.component"
+    },
+    {
+      "id": "hr_leave/ui/hr-leave-settings.page",
+      "module": "hr_leave",
+      "filePath": "modules/hr_leave/ui/hr-leave-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave-settings.page"
+    },
+    {
+      "id": "hr_leave/ui/hr-leave.page",
+      "module": "hr_leave",
+      "filePath": "modules/hr_leave/ui/hr-leave.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave.page"
+    },
+    {
+      "id": "hr_leave/ui/leave-types-panel.component",
+      "module": "hr_leave",
+      "filePath": "modules/hr_leave/ui/leave-types-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "LeaveTypesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "leave-types-panel.component"
+    },
+    {
       "id": "hr_payroll/ui/payroll-payslips-payslip-id.page",
       "module": "hr_payroll",
       "filePath": "modules/hr_payroll/ui/payroll-payslips-payslip-id.page.tsx",
@@ -3389,18 +3455,6 @@
       "baseName": "salary-components-panel.component"
     },
     {
-      "id": "hr/ui/employee-leave-panel.component",
-      "module": "hr",
-      "filePath": "modules/hr/ui/employee-leave-panel.component.tsx",
-      "kind": "ui",
-      "exports": [
-        "EmployeeLeavePanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "employee-leave-panel.component"
-    },
-    {
       "id": "hr/ui/hr-departments-settings.page",
       "module": "hr",
       "filePath": "modules/hr/ui/hr-departments-settings.page.tsx",
@@ -3451,36 +3505,6 @@
       "baseName": "hr-employees.page"
     },
     {
-      "id": "hr/ui/hr-leave-settings.page",
-      "module": "hr",
-      "filePath": "modules/hr/ui/hr-leave-settings.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "hr-leave-settings.page"
-    },
-    {
-      "id": "hr/ui/hr-leave.page",
-      "module": "hr",
-      "filePath": "modules/hr/ui/hr-leave.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "hr-leave.page"
-    },
-    {
-      "id": "hr/ui/hr-settings.page",
-      "module": "hr",
-      "filePath": "modules/hr/ui/hr-settings.page.tsx",
-      "kind": "ui",
-      "exports": [],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "hr-settings.page"
-    },
-    {
       "id": "hr/ui/hr-status-badge.component",
       "module": "hr",
       "filePath": "modules/hr/ui/hr-status-badge.component.tsx",
@@ -3492,18 +3516,6 @@
       "isClient": true,
       "isServer": false,
       "baseName": "hr-status-badge.component"
-    },
-    {
-      "id": "hr/ui/leave-types-panel.component",
-      "module": "hr",
-      "filePath": "modules/hr/ui/leave-types-panel.component.tsx",
-      "kind": "ui",
-      "exports": [
-        "LeaveTypesPanel"
-      ],
-      "isClient": true,
-      "isServer": false,
-      "baseName": "leave-types-panel.component"
     },
     {
       "id": "integrations_hub/ui/connected-apps-columns.component",

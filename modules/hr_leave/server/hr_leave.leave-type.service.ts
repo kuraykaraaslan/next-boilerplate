@@ -3,8 +3,8 @@ import { ILike } from 'typeorm'
 import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import Logger from '@kuraykaraaslan/logger'
 import { LeaveType } from './entities/leave_types.entity'
-import type { CreateLeaveTypeDTO, UpdateLeaveTypeDTO, GetLeaveTypesQuery } from './hr.dto'
-import { HR_MESSAGES } from './hr.messages'
+import type { CreateLeaveTypeDTO, UpdateLeaveTypeDTO, GetLeaveTypesQuery } from './hr_leave.dto'
+import { HR_LEAVE_MESSAGES } from './hr_leave.messages'
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Tenant-scoped leave type CRUD (configurable master-data). */
@@ -25,7 +25,7 @@ export default class LeaveTypeService {
   static async getById(tenantId: string, leaveTypeId: string): Promise<LeaveType> {
     const ds = await tenantDataSourceFor(tenantId)
     const row = await ds.getRepository(LeaveType).findOne({ where: { tenantId, leaveTypeId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_TYPE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_TYPE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     return row
   }
 
@@ -37,7 +37,7 @@ export default class LeaveTypeService {
     } catch (error) {
       if (error instanceof AppError) throw error
       Logger.error(`[LeaveTypeService.create][tenant:${tenantId}] ${error}`)
-      throw new AppError(HR_MESSAGES.LEAVE_TYPE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
+      throw new AppError(HR_LEAVE_MESSAGES.LEAVE_TYPE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -45,7 +45,7 @@ export default class LeaveTypeService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LeaveType)
     const row = await repo.findOne({ where: { tenantId, leaveTypeId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_TYPE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_TYPE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     Object.assign(row, data)
     return repo.save(row)
   }
@@ -54,7 +54,7 @@ export default class LeaveTypeService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LeaveType)
     const row = await repo.findOne({ where: { tenantId, leaveTypeId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_TYPE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_TYPE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
   }
 }

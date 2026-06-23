@@ -1171,9 +1171,23 @@
     ],
     "hasNextLayer": true,
     "routeCount": 0,
-    "entityCount": 4,
-    "componentCount": 11,
+    "entityCount": 2,
+    "componentCount": 6,
     "file": "hr.md"
+  },
+  "hr_leave": {
+    "name": "HR Leave",
+    "tier": "other",
+    "tags": [
+      "hr",
+      "leave",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 2,
+    "componentCount": 6,
+    "file": "hr_leave.md"
   },
   "hr_payroll": {
     "name": "Payroll",

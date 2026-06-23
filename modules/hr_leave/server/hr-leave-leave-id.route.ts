@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
 import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
-import LeaveRequestService from '@kuraykaraaslan/hr/server/hr.leave.service'
-import { UpdateLeaveRequestDTO } from '@kuraykaraaslan/hr/server/hr.dto'
+import LeaveRequestService from '@kuraykaraaslan/hr_leave/server/hr_leave.leave.service'
+import { UpdateLeaveRequestDTO } from '@kuraykaraaslan/hr_leave/server/hr_leave.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; leaveId: string }> }
 

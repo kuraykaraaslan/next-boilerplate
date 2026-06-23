@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T19:29:16.657Z",
+  "generatedAt": "2026-06-23T19:40:51.503Z",
   "entities": [
     {
       "name": "Agreement",
@@ -1291,8 +1291,8 @@
     },
     {
       "name": "LeaveRequest",
-      "filePath": "modules/hr/server/entities/leave_requests.entity.ts",
-      "module": "hr",
+      "filePath": "modules/hr_leave/server/entities/leave_requests.entity.ts",
+      "module": "hr_leave",
       "schema": "system",
       "tableName": "leave_requests",
       "columns": [
@@ -1313,8 +1313,8 @@
     },
     {
       "name": "LeaveType",
-      "filePath": "modules/hr/server/entities/leave_types.entity.ts",
-      "module": "hr",
+      "filePath": "modules/hr_leave/server/entities/leave_types.entity.ts",
+      "module": "hr_leave",
       "schema": "system",
       "tableName": "leave_types",
       "columns": [

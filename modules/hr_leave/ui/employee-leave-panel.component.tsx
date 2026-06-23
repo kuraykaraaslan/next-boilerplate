@@ -10,7 +10,7 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
-import { LeaveStatusBadge } from './hr-status-badge.component';
+import { LeaveStatusBadge } from './hr_leave-status-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 

@@ -2,8 +2,8 @@ import 'reflect-metadata'
 import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import Logger from '@kuraykaraaslan/logger'
 import { LeaveRequest } from './entities/leave_requests.entity'
-import type { CreateLeaveRequestDTO, UpdateLeaveRequestDTO, GetLeaveRequestsQuery } from './hr.dto'
-import { HR_MESSAGES } from './hr.messages'
+import type { CreateLeaveRequestDTO, UpdateLeaveRequestDTO, GetLeaveRequestsQuery } from './hr_leave.dto'
+import { HR_LEAVE_MESSAGES } from './hr_leave.messages'
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
 
 /** Tenant-scoped leave request CRUD. */
@@ -24,7 +24,7 @@ export default class LeaveRequestService {
   static async getById(tenantId: string, leaveId: string): Promise<LeaveRequest> {
     const ds = await tenantDataSourceFor(tenantId)
     const row = await ds.getRepository(LeaveRequest).findOne({ where: { tenantId, leaveId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     return row
   }
 
@@ -36,7 +36,7 @@ export default class LeaveRequestService {
     } catch (error) {
       if (error instanceof AppError) throw error
       Logger.error(`[LeaveRequestService.create][tenant:${tenantId}] ${error}`)
-      throw new AppError(HR_MESSAGES.LEAVE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
+      throw new AppError(HR_LEAVE_MESSAGES.LEAVE_CREATE_FAILED, 500, ErrorCode.INTERNAL_ERROR)
     }
   }
 
@@ -44,7 +44,7 @@ export default class LeaveRequestService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LeaveRequest)
     const row = await repo.findOne({ where: { tenantId, leaveId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     Object.assign(row, data)
     return repo.save(row)
   }
@@ -53,7 +53,7 @@ export default class LeaveRequestService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LeaveRequest)
     const row = await repo.findOne({ where: { tenantId, leaveId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     await repo.softRemove(row)
   }
 
@@ -64,9 +64,9 @@ export default class LeaveRequestService {
     const ds = await tenantDataSourceFor(tenantId)
     const repo = ds.getRepository(LeaveRequest)
     const row = await repo.findOne({ where: { tenantId, leaveId } })
-    if (!row) throw new AppError(HR_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!row) throw new AppError(HR_LEAVE_MESSAGES.LEAVE_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
     if (!from.includes(row.status)) {
-      throw new AppError(HR_MESSAGES.LEAVE_INVALID_TRANSITION, 409, ErrorCode.CONFLICT)
+      throw new AppError(HR_LEAVE_MESSAGES.LEAVE_INVALID_TRANSITION, 409, ErrorCode.CONFLICT)
     }
     row.status = to
     return repo.save(row)

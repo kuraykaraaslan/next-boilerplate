@@ -151,14 +151,14 @@ import { OrderStatusEvent } from '@kuraykaraaslan/order/server/entities/order_st
 // HR workspace — scaffolded modules
 import { Department } from '@kuraykaraaslan/hr/server/entities/departments.entity';
 import { Employee } from '@kuraykaraaslan/hr/server/entities/employees.entity';
-import { LeaveRequest } from '@kuraykaraaslan/hr/server/entities/leave_requests.entity';
+import { LeaveRequest } from '@kuraykaraaslan/hr_leave/server/entities/leave_requests.entity';
 import { PayrollRun } from '@kuraykaraaslan/hr_payroll/server/entities/payroll_runs.entity';
 import { Payslip } from '@kuraykaraaslan/hr_payroll/server/entities/payslips.entity';
 import { SalaryComponent } from '@kuraykaraaslan/hr_payroll/server/entities/salary_components.entity';
 // Odoo-depth configurable / line entities
 import { Journal } from '@kuraykaraaslan/accounting/server/entities/journals.entity';
 import { PayslipLine } from '@kuraykaraaslan/hr_payroll/server/entities/payslip_lines.entity';
-import { LeaveType } from '@kuraykaraaslan/hr/server/entities/leave_types.entity';
+import { LeaveType } from '@kuraykaraaslan/hr_leave/server/entities/leave_types.entity';
 import { SupplierCategory } from '@kuraykaraaslan/supplier/server/entities/supplier_categories.entity';
 // Wave A — Odoo-depth config/line entities
 import { PaymentMethodConfig } from '@kuraykaraaslan/payment/server/entities/payment_method.entity';

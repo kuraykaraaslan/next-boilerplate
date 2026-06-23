@@ -11,7 +11,7 @@ import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
 import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { EmployeeStatusBadge } from './hr-status-badge.component';
-import { EmployeeLeavePanel } from './employee-leave-panel.component';
+import { EmployeeLeavePanel } from '@kuraykaraaslan/hr_leave/ui/employee-leave-panel.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
 

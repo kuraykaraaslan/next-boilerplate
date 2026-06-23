@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
 import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
-import LeaveTypeService from '@kuraykaraaslan/hr/server/hr.leave-type.service'
-import { CreateLeaveTypeDTO, GetLeaveTypesQuery } from '@kuraykaraaslan/hr/server/hr.dto'
+import LeaveRequestService from '@kuraykaraaslan/hr_leave/server/hr_leave.leave.service'
+import { CreateLeaveRequestDTO, GetLeaveRequestsQuery } from '@kuraykaraaslan/hr_leave/server/hr_leave.dto'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
   const rl = await Limiter.checkRateLimit(request); if (rl) return rl
@@ -11,12 +11,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
     const sp = new URL(request.url).searchParams
-    const query = GetLeaveTypesQuery.parse({
+    const query = GetLeaveRequestsQuery.parse({
       page: sp.get('page') ? Number(sp.get('page')) : 0,
       pageSize: sp.get('pageSize') ? Number(sp.get('pageSize')) : 20,
       search: sp.get('search') ?? undefined,
+      employeeId: sp.get('employeeId') ?? undefined,
     })
-    const { data, total } = await LeaveTypeService.list(tenantId, query)
+    const { data, total } = await LeaveRequestService.list(tenantId, query)
     return NextResponse.json({ data, total })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: e.statusCode ?? 400 }) }
 }
@@ -27,8 +28,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try { await TenantSessionNextService.authenticateTenantByRequest({ request, tenantId, requiredTenantRole: 'ADMIN' }) }
   catch (e: any) { return NextResponse.json({ message: e.message }, { status: 403 }) }
   try {
-    const dto = CreateLeaveTypeDTO.parse(await request.json())
-    const item = await LeaveTypeService.create(tenantId, dto)
+    const dto = CreateLeaveRequestDTO.parse(await request.json())
+    const item = await LeaveRequestService.create(tenantId, dto)
     return NextResponse.json({ item }, { status: 201 })
   } catch (e: any) { return NextResponse.json({ message: e.message }, { status: e.statusCode ?? 400 }) }
 }

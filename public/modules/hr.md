@@ -8,7 +8,7 @@
 - **icon:** `fas fa-user-tie`
 - **hasNextLayer:** true
 
-Tenant-scoped HR: employees, departments and leave requests.
+Tenant-scoped HR: employees and departments.
 
 ## Dependencies
 
@@ -18,8 +18,6 @@ Tenant-scoped HR: employees, departments and leave requests.
 
 - `hr.department.service.ts`
 - `hr.employee.service.ts`
-- `hr.leave-type.service.ts`
-- `hr.leave.service.ts`
 
 ## DTOs
 
@@ -29,8 +27,6 @@ Tenant-scoped HR: employees, departments and leave requests.
 
 - `departments.entity.ts`
 - `employees.entity.ts`
-- `leave_requests.entity.ts`
-- `leave_types.entity.ts`
 
 ## Enums
 
@@ -44,30 +40,23 @@ Tenant-scoped HR: employees, departments and leave requests.
 
 - `Department` (system) — `modules/hr/server/entities/departments.entity.ts`
 - `Employee` (system) — `modules/hr/server/entities/employees.entity.ts`
-- `LeaveRequest` (system) — `modules/hr/server/entities/leave_requests.entity.ts`
-- `LeaveType` (system) — `modules/hr/server/entities/leave_types.entity.ts`
 
 ## Next layer (modules_next/) surface
 
-- `hr/ui/employee-leave-panel.component` _(ui, client)_
 - `hr/ui/hr-departments-settings.page` _(ui, client)_
 - `hr/ui/hr-departments.page` _(ui, client)_
 - `hr/ui/hr-employees-employee-id.page` _(ui, client)_
 - `hr/ui/hr-employees-settings.page` _(ui, client)_
 - `hr/ui/hr-employees.page` _(ui, client)_
-- `hr/ui/hr-leave-settings.page` _(ui, client)_
-- `hr/ui/hr-leave.page` _(ui, client)_
-- `hr/ui/hr-settings.page` _(ui, client)_
 - `hr/ui/hr-status-badge.component` _(ui, client)_
-- `hr/ui/leave-types-panel.component` _(ui, client)_
 
 ## README
 
 # HR Module
 
-Tenant-scoped HR: employees, departments and leave requests. Every row is
-isolated by `tenantId` and service methods take `tenantId` as their first
-argument (per `multi-tenancy-patterns.md`).
+Tenant-scoped HR: employees and departments. Every row is isolated by
+`tenantId` and service methods take `tenantId` as their first argument
+(per `multi-tenancy-patterns.md`). Leave lives in the `hr_leave` module.
 
 ## Public API
 
@@ -77,7 +66,6 @@ Import from the barrel `@kuraykaraaslan/hr`:
 |---|---|---|
 | `EmployeeService` | class | Employee CRUD |
 | `DepartmentService` | class | Department CRUD |
-| `LeaveRequestService` | class | Leave request CRUD |
 | `Create*DTO` / `Update*DTO` | Zod | Input validation |
 | `*Schema` | Zod | Row shapes |
 | `HR_MESSAGES` | object | Error/message constants |
@@ -86,13 +74,11 @@ Import from the barrel `@kuraykaraaslan/hr`:
 
 - `Department` (`departments`) — `name`, `code`, `managerId?`, `isActive`.
 - `Employee` (`employees`) — `firstName`, `lastName`, `email`, `departmentId?`, `title?`, `status`, `hiredAt?`, `userId?`.
-- `LeaveRequest` (`leave_requests`) — `employeeId`, `type`, `startDate`, `endDate`, `status`, `reason?`.
 
 ## Menu
 
 - **Employees** (`/admin/hr/employees`, workspace `hr`).
 - **Departments** (`/admin/hr/departments`, workspace `hr`).
-- **Leave** (`/admin/hr/leave`, workspace `hr`).
 
 ## Dependencies
 

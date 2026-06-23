@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T19:29:16.657Z",
+  "generatedAt": "2026-06-23T19:40:51.503Z",
   "modules": {
     "terms_consent": [
       {
@@ -207,16 +207,6 @@
         "tableName": "employees",
         "schema": "system",
         "hasTenantId": true
-      },
-      {
-        "tableName": "leave_requests",
-        "schema": "system",
-        "hasTenantId": true
-      },
-      {
-        "tableName": "leave_types",
-        "schema": "system",
-        "hasTenantId": true
       }
     ],
     "drive": [
@@ -408,6 +398,18 @@
       },
       {
         "tableName": "invoice_lines",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "hr_leave": [
+      {
+        "tableName": "leave_requests",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "leave_types",
         "schema": "system",
         "hasTenantId": true
       }

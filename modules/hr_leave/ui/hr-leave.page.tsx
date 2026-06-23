@@ -1,6 +1,5 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
@@ -13,34 +12,20 @@ import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.compo
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSearch, faPenToSquare, faTrash, faCheck, faXmark, faGear } from '@fortawesome/free-solid-svg-icons';
-import { LeaveStatusBadge } from './hr-status-badge.component';
+import { LeaveStatusBadge } from './hr_leave-status-badge.component';
 
 type LeaveRequest = {
-  leaveId: string;
-  employeeId: string;
-  type: string;
-  leaveTypeId?: string | null;
-  startDate: string;
-  endDate: string;
-  status: string;
-  reason?: string | null;
-  createdAt: string;
+  leaveId: string; employeeId: string; type: string; leaveTypeId?: string | null;
+  startDate: string; endDate: string; status: string; reason?: string | null; createdAt: string;
 };
 
 type LeaveTypeOption = { leaveTypeId: string; name: string; code: string };
 
-type Form = {
-  employeeId: string; leaveTypeId: string; startDate: string;
-  endDate: string; status: string; reason: string;
-};
+type Form = { employeeId: string; leaveTypeId: string; startDate: string; endDate: string; status: string; reason: string };
 const EMPTY_FORM: Form = { employeeId: '', leaveTypeId: '', startDate: '', endDate: '', status: 'PENDING', reason: '' };
 
 const PAGE_SIZE = 50;
-const STATUS_OPTIONS = [
-  { value: 'PENDING', label: 'PENDING' },
-  { value: 'APPROVED', label: 'APPROVED' },
-  { value: 'REJECTED', label: 'REJECTED' },
-];
+const STATUS_OPTIONS = ['PENDING', 'APPROVED', 'REJECTED'].map((s) => ({ value: s, label: s }));
 
 function extractMessage(err: unknown, fallback: string) {
   const e = err as { response?: { data?: { message?: string } }; message?: string };
@@ -49,7 +34,6 @@ function extractMessage(err: unknown, fallback: string) {
 
 export default function HrLeavePage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
-  const router = useRouter();
   const [rows, setRows] = useState<LeaveRequest[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<LeaveTypeOption[]>([]);
   const [total, setTotal] = useState(0);

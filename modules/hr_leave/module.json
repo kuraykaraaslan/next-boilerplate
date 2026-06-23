@@ -1,0 +1,88 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "hr_leave",
+  "name": "HR Leave",
+  "description": "Tenant-scoped HR leave: leave requests and leave types.",
+  "version": "1.0.0",
+  "icon": "fas fa-plane-departure",
+  "tags": [
+    "hr",
+    "leave",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr_leave",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "hr-leave",
+      "label": "Leave",
+      "href": "/admin/hr/leave",
+      "icon": "fas fa-plane-departure",
+      "group": "Leave",
+      "workspace": "hr",
+      "order": 30,
+      "scope": "tenant"
+    },
+    {
+      "id": "hr-leave-settings",
+      "label": "Leave Settings",
+      "href": "/admin/hr-leave/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "hr",
+      "order": 90,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/hr/leave",
+      "handler": "hr_leave/server/hr-leave.route"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]",
+      "handler": "hr_leave/server/hr-leave-leave-id.route"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]/approve",
+      "handler": "hr_leave/server/hr-leave-leave-id-approve.route"
+    },
+    {
+      "path": "/api/hr/leave/[leaveId]/reject",
+      "handler": "hr_leave/server/hr-leave-leave-id-reject.route"
+    },
+    {
+      "path": "/api/hr/leave-types",
+      "handler": "hr_leave/server/hr-leave-types.route"
+    },
+    {
+      "path": "/api/hr/leave-types/[leaveTypeId]",
+      "handler": "hr_leave/server/hr-leave-types-leave-type-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/hr/leave",
+      "component": "hr_leave/ui/hr-leave.page"
+    },
+    {
+      "path": "/admin/hr/leave/settings",
+      "component": "hr_leave/ui/hr-leave-settings.page"
+    },
+    {
+      "path": "/admin/hr-leave/settings",
+      "component": "hr_leave/ui/hr_leave-settings.page"
+    }
+  ]
+}

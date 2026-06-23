@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T19:29:16.657Z",
+  "generatedAt": "2026-06-23T19:40:51.503Z",
   "menu": [
     {
       "id": "settings",
@@ -719,7 +719,7 @@
       "order": 30,
       "scope": "tenant",
       "permissions": [],
-      "moduleId": "hr"
+      "moduleId": "hr_leave"
     },
     {
       "id": "inventory-movements",
@@ -914,16 +914,16 @@
       "moduleId": "form_builder"
     },
     {
-      "id": "hr-settings",
-      "label": "HR Settings",
-      "href": "/admin/hr/settings",
+      "id": "hr-leave-settings",
+      "label": "Leave Settings",
+      "href": "/admin/hr-leave/settings",
       "icon": "fas fa-gear",
       "group": "Configuration",
       "workspace": "hr",
       "order": 90,
       "scope": "tenant",
       "permissions": [],
-      "moduleId": "hr"
+      "moduleId": "hr_leave"
     },
     {
       "id": "inventory-settings",
@@ -1372,6 +1372,12 @@
       "moduleId": "observability"
     },
     {
+      "path": "/admin/hr-leave/settings",
+      "componentId": "hr_leave/ui/hr_leave-settings.page",
+      "permissions": [],
+      "moduleId": "hr_leave"
+    },
+    {
       "path": "/admin/hr/departments",
       "componentId": "hr/ui/hr-departments.page",
       "permissions": [],
@@ -1403,21 +1409,15 @@
     },
     {
       "path": "/admin/hr/leave",
-      "componentId": "hr/ui/hr-leave.page",
+      "componentId": "hr_leave/ui/hr-leave.page",
       "permissions": [],
-      "moduleId": "hr"
+      "moduleId": "hr_leave"
     },
     {
       "path": "/admin/hr/leave/settings",
-      "componentId": "hr/ui/hr-leave-settings.page",
+      "componentId": "hr_leave/ui/hr-leave-settings.page",
       "permissions": [],
-      "moduleId": "hr"
-    },
-    {
-      "path": "/admin/hr/settings",
-      "componentId": "hr/ui/hr-settings.page",
-      "permissions": [],
-      "moduleId": "hr"
+      "moduleId": "hr_leave"
     },
     {
       "path": "/admin/impersonation/settings",
@@ -3058,33 +3058,33 @@
     },
     {
       "path": "/api/hr/leave",
-      "handlerId": "hr/server/hr-leave.route",
-      "moduleId": "hr"
+      "handlerId": "hr_leave/server/hr-leave.route",
+      "moduleId": "hr_leave"
     },
     {
       "path": "/api/hr/leave-types",
-      "handlerId": "hr/server/hr-leave-types.route",
-      "moduleId": "hr"
+      "handlerId": "hr_leave/server/hr-leave-types.route",
+      "moduleId": "hr_leave"
     },
     {
       "path": "/api/hr/leave-types/[leaveTypeId]",
-      "handlerId": "hr/server/hr-leave-types-leave-type-id.route",
-      "moduleId": "hr"
+      "handlerId": "hr_leave/server/hr-leave-types-leave-type-id.route",
+      "moduleId": "hr_leave"
     },
     {
       "path": "/api/hr/leave/[leaveId]",
-      "handlerId": "hr/server/hr-leave-leave-id.route",
-      "moduleId": "hr"
+      "handlerId": "hr_leave/server/hr-leave-leave-id.route",
+      "moduleId": "hr_leave"
     },
     {
       "path": "/api/hr/leave/[leaveId]/approve",
-      "handlerId": "hr/server/hr-leave-leave-id-approve.route",
-      "moduleId": "hr"
+      "handlerId": "hr_leave/server/hr-leave-leave-id-approve.route",
+      "moduleId": "hr_leave"
     },
     {
       "path": "/api/hr/leave/[leaveId]/reject",
-      "handlerId": "hr/server/hr-leave-leave-id-reject.route",
-      "moduleId": "hr"
+      "handlerId": "hr_leave/server/hr-leave-leave-id-reject.route",
+      "moduleId": "hr_leave"
     },
     {
       "path": "/api/integrations/actions/[actionKey]",
@@ -5175,13 +5175,38 @@
       "name": "HR",
       "icon": "fas fa-user-tie",
       "version": "1.0.0",
-      "description": "Tenant-scoped HR: employees, departments and leave requests.",
+      "description": "Tenant-scoped HR: employees and departments.",
       "author": "Kuray Karaaslan",
       "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr",
       "license": "CC-BY-NC-ND-4.0",
       "tags": [
         "hr",
         "employees",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
+    {
+      "id": "hr_leave",
+      "name": "HR Leave",
+      "icon": "fas fa-plane-departure",
+      "version": "1.0.0",
+      "description": "Tenant-scoped HR leave: leave requests and leave types.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr_leave",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "hr",
+        "leave",
         "erp"
       ],
       "priority": 60,

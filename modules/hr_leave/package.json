@@ -1,0 +1,36 @@
+{
+  "name": "@kuraykaraaslan/hr_leave",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/hr_leave.leave.service": "./server/hr_leave.leave.service.ts",
+    "./server/hr_leave.leave-type.service": "./server/hr_leave.leave-type.service.ts",
+    "./server/hr-leave.route": "./server/hr-leave.route.ts",
+    "./server/hr-leave-leave-id.route": "./server/hr-leave-leave-id.route.ts",
+    "./server/hr-leave-leave-id-approve.route": "./server/hr-leave-leave-id-approve.route.ts",
+    "./server/hr-leave-leave-id-reject.route": "./server/hr-leave-leave-id-reject.route.ts",
+    "./server/hr-leave-types.route": "./server/hr-leave-types.route.ts",
+    "./server/hr-leave-types-leave-type-id.route": "./server/hr-leave-types-leave-type-id.route.ts",
+    "./server/hr_leave.enums": "./server/hr_leave.enums.ts",
+    "./server/hr_leave.types": "./server/hr_leave.types.ts",
+    "./server/hr_leave.dto": "./server/hr_leave.dto.ts",
+    "./server/hr_leave.messages": "./server/hr_leave.messages.ts",
+    "./server/entities/leave_requests.entity": "./server/entities/leave_requests.entity.ts",
+    "./server/entities/leave_types.entity": "./server/entities/leave_types.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/hr-leave.page": "./ui/hr-leave.page.tsx",
+    "./ui/hr-leave-settings.page": "./ui/hr-leave-settings.page.tsx",
+    "./ui/hr_leave-settings.page": "./ui/hr_leave-settings.page.tsx",
+    "./ui/leave-types-panel.component": "./ui/leave-types-panel.component.tsx",
+    "./ui/employee-leave-panel.component": "./ui/employee-leave-panel.component.tsx",
+    "./ui/hr_leave-status-badge.component": "./ui/hr_leave-status-badge.component.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

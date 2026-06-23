@@ -2,7 +2,7 @@
   "$schema": "../module.schema.json",
   "id": "hr",
   "name": "HR",
-  "description": "Tenant-scoped HR: employees, departments and leave requests.",
+  "description": "Tenant-scoped HR: employees and departments.",
   "version": "1.0.0",
   "icon": "fas fa-user-tie",
   "tags": [
@@ -43,26 +43,6 @@
       "workspace": "hr",
       "order": 20,
       "scope": "tenant"
-    },
-    {
-      "id": "hr-leave",
-      "label": "Leave",
-      "href": "/admin/hr/leave",
-      "icon": "fas fa-plane-departure",
-      "group": "Leave",
-      "workspace": "hr",
-      "order": 30,
-      "scope": "tenant"
-    },
-    {
-      "id": "hr-settings",
-      "label": "HR Settings",
-      "href": "/admin/hr/settings",
-      "icon": "fas fa-gear",
-      "group": "Configuration",
-      "workspace": "hr",
-      "order": 90,
-      "scope": "tenant"
     }
   ],
   "apiRoutes": [
@@ -81,30 +61,6 @@
     {
       "path": "/api/hr/departments/[departmentId]",
       "handler": "hr/server/hr-departments-department-id.route"
-    },
-    {
-      "path": "/api/hr/leave",
-      "handler": "hr/server/hr-leave.route"
-    },
-    {
-      "path": "/api/hr/leave/[leaveId]",
-      "handler": "hr/server/hr-leave-leave-id.route"
-    },
-    {
-      "path": "/api/hr/leave/[leaveId]/approve",
-      "handler": "hr/server/hr-leave-leave-id-approve.route"
-    },
-    {
-      "path": "/api/hr/leave/[leaveId]/reject",
-      "handler": "hr/server/hr-leave-leave-id-reject.route"
-    },
-    {
-      "path": "/api/hr/leave-types",
-      "handler": "hr/server/hr-leave-types.route"
-    },
-    {
-      "path": "/api/hr/leave-types/[leaveTypeId]",
-      "handler": "hr/server/hr-leave-types-leave-type-id.route"
     }
   ],
   "routes": [
@@ -127,18 +83,6 @@
     {
       "path": "/admin/hr/departments/settings",
       "component": "hr/ui/hr-departments-settings.page"
-    },
-    {
-      "path": "/admin/hr/leave",
-      "component": "hr/ui/hr-leave.page"
-    },
-    {
-      "path": "/admin/hr/leave/settings",
-      "component": "hr/ui/hr-leave-settings.page"
-    },
-    {
-      "path": "/admin/hr/settings",
-      "component": "hr/ui/hr-settings.page"
     }
   ]
 }
