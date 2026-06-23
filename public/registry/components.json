@@ -1,8 +1,18 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T17:01:00.528Z",
+  "generatedAt": "2026-06-23T19:22:33.205Z",
   "components": [
+    {
+      "id": "accounting/ui/accounting-accounts-settings.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-accounts-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-accounts-settings.page"
+    },
     {
       "id": "accounting/ui/accounting-accounts.page",
       "module": "accounting",
@@ -24,6 +34,16 @@
       "baseName": "accounting-journal-entry-id.page"
     },
     {
+      "id": "accounting/ui/accounting-journal-settings.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-journal-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-journal-settings.page"
+    },
+    {
       "id": "accounting/ui/accounting-journal.page",
       "module": "accounting",
       "filePath": "modules/accounting/ui/accounting-journal.page.tsx",
@@ -34,6 +54,16 @@
       "baseName": "accounting-journal.page"
     },
     {
+      "id": "accounting/ui/accounting-ledger-settings.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-ledger-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-ledger-settings.page"
+    },
+    {
       "id": "accounting/ui/accounting-ledger.page",
       "module": "accounting",
       "filePath": "modules/accounting/ui/accounting-ledger.page.tsx",
@@ -42,6 +72,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "accounting-ledger.page"
+    },
+    {
+      "id": "accounting/ui/accounting-periods-settings.page",
+      "module": "accounting",
+      "filePath": "modules/accounting/ui/accounting-periods-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "accounting-periods-settings.page"
     },
     {
       "id": "accounting/ui/accounting-periods.page",
@@ -3108,6 +3148,16 @@
       "baseName": "feature-flags.page"
     },
     {
+      "id": "form_builder/ui/form_builder-settings.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form_builder-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form_builder-settings.page"
+    },
+    {
       "id": "form_builder/ui/form-fields-panel.component",
       "module": "form_builder",
       "filePath": "modules/form_builder/ui/form-fields-panel.component.tsx",
@@ -3143,6 +3193,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "form-submissions-panel.component"
+    },
+    {
+      "id": "form_builder/ui/form-submissions-settings.page",
+      "module": "form_builder",
+      "filePath": "modules/form_builder/ui/form-submissions-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "form-submissions-settings.page"
     },
     {
       "id": "form_builder/ui/form-submissions.page",
@@ -3232,6 +3292,16 @@
       "baseName": "employee-leave-panel.component"
     },
     {
+      "id": "hr/ui/hr-departments-settings.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-departments-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-departments-settings.page"
+    },
+    {
       "id": "hr/ui/hr-departments.page",
       "module": "hr",
       "filePath": "modules/hr/ui/hr-departments.page.tsx",
@@ -3252,6 +3322,16 @@
       "baseName": "hr-employees-employee-id.page"
     },
     {
+      "id": "hr/ui/hr-employees-settings.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-employees-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-employees-settings.page"
+    },
+    {
       "id": "hr/ui/hr-employees.page",
       "module": "hr",
       "filePath": "modules/hr/ui/hr-employees.page.tsx",
@@ -3260,6 +3340,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "hr-employees.page"
+    },
+    {
+      "id": "hr/ui/hr-leave-settings.page",
+      "module": "hr",
+      "filePath": "modules/hr/ui/hr-leave-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "hr-leave-settings.page"
     },
     {
       "id": "hr/ui/hr-leave.page",
@@ -3387,6 +3477,16 @@
       "baseName": "inventory-counts-count-id.page"
     },
     {
+      "id": "inventory/ui/inventory-counts-settings.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-counts-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-counts-settings.page"
+    },
+    {
       "id": "inventory/ui/inventory-counts.page",
       "module": "inventory",
       "filePath": "modules/inventory/ui/inventory-counts.page.tsx",
@@ -3395,6 +3495,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "inventory-counts.page"
+    },
+    {
+      "id": "inventory/ui/inventory-movements-settings.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-movements-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-movements-settings.page"
     },
     {
       "id": "inventory/ui/inventory-movements.page",
@@ -3417,6 +3527,16 @@
       "baseName": "inventory-settings.page"
     },
     {
+      "id": "inventory/ui/inventory-stock-settings.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-stock-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-stock-settings.page"
+    },
+    {
       "id": "inventory/ui/inventory-stock.page",
       "module": "inventory",
       "filePath": "modules/inventory/ui/inventory-stock.page.tsx",
@@ -3425,6 +3545,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "inventory-stock.page"
+    },
+    {
+      "id": "inventory/ui/inventory-warehouses-settings.page",
+      "module": "inventory",
+      "filePath": "modules/inventory/ui/inventory-warehouses-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "inventory-warehouses-settings.page"
     },
     {
       "id": "inventory/ui/inventory-warehouses.page",
@@ -3680,6 +3810,31 @@
       "baseName": "media-library.page"
     },
     {
+      "id": "metering/ui/billing-run-lines-panel.component",
+      "module": "metering",
+      "filePath": "modules/metering/ui/billing-run-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "BillingRunLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "billing-run-lines-panel.component"
+    },
+    {
+      "id": "metering/ui/billing-run-status-badge.component",
+      "module": "metering",
+      "filePath": "modules/metering/ui/billing-run-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "BillingRunStatus",
+        "BillingRunStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "billing-run-status-badge.component"
+    },
+    {
       "id": "metering/ui/metering-columns.component",
       "module": "metering",
       "filePath": "modules/metering/ui/metering-columns.component.tsx",
@@ -3697,6 +3852,26 @@
       "baseName": "metering-columns.component"
     },
     {
+      "id": "metering/ui/metering-runs-run-id.page",
+      "module": "metering",
+      "filePath": "modules/metering/ui/metering-runs-run-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering-runs-run-id.page"
+    },
+    {
+      "id": "metering/ui/metering-settings.page",
+      "module": "metering",
+      "filePath": "modules/metering/ui/metering-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "metering-settings.page"
+    },
+    {
       "id": "metering/ui/metering.page",
       "module": "metering",
       "filePath": "modules/metering/ui/metering.page.tsx",
@@ -3705,6 +3880,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "metering.page"
+    },
+    {
+      "id": "metering/ui/meters-panel.component",
+      "module": "metering",
+      "filePath": "modules/metering/ui/meters-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "MetersPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "meters-panel.component"
     },
     {
       "id": "navigation/ui/navigation-items-panel.component",
@@ -3727,6 +3914,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "navigation-menu-id.page"
+    },
+    {
+      "id": "navigation/ui/navigation-settings.page",
+      "module": "navigation",
+      "filePath": "modules/navigation/ui/navigation-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "navigation-settings.page"
     },
     {
       "id": "navigation/ui/navigation.page",
@@ -3833,6 +4030,63 @@
       "baseName": "health.types"
     },
     {
+      "id": "order_fulfillment/ui/carriers-panel.component",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/carriers-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "CarriersPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "carriers-panel.component"
+    },
+    {
+      "id": "order_fulfillment/ui/fulfillment-fulfillment-id.page",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/fulfillment-fulfillment-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fulfillment-fulfillment-id.page"
+    },
+    {
+      "id": "order_fulfillment/ui/fulfillment-items-panel.component",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/fulfillment-items-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FulfillmentItemsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fulfillment-items-panel.component"
+    },
+    {
+      "id": "order_fulfillment/ui/fulfillment-settings.page",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/fulfillment-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fulfillment-settings.page"
+    },
+    {
+      "id": "order_fulfillment/ui/fulfillment-status-badge.component",
+      "module": "order_fulfillment",
+      "filePath": "modules/order_fulfillment/ui/fulfillment-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "FulfillmentStatus",
+        "FulfillmentStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "fulfillment-status-badge.component"
+    },
+    {
       "id": "order_fulfillment/ui/fulfillment.page",
       "module": "order_fulfillment",
       "filePath": "modules/order_fulfillment/ui/fulfillment.page.tsx",
@@ -3853,6 +4107,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "order-lines-panel.component"
+    },
+    {
+      "id": "order/ui/order-settings.page",
+      "module": "order",
+      "filePath": "modules/order/ui/order-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "order-settings.page"
     },
     {
       "id": "order/ui/order-status-badge.component",
@@ -3886,6 +4150,130 @@
       "isClient": true,
       "isServer": false,
       "baseName": "orders.page"
+    },
+    {
+      "id": "payment_return_rma/ui/return-lines-panel.component",
+      "module": "payment_return_rma",
+      "filePath": "modules/payment_return_rma/ui/return-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReturnLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "return-lines-panel.component"
+    },
+    {
+      "id": "payment_return_rma/ui/return-reasons-panel.component",
+      "module": "payment_return_rma",
+      "filePath": "modules/payment_return_rma/ui/return-reasons-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReturnReasonsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "return-reasons-panel.component"
+    },
+    {
+      "id": "payment_return_rma/ui/return-settings.page",
+      "module": "payment_return_rma",
+      "filePath": "modules/payment_return_rma/ui/return-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "return-settings.page"
+    },
+    {
+      "id": "payment_return_rma/ui/return-status-badge.component",
+      "module": "payment_return_rma",
+      "filePath": "modules/payment_return_rma/ui/return-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReturnStatus",
+        "ReturnStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "return-status-badge.component"
+    },
+    {
+      "id": "payment_return_rma/ui/returns-return-id.page",
+      "module": "payment_return_rma",
+      "filePath": "modules/payment_return_rma/ui/returns-return-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "returns-return-id.page"
+    },
+    {
+      "id": "payment_return_rma/ui/returns.page",
+      "module": "payment_return_rma",
+      "filePath": "modules/payment_return_rma/ui/returns.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "returns.page"
+    },
+    {
+      "id": "payment_subscription/ui/subscription-events-panel.component",
+      "module": "payment_subscription",
+      "filePath": "modules/payment_subscription/ui/subscription-events-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionEventsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription-events-panel.component"
+    },
+    {
+      "id": "payment_subscription/ui/subscription-lines-panel.component",
+      "module": "payment_subscription",
+      "filePath": "modules/payment_subscription/ui/subscription-lines-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionLinesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription-lines-panel.component"
+    },
+    {
+      "id": "payment_subscription/ui/subscription-status-badge.component",
+      "module": "payment_subscription",
+      "filePath": "modules/payment_subscription/ui/subscription-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionStatus",
+        "SubscriptionStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription-status-badge.component"
+    },
+    {
+      "id": "payment_subscription/ui/subscriptions-subscription-id.page",
+      "module": "payment_subscription",
+      "filePath": "modules/payment_subscription/ui/subscriptions-subscription-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscriptions-subscription-id.page"
+    },
+    {
+      "id": "payment_subscription/ui/subscriptions.page",
+      "module": "payment_subscription",
+      "filePath": "modules/payment_subscription/ui/subscriptions.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscriptions.page"
     },
     {
       "id": "payment/ui/billing-profile-tab.component",
@@ -3935,6 +4323,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "credit-card-visual.component"
+    },
+    {
+      "id": "payment/ui/payment-methods-panel.component",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payment-methods-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentMethodsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payment-methods-panel.component"
     },
     {
       "id": "payment/ui/payment-provider-config-modal.component",
@@ -4000,6 +4400,18 @@
       "isClient": true,
       "isServer": false,
       "baseName": "payment-summary-card.component"
+    },
+    {
+      "id": "payment/ui/payment-transactions-panel.component",
+      "module": "payment",
+      "filePath": "modules/payment/ui/payment-transactions-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "PaymentTransactionsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payment-transactions-panel.component"
     },
     {
       "id": "payment/ui/payments-payment-id.page",
@@ -4110,6 +4522,16 @@
       "baseName": "payroll-payslips-payslip-id.page"
     },
     {
+      "id": "payroll/ui/payroll-payslips-settings.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-payslips-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-payslips-settings.page"
+    },
+    {
       "id": "payroll/ui/payroll-payslips.page",
       "module": "payroll",
       "filePath": "modules/payroll/ui/payroll-payslips.page.tsx",
@@ -4128,6 +4550,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "payroll-runs-run-id.page"
+    },
+    {
+      "id": "payroll/ui/payroll-runs-settings.page",
+      "module": "payroll",
+      "filePath": "modules/payroll/ui/payroll-runs-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "payroll-runs-settings.page"
     },
     {
       "id": "payroll/ui/payroll-runs.page",
@@ -4231,6 +4663,16 @@
       "baseName": "procurement-purchase-orders.page"
     },
     {
+      "id": "procurement/ui/procurement-receipts-settings.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-receipts-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-receipts-settings.page"
+    },
+    {
       "id": "procurement/ui/procurement-receipts.page",
       "module": "procurement",
       "filePath": "modules/procurement/ui/procurement-receipts.page.tsx",
@@ -4239,6 +4681,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "procurement-receipts.page"
+    },
+    {
+      "id": "procurement/ui/procurement-settings.page",
+      "module": "procurement",
+      "filePath": "modules/procurement/ui/procurement-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "procurement-settings.page"
     },
     {
       "id": "procurement/ui/purchase-order-lines-panel.component",
@@ -4264,6 +4716,61 @@
       "isClient": true,
       "isServer": false,
       "baseName": "purchase-order-status-badge.component"
+    },
+    {
+      "id": "product_review/ui/review-status-badge.component",
+      "module": "product_review",
+      "filePath": "modules/product_review/ui/review-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReviewStatus",
+        "ReviewStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "review-status-badge.component"
+    },
+    {
+      "id": "product_review/ui/review-votes-panel.component",
+      "module": "product_review",
+      "filePath": "modules/product_review/ui/review-votes-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ReviewVotesPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "review-votes-panel.component"
+    },
+    {
+      "id": "product_review/ui/reviews-review-id.page",
+      "module": "product_review",
+      "filePath": "modules/product_review/ui/reviews-review-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "reviews-review-id.page"
+    },
+    {
+      "id": "product_review/ui/reviews.page",
+      "module": "product_review",
+      "filePath": "modules/product_review/ui/reviews.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "reviews.page"
+    },
+    {
+      "id": "redirect/ui/redirect-settings.page",
+      "module": "redirect",
+      "filePath": "modules/redirect/ui/redirect-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "redirect-settings.page"
     },
     {
       "id": "redirect/ui/redirects.page",
@@ -4771,6 +5278,18 @@
       "baseName": "product-status-badge.component"
     },
     {
+      "id": "store/ui/product-tags-panel.component",
+      "module": "store",
+      "filePath": "modules/store/ui/product-tags-panel.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "ProductTagsPanel"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "product-tags-panel.component"
+    },
+    {
       "id": "store/ui/product-variants-panel.component",
       "module": "store",
       "filePath": "modules/store/ui/product-variants-panel.component.tsx",
@@ -4841,6 +5360,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "store-products.page"
+    },
+    {
+      "id": "store/ui/store-settings.page",
+      "module": "store",
+      "filePath": "modules/store/ui/store-settings.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "store-settings.page"
     },
     {
       "id": "supplier/ui/supplier-categories-panel.component",
@@ -5188,6 +5717,28 @@
       "baseName": "subscription-plan-card.component"
     },
     {
+      "id": "tenant_subscription/ui/subscription-status-badge.component",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscription-status-badge.component.tsx",
+      "kind": "ui",
+      "exports": [
+        "SubscriptionStatusBadge"
+      ],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription-status-badge.component"
+    },
+    {
+      "id": "tenant_subscription/ui/subscription-subscription-id.page",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscription-subscription-id.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscription-subscription-id.page"
+    },
+    {
       "id": "tenant_subscription/ui/subscription.helpers",
       "module": "tenant_subscription",
       "filePath": "modules/tenant_subscription/ui/subscription.helpers.ts",
@@ -5214,6 +5765,16 @@
       "isClient": true,
       "isServer": false,
       "baseName": "subscription.page"
+    },
+    {
+      "id": "tenant_subscription/ui/subscriptions.page",
+      "module": "tenant_subscription",
+      "filePath": "modules/tenant_subscription/ui/subscriptions.page.tsx",
+      "kind": "ui",
+      "exports": [],
+      "isClient": true,
+      "isServer": false,
+      "baseName": "subscriptions.page"
     },
     {
       "id": "tenant_subscription/ui/upgrade-prompt.component",

@@ -59,6 +59,7 @@ import { Fulfillment } from '@kuraykaraaslan/order_fulfillment/server/entities/f
 import { FulfillmentItem } from '@kuraykaraaslan/order_fulfillment/server/entities/fulfillment_item.entity';
 import { FulfillmentEvent } from '@kuraykaraaslan/order_fulfillment/server/entities/fulfillment_event.entity';
 import { Warehouse } from '@kuraykaraaslan/order_fulfillment/server/entities/warehouse.entity';
+import { Carrier } from '@kuraykaraaslan/order_fulfillment/server/entities/carrier.entity';
 import { Cart } from '@kuraykaraaslan/payment_cart/server/entities/cart.entity';
 import { CartItem } from '@kuraykaraaslan/payment_cart/server/entities/cart_item.entity';
 import { ShippingMethod } from '@kuraykaraaslan/payment_shipping/server/entities/shipping_method.entity';
@@ -159,6 +160,11 @@ import { Journal } from '@kuraykaraaslan/accounting/server/entities/journals.ent
 import { PayslipLine } from '@kuraykaraaslan/payroll/server/entities/payslip_lines.entity';
 import { LeaveType } from '@kuraykaraaslan/hr/server/entities/leave_types.entity';
 import { SupplierCategory } from '@kuraykaraaslan/supplier/server/entities/supplier_categories.entity';
+// Wave A — Odoo-depth config/line entities
+import { PaymentMethodConfig } from '@kuraykaraaslan/payment/server/entities/payment_method.entity';
+import { SubscriptionEvent } from '@kuraykaraaslan/payment_subscription/server/entities/subscription_event.entity';
+import { ReturnReason } from '@kuraykaraaslan/payment_return_rma/server/entities/return_reason.entity';
+import { StoreProductTag } from '@kuraykaraaslan/store/server/entities/store_product_tag.entity';
 
 export const ENTITIES = [
   User, UserConsent, UserProfile, UserSecurity, UserPreferences, UserSession,
@@ -172,7 +178,7 @@ export const ENTITIES = [
   StoreBundleItem, StoreVariationType, StoreVariationOption, StoreProductVariant,
   SeoMeta, MediaGallery, MediaGalleryItem, DynamicPage, DynamicPageTranslation,
   DynamicPageBlock, DynamicCollection, DynamicCollectionItem, DynamicPageVersion,
-  Fulfillment, FulfillmentItem, FulfillmentEvent, Warehouse, Cart, CartItem,
+  Fulfillment, FulfillmentItem, FulfillmentEvent, Warehouse, Carrier, Cart, CartItem,
   ShippingMethod, ShippingRate, TaxClass, TaxRate, Wishlist, WishlistItem,
   WishlistPricePoint, ProductReview, ProductReviewVote, ReturnRequest, ReturnItem,
   ReturnEvent, LoyaltyAccount, LoyaltyTransaction, LoyaltyTier, BlogCategory,
@@ -194,4 +200,6 @@ export const ENTITIES = [
   LedgerAccount, JournalEntry, JournalLine, FiscalPeriod, Journal, Order, OrderLine, OrderStatusEvent,
   // HR workspace
   Department, Employee, LeaveRequest, LeaveType, PayrollRun, Payslip, PayslipLine, SalaryComponent,
+  // Wave A (finance/commerce core)
+  PaymentMethodConfig, SubscriptionEvent, ReturnReason, StoreProductTag,
 ];

@@ -32,6 +32,10 @@ Tenant-scoped site navigation menus (header/footer) with nested menu items.
 
 - `navigation.messages.ts`
 
+## Setting keys
+
+- `navigation.setting.keys.ts`
+
 ## TypeORM entities
 
 - `NavigationItem` (system) — `modules/navigation/server/entities/navigation_items.entity.ts`
@@ -41,6 +45,7 @@ Tenant-scoped site navigation menus (header/footer) with nested menu items.
 
 - `navigation/ui/navigation-items-panel.component` _(ui, client)_
 - `navigation/ui/navigation-menu-id.page` _(ui, client)_
+- `navigation/ui/navigation-settings.page` _(ui, client)_
 - `navigation/ui/navigation.page` _(ui, client)_
 
 ## README

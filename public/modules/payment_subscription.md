@@ -6,7 +6,7 @@
 - **dir:** `modules/payment_subscription/`
 - **tags:** payment, subscription, billing, plans
 - **icon:** `fas fa-sync-alt`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Recurring subscription lifecycle: plans, plan features, subscriber management, proration, billing cycle tracking. Provider-agnostic (Stripe, PayPal, Iyzico, …). Tenant-aware — every plan and subscription is scoped to a tenant.
 
@@ -18,7 +18,9 @@ Recurring subscription lifecycle: plans, plan features, subscriber management, p
 
 - `payment_subscription.crud.service.ts`
 - `payment_subscription.dunning.service.ts`
+- `payment_subscription.event.service.ts`
 - `payment_subscription.lifecycle.service.ts`
+- `payment_subscription.line.service.ts`
 - `payment_subscription.metered.service.ts`
 - `payment_subscription.metrics.service.ts`
 - `payment_subscription.plan.service.ts`
@@ -34,6 +36,7 @@ Recurring subscription lifecycle: plans, plan features, subscriber management, p
 
 - `plan_feature.entity.ts`
 - `subscription.entity.ts`
+- `subscription_event.entity.ts`
 - `subscription_plan.entity.ts`
 
 ## Enums
@@ -48,7 +51,16 @@ Recurring subscription lifecycle: plans, plan features, subscriber management, p
 
 - `PlanFeature` (system) — `modules/payment_subscription/server/entities/plan_feature.entity.ts`
 - `Subscription` (system) — `modules/payment_subscription/server/entities/subscription.entity.ts`
+- `SubscriptionEvent` (system) — `modules/payment_subscription/server/entities/subscription_event.entity.ts`
 - `SubscriptionPlan` (system) — `modules/payment_subscription/server/entities/subscription_plan.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `payment_subscription/ui/subscription-events-panel.component` _(ui, client)_
+- `payment_subscription/ui/subscription-lines-panel.component` _(ui, client)_
+- `payment_subscription/ui/subscription-status-badge.component` _(ui, client)_
+- `payment_subscription/ui/subscriptions-subscription-id.page` _(ui, client)_
+- `payment_subscription/ui/subscriptions.page` _(ui, client)_
 
 ## README
 

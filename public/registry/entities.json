@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T17:01:00.528Z",
+  "generatedAt": "2026-06-23T19:22:33.205Z",
   "entities": [
     {
       "name": "Agreement",
@@ -254,6 +254,26 @@
         "status",
         "views",
         "publishedAt",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "Carrier",
+      "filePath": "modules/order_fulfillment/server/entities/carrier.entity.ts",
+      "module": "order_fulfillment",
+      "schema": "system",
+      "tableName": "fulfillment_carriers",
+      "columns": [
+        "carrierId",
+        "tenantId",
+        "name",
+        "code",
+        "trackingUrlPattern",
+        "isActive",
+        "sortOrder",
         "createdAt",
         "updatedAt",
         "deletedAt"
@@ -1810,6 +1830,25 @@
       "relations": []
     },
     {
+      "name": "PaymentMethodConfig",
+      "filePath": "modules/payment/server/entities/payment_method.entity.ts",
+      "module": "payment",
+      "schema": "system",
+      "tableName": "payment_methods",
+      "columns": [
+        "methodId",
+        "tenantId",
+        "name",
+        "code",
+        "gateway",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "PaymentTransaction",
       "filePath": "modules/payment/server/entities/payment_transaction.entity.ts",
       "module": "payment",
@@ -2209,9 +2248,29 @@
         "sku",
         "name",
         "quantity",
+        "unitPrice",
+        "amount",
         "reason",
         "condition",
         "createdAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "ReturnReason",
+      "filePath": "modules/payment_return_rma/server/entities/return_reason.entity.ts",
+      "module": "payment_return_rma",
+      "schema": "system",
+      "tableName": "return_reasons",
+      "columns": [
+        "returnReasonId",
+        "tenantId",
+        "name",
+        "code",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
       ],
       "relations": []
     },
@@ -2687,6 +2746,24 @@
       "relations": []
     },
     {
+      "name": "StoreProductTag",
+      "filePath": "modules/store/server/entities/store_product_tag.entity.ts",
+      "module": "store",
+      "schema": "system",
+      "tableName": "store_product_tags",
+      "columns": [
+        "tagId",
+        "tenantId",
+        "name",
+        "slug",
+        "isActive",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ],
+      "relations": []
+    },
+    {
       "name": "StoreProductVariant",
       "filePath": "modules/store/server/entities/store_product_variant.entity.ts",
       "module": "store",
@@ -2816,6 +2893,24 @@
         "createdAt",
         "updatedAt",
         "deletedAt"
+      ],
+      "relations": []
+    },
+    {
+      "name": "SubscriptionEvent",
+      "filePath": "modules/payment_subscription/server/entities/subscription_event.entity.ts",
+      "module": "payment_subscription",
+      "schema": "system",
+      "tableName": "subscription_events",
+      "columns": [
+        "eventId",
+        "tenantId",
+        "subscriptionId",
+        "status",
+        "action",
+        "note",
+        "createdAt",
+        "updatedAt"
       ],
       "relations": []
     },

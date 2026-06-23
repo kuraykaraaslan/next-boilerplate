@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T17:01:00.528Z",
+  "generatedAt": "2026-06-23T19:22:33.205Z",
   "modules": {
     "terms_consent": [
       {
@@ -71,6 +71,33 @@
       },
       {
         "tableName": "blog_posts",
+        "schema": "system",
+        "hasTenantId": true
+      }
+    ],
+    "order_fulfillment": [
+      {
+        "tableName": "fulfillment_carriers",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillments",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillment_events",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillment_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "fulfillment_warehouses",
         "schema": "system",
         "hasTenantId": true
       }
@@ -297,28 +324,6 @@
         "hasTenantId": true
       }
     ],
-    "order_fulfillment": [
-      {
-        "tableName": "fulfillments",
-        "schema": "system",
-        "hasTenantId": true
-      },
-      {
-        "tableName": "fulfillment_events",
-        "schema": "system",
-        "hasTenantId": true
-      },
-      {
-        "tableName": "fulfillment_items",
-        "schema": "system",
-        "hasTenantId": true
-      },
-      {
-        "tableName": "fulfillment_warehouses",
-        "schema": "system",
-        "hasTenantId": true
-      }
-    ],
     "gift_card": [
       {
         "tableName": "gift_cards",
@@ -496,6 +501,11 @@
         "hasTenantId": true
       },
       {
+        "tableName": "payment_methods",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
         "tableName": "payment_transactions",
         "schema": "system",
         "hasTenantId": false
@@ -557,6 +567,11 @@
         "hasTenantId": true
       },
       {
+        "tableName": "subscription_events",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
         "tableName": "subscription_plans",
         "schema": "system",
         "hasTenantId": true
@@ -603,6 +618,11 @@
       },
       {
         "tableName": "return_items",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "return_reasons",
         "schema": "system",
         "hasTenantId": true
       },
@@ -709,6 +729,11 @@
       },
       {
         "tableName": "store_product_spec_values",
+        "schema": "system",
+        "hasTenantId": true
+      },
+      {
+        "tableName": "store_product_tags",
         "schema": "system",
         "hasTenantId": true
       },

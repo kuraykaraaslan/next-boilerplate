@@ -21,6 +21,7 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `payment.crud.read.service.ts`
 - `payment.crud.service.ts`
 - `payment.crud.write.service.ts`
+- `payment.method.service.ts`
 - `payment.proration.service.ts`
 - `payment.service.ts`
 - `payment.transaction.service.ts`
@@ -31,14 +32,17 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `payment.webhook.service.ts`
 - `payment.webhook.stripe.service.ts`
 - `payment.webhook.subscription.service.ts`
+- `payment.workflow.service.ts`
 
 ## DTOs
 
 - `payment.dto.ts`
+- `payment.method.dto.ts`
 
 ## Entities
 
 - `payment.entity.ts`
+- `payment_method.entity.ts`
 - `payment_transaction.entity.ts`
 - `plan_feature.entity.ts`
 - `subscription_plan.entity.ts`
@@ -58,6 +62,7 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 ## TypeORM entities
 
 - `Payment` (system) — `modules/payment/server/entities/payment.entity.ts`
+- `PaymentMethodConfig` (system) — `modules/payment/server/entities/payment_method.entity.ts`
 - `PaymentTransaction` (system) — `modules/payment/server/entities/payment_transaction.entity.ts`
 - `PlanFeature` (system) — `modules/payment/server/entities/plan_feature.entity.ts`
 - `SubscriptionPlan` (system) — `modules/payment/server/entities/subscription_plan.entity.ts`
@@ -68,11 +73,13 @@ Pluggable payment processing (Stripe, PayPal, Iyzico) + subscription plans, plan
 - `payment/ui/card-checkout-modal.component` _(ui, client)_
 - `payment/ui/credit-card-form.component` _(ui, client)_
 - `payment/ui/credit-card-visual.component` _(ui, client)_
+- `payment/ui/payment-methods-panel.component` _(ui, client)_
 - `payment/ui/payment-provider-config-modal.component` _(ui, client)_
 - `payment/ui/payment-provider-selector.component` _(ui, client)_
 - `payment/ui/payment-refund-modal.component` _(ui, client)_
 - `payment/ui/payment-status-badge.component` _(ui, client)_
 - `payment/ui/payment-summary-card.component` _(ui, client)_
+- `payment/ui/payment-transactions-panel.component` _(ui, client)_
 - `payment/ui/payments-payment-id.page` _(ui, client)_
 - `payment/ui/payments-settings.page` _(ui, client)_
 - `payment/ui/payments.page` _(ui, client)_

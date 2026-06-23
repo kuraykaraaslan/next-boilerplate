@@ -40,6 +40,10 @@ Tenant-scoped procurement: purchase orders, their lines, and goods receipts.
 
 - `procurement.messages.ts`
 
+## Setting keys
+
+- `procurement.setting.keys.ts`
+
 ## TypeORM entities
 
 - `GoodsReceipt` (system) — `modules/procurement/server/entities/goods_receipts.entity.ts`
@@ -51,7 +55,9 @@ Tenant-scoped procurement: purchase orders, their lines, and goods receipts.
 
 - `procurement/ui/procurement-purchase-orders-purchase-order-id.page` _(ui, client)_
 - `procurement/ui/procurement-purchase-orders.page` _(ui, client)_
+- `procurement/ui/procurement-receipts-settings.page` _(ui, client)_
 - `procurement/ui/procurement-receipts.page` _(ui, client)_
+- `procurement/ui/procurement-settings.page` _(ui, client)_
 - `procurement/ui/purchase-order-lines-panel.component` _(ui, client)_
 - `procurement/ui/purchase-order-status-badge.component` _(ui, client)_
 

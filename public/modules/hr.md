@@ -50,9 +50,12 @@ Tenant-scoped HR: employees, departments and leave requests.
 ## Next layer (modules_next/) surface
 
 - `hr/ui/employee-leave-panel.component` _(ui, client)_
+- `hr/ui/hr-departments-settings.page` _(ui, client)_
 - `hr/ui/hr-departments.page` _(ui, client)_
 - `hr/ui/hr-employees-employee-id.page` _(ui, client)_
+- `hr/ui/hr-employees-settings.page` _(ui, client)_
 - `hr/ui/hr-employees.page` _(ui, client)_
+- `hr/ui/hr-leave-settings.page` _(ui, client)_
 - `hr/ui/hr-leave.page` _(ui, client)_
 - `hr/ui/hr-settings.page` _(ui, client)_
 - `hr/ui/hr-status-badge.component` _(ui, client)_

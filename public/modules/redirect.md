@@ -30,12 +30,17 @@ Tenant-scoped URL redirect (301/302) rules for SEO-safe content moves.
 
 - `redirect.messages.ts`
 
+## Setting keys
+
+- `redirect.setting.keys.ts`
+
 ## TypeORM entities
 
 - `RedirectRule` (system) — `modules/redirect/server/entities/redirect_rules.entity.ts`
 
 ## Next layer (modules_next/) surface
 
+- `redirect/ui/redirect-settings.page` _(ui, client)_
 - `redirect/ui/redirects.page` _(ui, client)_
 
 ## README

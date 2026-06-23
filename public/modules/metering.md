@@ -19,6 +19,7 @@ Event-based usage metering with metered / overage billing. Records immutable usa
 - `metering.billing.read.service.ts`
 - `metering.billing.run.service.ts`
 - `metering.billing.service.ts`
+- `metering.billing.workflow.service.ts`
 - `metering.meter.service.ts`
 - `metering.record.service.ts`
 - `metering.service.ts`
@@ -49,5 +50,10 @@ Event-based usage metering with metered / overage billing. Records immutable usa
 
 ## Next layer (modules_next/) surface
 
+- `metering/ui/billing-run-lines-panel.component` _(ui, client)_
+- `metering/ui/billing-run-status-badge.component` _(ui, client)_
 - `metering/ui/metering-columns.component` _(ui, client)_
+- `metering/ui/metering-runs-run-id.page` _(ui, client)_
+- `metering/ui/metering-settings.page` _(ui, client)_
 - `metering/ui/metering.page` _(ui, client)_
+- `metering/ui/meters-panel.component` _(ui, client)_

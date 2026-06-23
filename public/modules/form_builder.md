@@ -39,6 +39,10 @@ Tenant-scoped form builder: custom forms, fields, and captured submissions.
 
 - `form_builder.messages.ts`
 
+## Setting keys
+
+- `form_builder.setting.keys.ts`
+
 ## TypeORM entities
 
 - `Form` (system) — `modules/form_builder/server/entities/forms.entity.ts`
@@ -47,9 +51,11 @@ Tenant-scoped form builder: custom forms, fields, and captured submissions.
 
 ## Next layer (modules_next/) surface
 
+- `form_builder/ui/form_builder-settings.page` _(ui, client)_
 - `form_builder/ui/form-fields-panel.component` _(ui, client)_
 - `form_builder/ui/form-status-badge.component` _(ui, client)_
 - `form_builder/ui/form-submissions-panel.component` _(ui, client)_
+- `form_builder/ui/form-submissions-settings.page` _(ui, client)_
 - `form_builder/ui/form-submissions.page` _(ui, client)_
 - `form_builder/ui/forms-form-id.page` _(ui, client)_
 - `form_builder/ui/forms.page` _(ui, client)_

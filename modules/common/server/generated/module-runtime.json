@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T17:01:00.528Z",
+  "generatedAt": "2026-06-23T19:22:33.205Z",
   "menu": [
     {
       "id": "settings",
@@ -518,6 +518,18 @@
       "moduleId": "payment"
     },
     {
+      "id": "subscription-admin-list",
+      "label": "Subscriptions",
+      "href": "/admin/subscriptions",
+      "icon": "fas fa-rectangle-list",
+      "group": "Management",
+      "workspace": "crm",
+      "order": 11,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "tenant_subscription"
+    },
+    {
       "id": "invoices",
       "label": "Invoices",
       "href": "/admin/invoices",
@@ -770,6 +782,18 @@
       "moduleId": "store"
     },
     {
+      "id": "subscription-list-commerce",
+      "label": "Subscriptions",
+      "href": "/admin/subscriptions",
+      "icon": "fas fa-repeat",
+      "group": "Commerce",
+      "workspace": "commerce",
+      "order": 30,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment_subscription"
+    },
+    {
       "id": "accounting-periods",
       "label": "Periods",
       "href": "/admin/accounting/periods",
@@ -804,6 +828,30 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "payroll"
+    },
+    {
+      "id": "product-review-list",
+      "label": "Reviews",
+      "href": "/admin/reviews",
+      "icon": "fas fa-star",
+      "group": "Commerce",
+      "workspace": "commerce",
+      "order": 40,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "product_review"
+    },
+    {
+      "id": "returns-list",
+      "label": "Returns (RMA)",
+      "href": "/admin/returns",
+      "icon": "fas fa-rotate-left",
+      "group": "Commerce",
+      "workspace": "commerce",
+      "order": 40,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment_return_rma"
     },
     {
       "id": "invoice-list-erp",
@@ -854,6 +902,18 @@
       "moduleId": "accounting"
     },
     {
+      "id": "form_builder-settings",
+      "label": "Form Settings",
+      "href": "/admin/forms/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "content",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
       "id": "hr-settings",
       "label": "HR Settings",
       "href": "/admin/hr/settings",
@@ -878,6 +938,66 @@
       "moduleId": "inventory"
     },
     {
+      "id": "metering-settings",
+      "label": "Settings",
+      "href": "/admin/metering/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "metering"
+    },
+    {
+      "id": "navigation-settings",
+      "label": "Navigation Settings",
+      "href": "/admin/navigation/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "content",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "navigation"
+    },
+    {
+      "id": "order-fulfillment-settings",
+      "label": "Fulfillment Settings",
+      "href": "/admin/fulfillment/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "id": "order-settings",
+      "label": "Order Settings",
+      "href": "/admin/orders/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "order"
+    },
+    {
+      "id": "payment-settings",
+      "label": "Payment Settings",
+      "href": "/admin/payments/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment"
+    },
+    {
       "id": "payroll-settings",
       "label": "Payroll Settings",
       "href": "/admin/payroll/settings",
@@ -888,6 +1008,54 @@
       "scope": "tenant",
       "permissions": [],
       "moduleId": "payroll"
+    },
+    {
+      "id": "procurement-settings",
+      "label": "Procurement Settings",
+      "href": "/admin/procurement/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
+      "id": "redirect-settings",
+      "label": "Redirect Settings",
+      "href": "/admin/redirects/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "content",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "redirect"
+    },
+    {
+      "id": "returns-settings",
+      "label": "Return Settings",
+      "href": "/admin/returns/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "id": "store-settings",
+      "label": "Settings",
+      "href": "/admin/store/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant",
+      "permissions": [],
+      "moduleId": "store"
     },
     {
       "id": "supplier-settings",
@@ -916,6 +1084,12 @@
       "moduleId": "accounting"
     },
     {
+      "path": "/admin/accounting/accounts/settings",
+      "componentId": "accounting/ui/accounting-accounts-settings.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
       "path": "/admin/accounting/journal",
       "componentId": "accounting/ui/accounting-journal.page",
       "permissions": [],
@@ -928,14 +1102,32 @@
       "moduleId": "accounting"
     },
     {
+      "path": "/admin/accounting/journal/settings",
+      "componentId": "accounting/ui/accounting-journal-settings.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
       "path": "/admin/accounting/ledger",
       "componentId": "accounting/ui/accounting-ledger.page",
       "permissions": [],
       "moduleId": "accounting"
     },
     {
+      "path": "/admin/accounting/ledger/settings",
+      "componentId": "accounting/ui/accounting-ledger-settings.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
       "path": "/admin/accounting/periods",
       "componentId": "accounting/ui/accounting-periods.page",
+      "permissions": [],
+      "moduleId": "accounting"
+    },
+    {
+      "path": "/admin/accounting/periods/settings",
+      "componentId": "accounting/ui/accounting-periods-settings.page",
       "permissions": [],
       "moduleId": "accounting"
     },
@@ -1126,14 +1318,38 @@
       "moduleId": "form_builder"
     },
     {
+      "path": "/admin/forms/settings",
+      "componentId": "form_builder/ui/form_builder-settings.page",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
       "path": "/admin/forms/submissions",
       "componentId": "form_builder/ui/form-submissions.page",
       "permissions": [],
       "moduleId": "form_builder"
     },
     {
+      "path": "/admin/forms/submissions/settings",
+      "componentId": "form_builder/ui/form-submissions-settings.page",
+      "permissions": [],
+      "moduleId": "form_builder"
+    },
+    {
       "path": "/admin/fulfillment",
       "componentId": "order_fulfillment/ui/fulfillment.page",
+      "permissions": [],
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/admin/fulfillment/[fulfillmentId]",
+      "componentId": "order_fulfillment/ui/fulfillment-fulfillment-id.page",
+      "permissions": [],
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/admin/fulfillment/settings",
+      "componentId": "order_fulfillment/ui/fulfillment-settings.page",
       "permissions": [],
       "moduleId": "order_fulfillment"
     },
@@ -1162,6 +1378,12 @@
       "moduleId": "hr"
     },
     {
+      "path": "/admin/hr/departments/settings",
+      "componentId": "hr/ui/hr-departments-settings.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
       "path": "/admin/hr/employees",
       "componentId": "hr/ui/hr-employees.page",
       "permissions": [],
@@ -1174,8 +1396,20 @@
       "moduleId": "hr"
     },
     {
+      "path": "/admin/hr/employees/settings",
+      "componentId": "hr/ui/hr-employees-settings.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
       "path": "/admin/hr/leave",
       "componentId": "hr/ui/hr-leave.page",
+      "permissions": [],
+      "moduleId": "hr"
+    },
+    {
+      "path": "/admin/hr/leave/settings",
+      "componentId": "hr/ui/hr-leave-settings.page",
       "permissions": [],
       "moduleId": "hr"
     },
@@ -1216,8 +1450,20 @@
       "moduleId": "inventory"
     },
     {
+      "path": "/admin/inventory/counts/settings",
+      "componentId": "inventory/ui/inventory-counts-settings.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
       "path": "/admin/inventory/movements",
       "componentId": "inventory/ui/inventory-movements.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/movements/settings",
+      "componentId": "inventory/ui/inventory-movements-settings.page",
       "permissions": [],
       "moduleId": "inventory"
     },
@@ -1234,8 +1480,20 @@
       "moduleId": "inventory"
     },
     {
+      "path": "/admin/inventory/stock/settings",
+      "componentId": "inventory/ui/inventory-stock-settings.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
       "path": "/admin/inventory/warehouses",
       "componentId": "inventory/ui/inventory-warehouses.page",
+      "permissions": [],
+      "moduleId": "inventory"
+    },
+    {
+      "path": "/admin/inventory/warehouses/settings",
+      "componentId": "inventory/ui/inventory-warehouses-settings.page",
       "permissions": [],
       "moduleId": "inventory"
     },
@@ -1306,6 +1564,18 @@
       "moduleId": "metering"
     },
     {
+      "path": "/admin/metering/runs/[runId]",
+      "componentId": "metering/ui/metering-runs-run-id.page",
+      "permissions": [],
+      "moduleId": "metering"
+    },
+    {
+      "path": "/admin/metering/settings",
+      "componentId": "metering/ui/metering-settings.page",
+      "permissions": [],
+      "moduleId": "metering"
+    },
+    {
       "path": "/admin/navigation",
       "componentId": "navigation/ui/navigation.page",
       "permissions": [],
@@ -1318,6 +1588,12 @@
       "moduleId": "navigation"
     },
     {
+      "path": "/admin/navigation/settings",
+      "componentId": "navigation/ui/navigation-settings.page",
+      "permissions": [],
+      "moduleId": "navigation"
+    },
+    {
       "path": "/admin/orders",
       "componentId": "order/ui/orders.page",
       "permissions": [],
@@ -1326,6 +1602,12 @@
     {
       "path": "/admin/orders/[orderId]",
       "componentId": "order/ui/orders-order-id.page",
+      "permissions": [],
+      "moduleId": "order"
+    },
+    {
+      "path": "/admin/orders/settings",
+      "componentId": "order/ui/order-settings.page",
       "permissions": [],
       "moduleId": "order"
     },
@@ -1372,6 +1654,12 @@
       "moduleId": "payroll"
     },
     {
+      "path": "/admin/payroll/payslips/settings",
+      "componentId": "payroll/ui/payroll-payslips-settings.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
       "path": "/admin/payroll/runs",
       "componentId": "payroll/ui/payroll-runs.page",
       "permissions": [],
@@ -1380,6 +1668,12 @@
     {
       "path": "/admin/payroll/runs/[runId]",
       "componentId": "payroll/ui/payroll-runs-run-id.page",
+      "permissions": [],
+      "moduleId": "payroll"
+    },
+    {
+      "path": "/admin/payroll/runs/settings",
+      "componentId": "payroll/ui/payroll-runs-settings.page",
       "permissions": [],
       "moduleId": "payroll"
     },
@@ -1426,10 +1720,58 @@
       "moduleId": "procurement"
     },
     {
+      "path": "/admin/procurement/receipts/settings",
+      "componentId": "procurement/ui/procurement-receipts-settings.page",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
+      "path": "/admin/procurement/settings",
+      "componentId": "procurement/ui/procurement-settings.page",
+      "permissions": [],
+      "moduleId": "procurement"
+    },
+    {
       "path": "/admin/redirects",
       "componentId": "redirect/ui/redirects.page",
       "permissions": [],
       "moduleId": "redirect"
+    },
+    {
+      "path": "/admin/redirects/settings",
+      "componentId": "redirect/ui/redirect-settings.page",
+      "permissions": [],
+      "moduleId": "redirect"
+    },
+    {
+      "path": "/admin/returns",
+      "componentId": "payment_return_rma/ui/returns.page",
+      "permissions": [],
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/admin/returns/[returnId]",
+      "componentId": "payment_return_rma/ui/returns-return-id.page",
+      "permissions": [],
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/admin/returns/settings",
+      "componentId": "payment_return_rma/ui/return-settings.page",
+      "permissions": [],
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/admin/reviews",
+      "componentId": "product_review/ui/reviews.page",
+      "permissions": [],
+      "moduleId": "product_review"
+    },
+    {
+      "path": "/admin/reviews/[reviewId]",
+      "componentId": "product_review/ui/reviews-review-id.page",
+      "permissions": [],
+      "moduleId": "product_review"
     },
     {
       "path": "/admin/saml",
@@ -1576,10 +1918,40 @@
       "moduleId": "store"
     },
     {
+      "path": "/admin/store/settings",
+      "componentId": "store/ui/store-settings.page",
+      "permissions": [],
+      "moduleId": "store"
+    },
+    {
       "path": "/admin/subscription",
       "componentId": "tenant_subscription/ui/subscription.page",
       "permissions": [],
       "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/admin/subscription/[subscriptionId]",
+      "componentId": "tenant_subscription/ui/subscription-subscription-id.page",
+      "permissions": [],
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/admin/subscriptions",
+      "componentId": "tenant_subscription/ui/subscriptions.page",
+      "permissions": [],
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/admin/subscriptions",
+      "componentId": "payment_subscription/ui/subscriptions.page",
+      "permissions": [],
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/admin/subscriptions/[subscriptionId]",
+      "componentId": "payment_subscription/ui/subscriptions-subscription-id.page",
+      "permissions": [],
+      "moduleId": "payment_subscription"
     },
     {
       "path": "/admin/suppliers",
@@ -2585,6 +2957,56 @@
       "moduleId": "form_builder"
     },
     {
+      "path": "/api/fulfillment",
+      "handlerId": "order_fulfillment/server/fulfillment.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/cancel",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id-cancel.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/deliver",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id-deliver.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/lines",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id-lines.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/lines/[lineId]",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id-lines-line-id.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/pack",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id-pack.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/ship",
+      "handlerId": "order_fulfillment/server/fulfillment-fulfillment-id-ship.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/carriers",
+      "handlerId": "order_fulfillment/server/fulfillment-carriers.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
+      "path": "/api/fulfillment/carriers/[carrierId]",
+      "handlerId": "order_fulfillment/server/fulfillment-carriers-carrier-id.route",
+      "moduleId": "order_fulfillment"
+    },
+    {
       "path": "/api/gift-cards",
       "handlerId": "gift_card/server/gift-cards.route",
       "moduleId": "gift_card"
@@ -2990,6 +3412,31 @@
       "moduleId": "metering"
     },
     {
+      "path": "/api/metering/runs",
+      "handlerId": "metering/server/metering-runs.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/runs/[runId]",
+      "handlerId": "metering/server/metering-runs-run-id.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/runs/[runId]/bill",
+      "handlerId": "metering/server/metering-runs-run-id-bill.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/runs/[runId]/calculate",
+      "handlerId": "metering/server/metering-runs-run-id-calculate.route",
+      "moduleId": "metering"
+    },
+    {
+      "path": "/api/metering/runs/[runId]/lines",
+      "handlerId": "metering/server/metering-runs-run-id-lines.route",
+      "moduleId": "metering"
+    },
+    {
       "path": "/api/metering/usage",
       "handlerId": "metering/server/metering-usage.route",
       "moduleId": "metering"
@@ -3075,6 +3522,21 @@
       "moduleId": "payment"
     },
     {
+      "path": "/api/payments/[paymentId]/authorize",
+      "handlerId": "payment/server/payments-payment-id-authorize.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/[paymentId]/capture",
+      "handlerId": "payment/server/payments-payment-id-capture.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/[paymentId]/fail",
+      "handlerId": "payment/server/payments-payment-id-fail.route",
+      "moduleId": "payment"
+    },
+    {
       "path": "/api/payments/[paymentId]/refund",
       "handlerId": "payment/server/payments-payment-id-refund.route",
       "moduleId": "payment"
@@ -3085,8 +3547,23 @@
       "moduleId": "payment"
     },
     {
+      "path": "/api/payments/[paymentId]/transactions/[transactionId]",
+      "handlerId": "payment/server/payments-payment-id-transactions-transaction-id.route",
+      "moduleId": "payment"
+    },
+    {
       "path": "/api/payments/bin-check",
       "handlerId": "payment/server/payments-bin-check.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/methods",
+      "handlerId": "payment/server/payments-methods.route",
+      "moduleId": "payment"
+    },
+    {
+      "path": "/api/payments/methods/[methodId]",
+      "handlerId": "payment/server/payments-methods-method-id.route",
       "moduleId": "payment"
     },
     {
@@ -3255,6 +3732,96 @@
       "moduleId": "redirect"
     },
     {
+      "path": "/api/return-reasons",
+      "handlerId": "payment_return_rma/server/return-reasons.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/return-reasons/[reasonId]",
+      "handlerId": "payment_return_rma/server/return-reasons-reason-id.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns",
+      "handlerId": "payment_return_rma/server/returns.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]",
+      "handlerId": "payment_return_rma/server/returns-return-id.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/approve",
+      "handlerId": "payment_return_rma/server/returns-return-id-approve.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/cancel",
+      "handlerId": "payment_return_rma/server/returns-return-id-cancel.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/complete",
+      "handlerId": "payment_return_rma/server/returns-return-id-complete.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/lines",
+      "handlerId": "payment_return_rma/server/returns-return-id-lines.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/lines/[lineId]",
+      "handlerId": "payment_return_rma/server/returns-return-id-lines-line-id.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/receive",
+      "handlerId": "payment_return_rma/server/returns-return-id-receive.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/refund",
+      "handlerId": "payment_return_rma/server/returns-return-id-refund.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/returns/[returnId]/reject",
+      "handlerId": "payment_return_rma/server/returns-return-id-reject.route",
+      "moduleId": "payment_return_rma"
+    },
+    {
+      "path": "/api/reviews",
+      "handlerId": "product_review/server/reviews.route",
+      "moduleId": "product_review"
+    },
+    {
+      "path": "/api/reviews/[reviewId]",
+      "handlerId": "product_review/server/reviews-review-id.route",
+      "moduleId": "product_review"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/approve",
+      "handlerId": "product_review/server/reviews-review-id-approve.route",
+      "moduleId": "product_review"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/reject",
+      "handlerId": "product_review/server/reviews-review-id-reject.route",
+      "moduleId": "product_review"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/spam",
+      "handlerId": "product_review/server/reviews-review-id-spam.route",
+      "moduleId": "product_review"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/votes",
+      "handlerId": "product_review/server/reviews-review-id-votes.route",
+      "moduleId": "product_review"
+    },
+    {
       "path": "/api/saml/config",
       "handlerId": "auth_saml/server/saml-config.route",
       "moduleId": "auth_saml"
@@ -3380,6 +3947,16 @@
       "moduleId": "store"
     },
     {
+      "path": "/api/store/product-tags",
+      "handlerId": "store/server/store-product-tags.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/product-tags/[tagId]",
+      "handlerId": "store/server/store-product-tags-tag-id.route",
+      "moduleId": "store"
+    },
+    {
       "path": "/api/store/products",
       "handlerId": "store/server/store-products.route",
       "moduleId": "store"
@@ -3387,6 +3964,16 @@
     {
       "path": "/api/store/products/[productId]",
       "handlerId": "store/server/store-products-product-id.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/activate",
+      "handlerId": "store/server/store-products-product-id-activate.route",
+      "moduleId": "store"
+    },
+    {
+      "path": "/api/store/products/[productId]/archive",
+      "handlerId": "store/server/store-products-product-id-archive.route",
       "moduleId": "store"
     },
     {
@@ -3445,6 +4032,36 @@
       "moduleId": "tenant_subscription"
     },
     {
+      "path": "/api/subscription/admin",
+      "handlerId": "tenant_subscription/server/subscription-admin.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]",
+      "handlerId": "tenant_subscription/server/subscription-admin-subscription-id.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/cancel",
+      "handlerId": "tenant_subscription/server/subscription-admin-subscription-id-cancel.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/expire",
+      "handlerId": "tenant_subscription/server/subscription-admin-subscription-id-expire.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/renew",
+      "handlerId": "tenant_subscription/server/subscription-admin-subscription-id-renew.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/start-grace",
+      "handlerId": "tenant_subscription/server/subscription-admin-subscription-id-start-grace.route",
+      "moduleId": "tenant_subscription"
+    },
+    {
       "path": "/api/subscription/confirm",
       "handlerId": "tenant_subscription/server/subscription-confirm.route",
       "moduleId": "tenant_subscription"
@@ -3483,6 +4100,51 @@
       "path": "/api/subscription/quote",
       "handlerId": "tenant_subscription/server/subscription-quote.route",
       "moduleId": "tenant_subscription"
+    },
+    {
+      "path": "/api/subscriptions",
+      "handlerId": "payment_subscription/server/subscriptions.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/cancel",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-cancel.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/events",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-events.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/expire",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-expire.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/lines",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-lines.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/lines/[lineId]",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-lines-line-id.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/pause",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-pause.route",
+      "moduleId": "payment_subscription"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/resume",
+      "handlerId": "payment_subscription/server/subscriptions-subscription-id-resume.route",
+      "moduleId": "payment_subscription"
     },
     {
       "path": "/api/suppliers",

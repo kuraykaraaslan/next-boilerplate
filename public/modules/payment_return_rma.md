@@ -6,7 +6,7 @@
 - **dir:** `modules/payment_return_rma/`
 - **tags:** return, rma, refund, ecommerce
 - **icon:** `fas fa-rotate-left`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Customer return, exchange and refund (RMA) requests with line items and an append-only status-event log. Tenant-aware, references orders from a future order module.
 
@@ -18,7 +18,9 @@ Customer return, exchange and refund (RMA) requests with line items and an appen
 
 - `payment_return_rma.crud.service.ts`
 - `payment_return_rma.lifecycle.service.ts`
+- `payment_return_rma.line.service.ts`
 - `payment_return_rma.policy.service.ts`
+- `payment_return_rma.reason.service.ts`
 - `payment_return_rma.service.ts`
 
 ## DTOs
@@ -29,6 +31,7 @@ Customer return, exchange and refund (RMA) requests with line items and an appen
 
 - `return_event.entity.ts`
 - `return_item.entity.ts`
+- `return_reason.entity.ts`
 - `return_request.entity.ts`
 
 ## Enums
@@ -43,7 +46,17 @@ Customer return, exchange and refund (RMA) requests with line items and an appen
 
 - `ReturnEvent` (system) — `modules/payment_return_rma/server/entities/return_event.entity.ts`
 - `ReturnItem` (system) — `modules/payment_return_rma/server/entities/return_item.entity.ts`
+- `ReturnReason` (system) — `modules/payment_return_rma/server/entities/return_reason.entity.ts`
 - `ReturnRequest` (system) — `modules/payment_return_rma/server/entities/return_request.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `payment_return_rma/ui/return-lines-panel.component` _(ui, client)_
+- `payment_return_rma/ui/return-reasons-panel.component` _(ui, client)_
+- `payment_return_rma/ui/return-settings.page` _(ui, client)_
+- `payment_return_rma/ui/return-status-badge.component` _(ui, client)_
+- `payment_return_rma/ui/returns-return-id.page` _(ui, client)_
+- `payment_return_rma/ui/returns.page` _(ui, client)_
 
 ## README
 

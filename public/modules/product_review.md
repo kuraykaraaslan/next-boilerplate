@@ -6,7 +6,7 @@
 - **dir:** `modules/product_review/`
 - **tags:** review, rating, ecommerce, moderation
 - **icon:** `fas fa-star`
-- **hasNextLayer:** false
+- **hasNextLayer:** true
 
 Tenant-aware product ratings and reviews with verified-purchase flags, helpful voting, moderation lifecycle, and cached per-product rating summaries.
 
@@ -20,6 +20,8 @@ Tenant-aware product ratings and reviews with verified-purchase flags, helpful v
 - `product_review.engagement.service.ts`
 - `product_review.gdpr.service.ts`
 - `product_review.service.ts`
+- `product_review.vote.service.ts`
+- `product_review.workflow.service.ts`
 
 ## DTOs
 
@@ -42,6 +44,13 @@ Tenant-aware product ratings and reviews with verified-purchase flags, helpful v
 
 - `ProductReview` (system) — `modules/product_review/server/entities/product_review.entity.ts`
 - `ProductReviewVote` (system) — `modules/product_review/server/entities/product_review_vote.entity.ts`
+
+## Next layer (modules_next/) surface
+
+- `product_review/ui/review-status-badge.component` _(ui, client)_
+- `product_review/ui/review-votes-panel.component` _(ui, client)_
+- `product_review/ui/reviews-review-id.page` _(ui, client)_
+- `product_review/ui/reviews.page` _(ui, client)_
 
 ## README
 

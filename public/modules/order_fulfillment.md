@@ -17,8 +17,10 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 ## Services
 
 - `order_fulfillment.analytics.service.ts`
+- `order_fulfillment.carrier-config.service.ts`
 - `order_fulfillment.carrier.service.ts`
 - `order_fulfillment.crud.service.ts`
+- `order_fulfillment.item.service.ts`
 - `order_fulfillment.label.service.ts`
 - `order_fulfillment.read.service.ts`
 - `order_fulfillment.service.ts`
@@ -31,6 +33,7 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 
 ## Entities
 
+- `carrier.entity.ts`
 - `fulfillment.entity.ts`
 - `fulfillment_event.entity.ts`
 - `fulfillment_item.entity.ts`
@@ -46,6 +49,7 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 
 ## TypeORM entities
 
+- `Carrier` (system) — `modules/order_fulfillment/server/entities/carrier.entity.ts`
 - `Fulfillment` (system) — `modules/order_fulfillment/server/entities/fulfillment.entity.ts`
 - `FulfillmentEvent` (system) — `modules/order_fulfillment/server/entities/fulfillment_event.entity.ts`
 - `FulfillmentItem` (system) — `modules/order_fulfillment/server/entities/fulfillment_item.entity.ts`
@@ -53,6 +57,11 @@ Tenant-aware fulfillment and shipment tracking for orders. Manages packing, carr
 
 ## Next layer (modules_next/) surface
 
+- `order_fulfillment/ui/carriers-panel.component` _(ui, client)_
+- `order_fulfillment/ui/fulfillment-fulfillment-id.page` _(ui, client)_
+- `order_fulfillment/ui/fulfillment-items-panel.component` _(ui, client)_
+- `order_fulfillment/ui/fulfillment-settings.page` _(ui, client)_
+- `order_fulfillment/ui/fulfillment-status-badge.component` _(ui, client)_
 - `order_fulfillment/ui/fulfillment.page` _(ui, client)_
 
 ## README

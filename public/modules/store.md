@@ -19,6 +19,7 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 - `store.bundle.service.ts`
 - `store.category.service.ts`
 - `store.pricing.service.ts`
+- `store.product-tag.service.ts`
 - `store.product.crud.service.ts`
 - `store.product.media.service.ts`
 - `store.product.service.ts`
@@ -38,6 +39,7 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 - `store_product.entity.ts`
 - `store_product_image.entity.ts`
 - `store_product_spec_value.entity.ts`
+- `store_product_tag.entity.ts`
 - `store_product_variant.entity.ts`
 - `store_variant_group.entity.ts`
 - `store_variant_group_item.entity.ts`
@@ -61,6 +63,7 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 - `StoreProduct` (system) — `modules/store/server/entities/store_product.entity.ts`
 - `StoreProductImage` (system) — `modules/store/server/entities/store_product_image.entity.ts`
 - `StoreProductSpecValue` (system) — `modules/store/server/entities/store_product_spec_value.entity.ts`
+- `StoreProductTag` (system) — `modules/store/server/entities/store_product_tag.entity.ts`
 - `StoreProductVariant` (system) — `modules/store/server/entities/store_product_variant.entity.ts`
 - `StoreVariantGroup` (system) — `modules/store/server/entities/store_variant_group.entity.ts`
 - `StoreVariantGroupItem` (system) — `modules/store/server/entities/store_variant_group_item.entity.ts`
@@ -77,6 +80,7 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 - `store/ui/product-list-columns.component` _(ui, client)_
 - `store/ui/product-spec-values-panel.component` _(ui, client)_
 - `store/ui/product-status-badge.component` _(ui, client)_
+- `store/ui/product-tags-panel.component` _(ui, client)_
 - `store/ui/product-variants-panel.component` _(ui, client)_
 - `store/ui/store-bundles-bundle-id.page` _(ui, client)_
 - `store/ui/store-bundles.page` _(ui, client)_
@@ -84,6 +88,7 @@ Tenant-aware e-commerce store. Hierarchical categories with typed spec templates
 - `store/ui/store-categories.page` _(ui, client)_
 - `store/ui/store-products-product-id.page` _(ui, client)_
 - `store/ui/store-products.page` _(ui, client)_
+- `store/ui/store-settings.page` _(ui, client)_
 
 ## README
 

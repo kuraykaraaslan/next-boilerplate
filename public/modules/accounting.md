@@ -52,10 +52,14 @@ Tenant-scoped double-entry accounting: chart of accounts, journal entries/lines,
 
 ## Next layer (modules_next/) surface
 
+- `accounting/ui/accounting-accounts-settings.page` _(ui, client)_
 - `accounting/ui/accounting-accounts.page` _(ui, client)_
 - `accounting/ui/accounting-journal-entry-id.page` _(ui, client)_
+- `accounting/ui/accounting-journal-settings.page` _(ui, client)_
 - `accounting/ui/accounting-journal.page` _(ui, client)_
+- `accounting/ui/accounting-ledger-settings.page` _(ui, client)_
 - `accounting/ui/accounting-ledger.page` _(ui, client)_
+- `accounting/ui/accounting-periods-settings.page` _(ui, client)_
 - `accounting/ui/accounting-periods.page` _(ui, client)_
 - `accounting/ui/accounting-settings.page` _(ui, client)_
 - `accounting/ui/journal-entry-status-badge.component` _(ui, client)_

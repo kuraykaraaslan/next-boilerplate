@@ -37,6 +37,10 @@ Tenant-scoped core sales orders, order lines and status events. Bridges Commerce
 
 - `order.messages.ts`
 
+## Setting keys
+
+- `order.setting.keys.ts`
+
 ## TypeORM entities
 
 - `Order` (system) — `modules/order/server/entities/orders.entity.ts`
@@ -46,6 +50,7 @@ Tenant-scoped core sales orders, order lines and status events. Bridges Commerce
 ## Next layer (modules_next/) surface
 
 - `order/ui/order-lines-panel.component` _(ui, client)_
+- `order/ui/order-settings.page` _(ui, client)_
 - `order/ui/order-status-badge.component` _(ui, client)_
 - `order/ui/orders-order-id.page` _(ui, client)_
 - `order/ui/orders.page` _(ui, client)_

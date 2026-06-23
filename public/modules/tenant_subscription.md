@@ -16,6 +16,7 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 
 ## Services
 
+- `tenant_subscription.admin.service.ts`
 - `tenant_subscription.card.service.ts`
 - `tenant_subscription.checkout.service.ts`
 - `tenant_subscription.feature.service.ts`
@@ -67,8 +68,11 @@ Tenant subscription state, plan + feature key resolution, grace period, expiry j
 - `tenant_subscription/ui/plan-list-columns.component` _(ui, client)_
 - `tenant_subscription/ui/plan-usage-meter.component` _(ui, client)_
 - `tenant_subscription/ui/subscription-plan-card.component` _(ui, client)_
+- `tenant_subscription/ui/subscription-status-badge.component` _(ui, client)_
+- `tenant_subscription/ui/subscription-subscription-id.page` _(ui, client)_
 - `tenant_subscription/ui/subscription.helpers` _(ui)_
 - `tenant_subscription/ui/subscription.page` _(ui, client)_
+- `tenant_subscription/ui/subscriptions.page` _(ui, client)_
 - `tenant_subscription/ui/upgrade-prompt.component` _(ui, client)_
 
 ## README
