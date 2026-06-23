@@ -34,6 +34,16 @@
       "workspace": "content",
       "order": 10,
       "scope": "tenant"
+    },
+    {
+      "id": "navigation-settings",
+      "label": "Navigation Settings",
+      "href": "/admin/navigation/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "content",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "apiRoutes": [
@@ -62,6 +72,10 @@
     {
       "path": "/admin/navigation/[menuId]",
       "component": "navigation/ui/navigation-menu-id.page"
+    },
+    {
+      "path": "/admin/navigation/settings",
+      "component": "navigation/ui/navigation-settings.page"
     }
   ]
 }

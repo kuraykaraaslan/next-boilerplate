@@ -1,5 +1,6 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
@@ -11,7 +12,7 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPenToSquare, faTrash, faGear } from '@fortawesome/free-solid-svg-icons';
 
 type GoodsReceipt = {
   receiptId: string;
@@ -39,6 +40,7 @@ function extractMessage(err: unknown, fallback: string) {
 
 export default function ProcurementReceiptsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
+  const router = useRouter();
   const [rows, setRows] = useState<GoodsReceipt[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -135,7 +137,10 @@ export default function ProcurementReceiptsPage({ params }: { params: Promise<{ 
       <PageHeader
         title="Goods Receipts"
         subtitle={loading ? '…' : `${total} goods receipt${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Goods Receipt</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/procurement/receipts/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Goods Receipt</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

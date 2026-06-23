@@ -21,6 +21,8 @@
     "./server/procurement.dto": "./server/procurement.dto.ts",
     "./server/procurement.messages": "./server/procurement.messages.ts",
     "./server/procurement.enums": "./server/procurement.enums.ts",
+    "./server/procurement.setting.keys": "./server/procurement.setting.keys.ts",
+    "./server/procurement.settings.fields": "./server/procurement.settings.fields.ts",
     "./server/entities/purchase_orders.entity": "./server/entities/purchase_orders.entity.ts",
     "./server/entities/purchase_order_lines.entity": "./server/entities/purchase_order_lines.entity.ts",
     "./server/entities/goods_receipts.entity": "./server/entities/goods_receipts.entity.ts",
@@ -32,6 +34,8 @@
     "./ui/purchase-order-lines-panel.component": "./ui/purchase-order-lines-panel.component.tsx",
     "./ui/purchase-order-status-badge.component": "./ui/purchase-order-status-badge.component.tsx",
     "./ui/procurement-receipts.page": "./ui/procurement-receipts.page.tsx",
+    "./ui/procurement-receipts-settings.page": "./ui/procurement-receipts-settings.page.tsx",
+    "./ui/procurement-settings.page": "./ui/procurement-settings.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

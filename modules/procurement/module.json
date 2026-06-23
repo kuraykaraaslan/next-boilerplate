@@ -43,6 +43,16 @@
       "workspace": "erp",
       "order": 30,
       "scope": "tenant"
+    },
+    {
+      "id": "procurement-settings",
+      "label": "Procurement Settings",
+      "href": "/admin/procurement/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "apiRoutes": [
@@ -95,6 +105,14 @@
     {
       "path": "/admin/procurement/receipts",
       "component": "procurement/ui/procurement-receipts.page"
+    },
+    {
+      "path": "/admin/procurement/receipts/settings",
+      "component": "procurement/ui/procurement-receipts-settings.page"
+    },
+    {
+      "path": "/admin/procurement/settings",
+      "component": "procurement/ui/procurement-settings.page"
     }
   ]
 }

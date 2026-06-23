@@ -98,6 +98,22 @@
       "component": "accounting/ui/accounting-settings.page"
     },
     {
+      "path": "/admin/accounting/accounts/settings",
+      "component": "accounting/ui/accounting-accounts-settings.page"
+    },
+    {
+      "path": "/admin/accounting/journal/settings",
+      "component": "accounting/ui/accounting-journal-settings.page"
+    },
+    {
+      "path": "/admin/accounting/ledger/settings",
+      "component": "accounting/ui/accounting-ledger-settings.page"
+    },
+    {
+      "path": "/admin/accounting/periods/settings",
+      "component": "accounting/ui/accounting-periods-settings.page"
+    },
+    {
       "path": "/admin/accounting/journal/[entryId]",
       "component": "accounting/ui/accounting-journal-entry-id.page"
     }

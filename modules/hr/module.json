@@ -117,12 +117,24 @@
       "component": "hr/ui/hr-employees-employee-id.page"
     },
     {
+      "path": "/admin/hr/employees/settings",
+      "component": "hr/ui/hr-employees-settings.page"
+    },
+    {
       "path": "/admin/hr/departments",
       "component": "hr/ui/hr-departments.page"
     },
     {
+      "path": "/admin/hr/departments/settings",
+      "component": "hr/ui/hr-departments-settings.page"
+    },
+    {
       "path": "/admin/hr/leave",
       "component": "hr/ui/hr-leave.page"
+    },
+    {
+      "path": "/admin/hr/leave/settings",
+      "component": "hr/ui/hr-leave-settings.page"
     },
     {
       "path": "/admin/hr/settings",

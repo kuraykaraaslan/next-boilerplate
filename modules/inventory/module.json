@@ -82,16 +82,32 @@
       "component": "inventory/ui/inventory-warehouses.page"
     },
     {
+      "path": "/admin/inventory/warehouses/settings",
+      "component": "inventory/ui/inventory-warehouses-settings.page"
+    },
+    {
       "path": "/admin/inventory/stock",
       "component": "inventory/ui/inventory-stock.page"
+    },
+    {
+      "path": "/admin/inventory/stock/settings",
+      "component": "inventory/ui/inventory-stock-settings.page"
     },
     {
       "path": "/admin/inventory/movements",
       "component": "inventory/ui/inventory-movements.page"
     },
     {
+      "path": "/admin/inventory/movements/settings",
+      "component": "inventory/ui/inventory-movements-settings.page"
+    },
+    {
       "path": "/admin/inventory/counts",
       "component": "inventory/ui/inventory-counts.page"
+    },
+    {
+      "path": "/admin/inventory/counts/settings",
+      "component": "inventory/ui/inventory-counts-settings.page"
     },
     {
       "path": "/admin/inventory/counts/[countId]",

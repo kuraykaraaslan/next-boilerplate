@@ -44,6 +44,16 @@
       "workspace": "content",
       "order": 20,
       "scope": "tenant"
+    },
+    {
+      "id": "form_builder-settings",
+      "label": "Form Settings",
+      "href": "/admin/forms/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "content",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "routes": [
@@ -58,6 +68,14 @@
     {
       "path": "/admin/forms/[formId]",
       "component": "form_builder/ui/forms-form-id.page"
+    },
+    {
+      "path": "/admin/forms/settings",
+      "component": "form_builder/ui/form_builder-settings.page"
+    },
+    {
+      "path": "/admin/forms/submissions/settings",
+      "component": "form_builder/ui/form-submissions-settings.page"
     }
   ],
   "apiRoutes": [

@@ -10,10 +10,13 @@
     "./server/redirect.types": "./server/redirect.types.ts",
     "./server/redirect.dto": "./server/redirect.dto.ts",
     "./server/redirect.messages": "./server/redirect.messages.ts",
+    "./server/redirect.setting.keys": "./server/redirect.setting.keys.ts",
+    "./server/redirect.settings.fields": "./server/redirect.settings.fields.ts",
     "./server/entities/redirect_rules.entity": "./server/entities/redirect_rules.entity.ts",
     "./server/index": "./server/index.ts",
     "./server": "./server/index.ts",
     "./ui/redirects.page": "./ui/redirects.page.tsx",
+    "./ui/redirect-settings.page": "./ui/redirect-settings.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

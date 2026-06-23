@@ -44,6 +44,16 @@
       "workspace": "commerce",
       "order": 5,
       "scope": "tenant"
+    },
+    {
+      "id": "order-settings",
+      "label": "Order Settings",
+      "href": "/admin/orders/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "apiRoutes": [
@@ -84,6 +94,10 @@
     {
       "path": "/admin/orders/[orderId]",
       "component": "order/ui/orders-order-id.page"
+    },
+    {
+      "path": "/admin/orders/settings",
+      "component": "order/ui/order-settings.page"
     }
   ]
 }

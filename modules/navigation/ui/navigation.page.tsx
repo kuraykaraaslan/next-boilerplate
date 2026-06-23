@@ -12,7 +12,7 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faPenToSquare, faTrash, faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Menu = {
   menuId: string;
@@ -157,7 +157,10 @@ export default function NavigationMenusPage({ params }: { params: Promise<{ tena
       <PageHeader
         title="Navigation Menus"
         subtitle={loading ? '…' : `${total} menu${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Menu</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/navigation/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Menu</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

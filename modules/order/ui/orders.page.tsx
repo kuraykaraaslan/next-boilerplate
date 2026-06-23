@@ -13,7 +13,7 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faPenToSquare, faTrash, faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Order = {
   orderId: string;
@@ -150,7 +150,10 @@ export default function OrdersPage({ params }: { params: Promise<{ tenantId: str
       <PageHeader
         title="Orders"
         subtitle={loading ? '…' : `${total} order${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Order</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/orders/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Order</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

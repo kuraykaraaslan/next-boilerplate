@@ -115,12 +115,20 @@
       "component": "payroll/ui/payroll-runs-run-id.page"
     },
     {
+      "path": "/admin/payroll/runs/settings",
+      "component": "payroll/ui/payroll-runs-settings.page"
+    },
+    {
       "path": "/admin/payroll/payslips",
       "component": "payroll/ui/payroll-payslips.page"
     },
     {
       "path": "/admin/payroll/payslips/[payslipId]",
       "component": "payroll/ui/payroll-payslips-payslip-id.page"
+    },
+    {
+      "path": "/admin/payroll/payslips/settings",
+      "component": "payroll/ui/payroll-payslips-settings.page"
     },
     {
       "path": "/admin/payroll/settings",

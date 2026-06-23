@@ -20,6 +20,8 @@
     "./server/form_builder.dto": "./server/form_builder.dto.ts",
     "./server/form_builder.messages": "./server/form_builder.messages.ts",
     "./server/form_builder.enums": "./server/form_builder.enums.ts",
+    "./server/form_builder.setting.keys": "./server/form_builder.setting.keys.ts",
+    "./server/form_builder.settings.fields": "./server/form_builder.settings.fields.ts",
     "./server/entities/forms.entity": "./server/entities/forms.entity.ts",
     "./server/entities/form_fields.entity": "./server/entities/form_fields.entity.ts",
     "./server/entities/form_submissions.entity": "./server/entities/form_submissions.entity.ts",
@@ -31,6 +33,8 @@
     "./ui/form-submissions-panel.component": "./ui/form-submissions-panel.component.tsx",
     "./ui/form-status-badge.component": "./ui/form-status-badge.component.tsx",
     "./ui/form-submissions.page": "./ui/form-submissions.page.tsx",
+    "./ui/form_builder-settings.page": "./ui/form_builder-settings.page.tsx",
+    "./ui/form-submissions-settings.page": "./ui/form-submissions-settings.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   },

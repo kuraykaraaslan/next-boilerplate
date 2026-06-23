@@ -13,7 +13,7 @@ import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.compo
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { JournalEntryStatusBadge } from './journal-entry-status-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faPenToSquare, faTrash, faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Entry = {
   entryId: string;
@@ -135,7 +135,10 @@ export default function AccountingJournalPage({ params }: { params: Promise<{ te
       <PageHeader
         title="Journal"
         subtitle={loading ? '…' : `${total} entr${total !== 1 ? 'ies' : 'y'}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Entry</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/accounting/journal/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Entry</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

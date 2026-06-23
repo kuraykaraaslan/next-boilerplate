@@ -13,7 +13,7 @@ import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.compo
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { CountStatusBadge } from '@kuraykaraaslan/inventory/ui/count-status-badge.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPenToSquare, faTrash, faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Count = {
   countId: string;
@@ -120,7 +120,10 @@ export default function InventoryCountsPage({ params }: { params: Promise<{ tena
       <PageHeader
         title="Counts"
         subtitle={loading ? '…' : `${total} count${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Count</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/inventory/counts/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Count</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

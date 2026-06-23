@@ -12,7 +12,7 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash, faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faPenToSquare, faTrash, faUpRightFromSquare, faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Form = {
   formId: string;
@@ -134,7 +134,10 @@ export default function FormsPage({ params }: { params: Promise<{ tenantId: stri
       <PageHeader
         title="Forms"
         subtitle={loading ? '…' : `${total} form${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Form</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/forms/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Form</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

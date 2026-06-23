@@ -34,6 +34,16 @@
       "workspace": "content",
       "order": 10,
       "scope": "tenant"
+    },
+    {
+      "id": "redirect-settings",
+      "label": "Redirect Settings",
+      "href": "/admin/redirects/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "content",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "apiRoutes": [
@@ -50,6 +60,10 @@
     {
       "path": "/admin/redirects",
       "component": "redirect/ui/redirects.page"
+    },
+    {
+      "path": "/admin/redirects/settings",
+      "component": "redirect/ui/redirect-settings.page"
     }
   ]
 }

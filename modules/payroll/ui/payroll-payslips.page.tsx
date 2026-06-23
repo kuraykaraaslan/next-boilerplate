@@ -12,6 +12,8 @@ import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
 import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Payslip = {
   payslipId: string;
@@ -130,7 +132,10 @@ export default function PayrollPayslipsPage({ params }: { params: Promise<{ tena
       <PageHeader
         title="Payslips"
         subtitle={loading ? '…' : `${total} payslip${total !== 1 ? 's' : ''}`}
-        actions={[{ label: 'New Payslip', onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/payroll/payslips/settings`, variant: 'ghost' as const },
+          { label: 'New Payslip', onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

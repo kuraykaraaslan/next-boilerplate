@@ -1,5 +1,6 @@
 'use client';
 import { use, useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
@@ -11,7 +12,7 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSearch, faPenToSquare, faTrash, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faPenToSquare, faTrash, faCheck, faXmark, faGear } from '@fortawesome/free-solid-svg-icons';
 import { LeaveStatusBadge } from './hr-status-badge.component';
 
 type LeaveRequest = {
@@ -48,6 +49,7 @@ function extractMessage(err: unknown, fallback: string) {
 
 export default function HrLeavePage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
+  const router = useRouter();
   const [rows, setRows] = useState<LeaveRequest[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<LeaveTypeOption[]>([]);
   const [total, setTotal] = useState(0);
@@ -192,7 +194,10 @@ export default function HrLeavePage({ params }: { params: Promise<{ tenantId: st
       <PageHeader
         title="Leave Requests"
         subtitle={loading ? '…' : `${total} leave request${total !== 1 ? 's' : ''}`}
-        actions={[{ label: <><FontAwesomeIcon icon={faPlus} /> New Leave Requests</>, onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/hr/leave/settings`, variant: 'ghost' as const },
+          { label: <><FontAwesomeIcon icon={faPlus} /> New Leave Requests</>, onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}

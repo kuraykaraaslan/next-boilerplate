@@ -12,6 +12,8 @@ import { Modal } from '@kuraykaraaslan/common/ui/modal.component';
 import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { RowActionsMenu } from '@kuraykaraaslan/common/ui/row-actions-menu.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGear } from '@fortawesome/free-solid-svg-icons';
 
 type Run = {
   runId: string;
@@ -141,7 +143,10 @@ export default function PayrollRunsPage({ params }: { params: Promise<{ tenantId
       <PageHeader
         title="Payroll Runs"
         subtitle={loading ? '…' : `${total} run${total !== 1 ? 's' : ''}`}
-        actions={[{ label: 'New Payroll Run', onClick: openCreate }]}
+        actions={[
+          { label: <FontAwesomeIcon icon={faGear} />, href: `/tenant/${tenantId}/admin/payroll/runs/settings`, variant: 'ghost' as const },
+          { label: 'New Payroll Run', onClick: openCreate },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
