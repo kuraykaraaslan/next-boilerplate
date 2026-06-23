@@ -1,9 +1,9 @@
 # Payroll
 
-- **id:** `payroll`
+- **id:** `hr_payroll`
 - **tier:** other
 - **version:** 1.0.0
-- **dir:** `modules/payroll/`
+- **dir:** `modules/hr_payroll/`
 - **tags:** payroll, hr, erp
 - **icon:** `fas fa-money-check-dollar`
 - **hasNextLayer:** true
@@ -42,23 +42,23 @@ Tenant-scoped payroll: payroll runs, payslips and salary components.
 
 ## TypeORM entities
 
-- `PayrollRun` (system) — `modules/payroll/server/entities/payroll_runs.entity.ts`
-- `Payslip` (system) — `modules/payroll/server/entities/payslips.entity.ts`
-- `PayslipLine` (system) — `modules/payroll/server/entities/payslip_lines.entity.ts`
-- `SalaryComponent` (system) — `modules/payroll/server/entities/salary_components.entity.ts`
+- `PayrollRun` (system) — `modules/hr_payroll/server/entities/payroll_runs.entity.ts`
+- `Payslip` (system) — `modules/hr_payroll/server/entities/payslips.entity.ts`
+- `PayslipLine` (system) — `modules/hr_payroll/server/entities/payslip_lines.entity.ts`
+- `SalaryComponent` (system) — `modules/hr_payroll/server/entities/salary_components.entity.ts`
 
 ## Next layer (modules_next/) surface
 
-- `payroll/ui/payroll-payslips-payslip-id.page` _(ui, client)_
-- `payroll/ui/payroll-payslips-settings.page` _(ui, client)_
-- `payroll/ui/payroll-payslips.page` _(ui, client)_
-- `payroll/ui/payroll-runs-run-id.page` _(ui, client)_
-- `payroll/ui/payroll-runs-settings.page` _(ui, client)_
-- `payroll/ui/payroll-runs.page` _(ui, client)_
-- `payroll/ui/payroll-settings.page` _(ui, client)_
-- `payroll/ui/payroll-status-badge.component` _(ui, client)_
-- `payroll/ui/payslip-lines-panel.component` _(ui, client)_
-- `payroll/ui/salary-components-panel.component` _(ui, client)_
+- `hr_payroll/ui/payroll-payslips-payslip-id.page` _(ui, client)_
+- `hr_payroll/ui/payroll-payslips-settings.page` _(ui, client)_
+- `hr_payroll/ui/payroll-payslips.page` _(ui, client)_
+- `hr_payroll/ui/payroll-runs-run-id.page` _(ui, client)_
+- `hr_payroll/ui/payroll-runs-settings.page` _(ui, client)_
+- `hr_payroll/ui/payroll-runs.page` _(ui, client)_
+- `hr_payroll/ui/payroll-settings.page` _(ui, client)_
+- `hr_payroll/ui/payroll-status-badge.component` _(ui, client)_
+- `hr_payroll/ui/payslip-lines-panel.component` _(ui, client)_
+- `hr_payroll/ui/salary-components-panel.component` _(ui, client)_
 
 ## README
 

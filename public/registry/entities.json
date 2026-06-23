@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T19:22:33.205Z",
+  "generatedAt": "2026-06-23T19:29:16.657Z",
   "entities": [
     {
       "name": "Agreement",
@@ -1908,8 +1908,8 @@
     },
     {
       "name": "PayrollRun",
-      "filePath": "modules/payroll/server/entities/payroll_runs.entity.ts",
-      "module": "payroll",
+      "filePath": "modules/hr_payroll/server/entities/payroll_runs.entity.ts",
+      "module": "hr_payroll",
       "schema": "system",
       "tableName": "payroll_runs",
       "columns": [
@@ -1926,8 +1926,8 @@
     },
     {
       "name": "Payslip",
-      "filePath": "modules/payroll/server/entities/payslips.entity.ts",
-      "module": "payroll",
+      "filePath": "modules/hr_payroll/server/entities/payslips.entity.ts",
+      "module": "hr_payroll",
       "schema": "system",
       "tableName": "payslips",
       "columns": [
@@ -1946,8 +1946,8 @@
     },
     {
       "name": "PayslipLine",
-      "filePath": "modules/payroll/server/entities/payslip_lines.entity.ts",
-      "module": "payroll",
+      "filePath": "modules/hr_payroll/server/entities/payslip_lines.entity.ts",
+      "module": "hr_payroll",
       "schema": "system",
       "tableName": "payslip_lines",
       "columns": [
@@ -2314,8 +2314,8 @@
     },
     {
       "name": "SalaryComponent",
-      "filePath": "modules/payroll/server/entities/salary_components.entity.ts",
-      "module": "payroll",
+      "filePath": "modules/hr_payroll/server/entities/salary_components.entity.ts",
+      "module": "hr_payroll",
       "schema": "system",
       "tableName": "salary_components",
       "columns": [

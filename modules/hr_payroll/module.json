@@ -1,6 +1,6 @@
 {
   "$schema": "../module.schema.json",
-  "id": "payroll",
+  "id": "hr_payroll",
   "name": "Payroll",
   "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
   "version": "1.0.0",
@@ -21,7 +21,7 @@
     ]
   },
   "author": "Kuray Karaaslan",
-  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payroll",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr_payroll",
   "license": "CC-BY-NC-ND-4.0",
   "menu": [
     {
@@ -58,81 +58,81 @@
   "apiRoutes": [
     {
       "path": "/api/payroll/runs",
-      "handler": "payroll/server/payroll-runs.route"
+      "handler": "hr_payroll/server/payroll-runs.route"
     },
     {
       "path": "/api/payroll/runs/[runId]",
-      "handler": "payroll/server/payroll-runs-run-id.route"
+      "handler": "hr_payroll/server/payroll-runs-run-id.route"
     },
     {
       "path": "/api/payroll/runs/[runId]/process",
-      "handler": "payroll/server/payroll-runs-run-id-process.route"
+      "handler": "hr_payroll/server/payroll-runs-run-id-process.route"
     },
     {
       "path": "/api/payroll/runs/[runId]/pay",
-      "handler": "payroll/server/payroll-runs-run-id-pay.route"
+      "handler": "hr_payroll/server/payroll-runs-run-id-pay.route"
     },
     {
       "path": "/api/payroll/payslips",
-      "handler": "payroll/server/payroll-payslips.route"
+      "handler": "hr_payroll/server/payroll-payslips.route"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]",
-      "handler": "payroll/server/payroll-payslips-payslip-id.route"
+      "handler": "hr_payroll/server/payroll-payslips-payslip-id.route"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/issue",
-      "handler": "payroll/server/payroll-payslips-payslip-id-issue.route"
+      "handler": "hr_payroll/server/payroll-payslips-payslip-id-issue.route"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/pay",
-      "handler": "payroll/server/payroll-payslips-payslip-id-pay.route"
+      "handler": "hr_payroll/server/payroll-payslips-payslip-id-pay.route"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/lines",
-      "handler": "payroll/server/payroll-payslips-payslip-id-lines.route"
+      "handler": "hr_payroll/server/payroll-payslips-payslip-id-lines.route"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
-      "handler": "payroll/server/payroll-payslips-payslip-id-lines-line-id.route"
+      "handler": "hr_payroll/server/payroll-payslips-payslip-id-lines-line-id.route"
     },
     {
       "path": "/api/payroll/components",
-      "handler": "payroll/server/payroll-components.route"
+      "handler": "hr_payroll/server/payroll-components.route"
     },
     {
       "path": "/api/payroll/components/[componentId]",
-      "handler": "payroll/server/payroll-components-component-id.route"
+      "handler": "hr_payroll/server/payroll-components-component-id.route"
     }
   ],
   "routes": [
     {
       "path": "/admin/payroll/runs",
-      "component": "payroll/ui/payroll-runs.page"
+      "component": "hr_payroll/ui/payroll-runs.page"
     },
     {
       "path": "/admin/payroll/runs/[runId]",
-      "component": "payroll/ui/payroll-runs-run-id.page"
+      "component": "hr_payroll/ui/payroll-runs-run-id.page"
     },
     {
       "path": "/admin/payroll/runs/settings",
-      "component": "payroll/ui/payroll-runs-settings.page"
+      "component": "hr_payroll/ui/payroll-runs-settings.page"
     },
     {
       "path": "/admin/payroll/payslips",
-      "component": "payroll/ui/payroll-payslips.page"
+      "component": "hr_payroll/ui/payroll-payslips.page"
     },
     {
       "path": "/admin/payroll/payslips/[payslipId]",
-      "component": "payroll/ui/payroll-payslips-payslip-id.page"
+      "component": "hr_payroll/ui/payroll-payslips-payslip-id.page"
     },
     {
       "path": "/admin/payroll/payslips/settings",
-      "component": "payroll/ui/payroll-payslips-settings.page"
+      "component": "hr_payroll/ui/payroll-payslips-settings.page"
     },
     {
       "path": "/admin/payroll/settings",
-      "component": "payroll/ui/payroll-settings.page"
+      "component": "hr_payroll/ui/payroll-settings.page"
     }
   ]
 }

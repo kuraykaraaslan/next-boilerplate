@@ -9,8 +9,8 @@ import { AlertBanner } from '@kuraykaraaslan/common/ui/alert-banner.component';
 import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
 import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
-import { PayslipStatusBadge } from '@kuraykaraaslan/payroll/ui/payroll-status-badge.component';
-import { PayslipLinesPanel } from '@kuraykaraaslan/payroll/ui/payslip-lines-panel.component';
+import { PayslipStatusBadge } from '@kuraykaraaslan/hr_payroll/ui/payroll-status-badge.component';
+import { PayslipLinesPanel } from '@kuraykaraaslan/hr_payroll/ui/payslip-lines-panel.component';
 
 type Payslip = {
   payslipId: string; runId: string; employeeId: string;

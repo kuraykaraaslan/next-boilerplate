@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
 import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
-import PayrollRunService from '@kuraykaraaslan/payroll/server/payroll.run.service'
-import { CreatePayrollRunDTO, GetPayrollRunsQuery } from '@kuraykaraaslan/payroll/server/payroll.dto'
+import PayrollRunService from '@kuraykaraaslan/hr_payroll/server/payroll.run.service'
+import { CreatePayrollRunDTO, GetPayrollRunsQuery } from '@kuraykaraaslan/hr_payroll/server/payroll.dto'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ tenantId: string }> }) {
   const rl = await Limiter.checkRateLimit(request); if (rl) return rl

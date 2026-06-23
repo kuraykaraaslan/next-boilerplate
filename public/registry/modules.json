@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T19:22:33.205Z",
+  "generatedAt": "2026-06-23T19:29:16.657Z",
   "modules": [
     {
       "id": "common",
@@ -7250,6 +7250,14 @@
         "./ui/store-categories.page",
         "./ui/store-products-product-id.page",
         "./ui/store-products.page",
+        "./server/entities/store_product_tag.entity",
+        "./server/store.product-tag.service",
+        "./server/store-product-tags.route",
+        "./server/store-product-tags-tag-id.route",
+        "./server/store-products-product-id-activate.route",
+        "./server/store-products-product-id-archive.route",
+        "./ui/store-settings.page",
+        "./ui/product-tags-panel.component",
         ".",
         "./module.json"
       ],
@@ -10669,6 +10677,222 @@
       "readme": "# HR Module\n\nTenant-scoped HR: employees, departments and leave requests. Every row is\nisolated by `tenantId` and service methods take `tenantId` as their first\nargument (per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@kuraykaraaslan/hr`:\n\n| Export | Type | Use |\n|---|---|---|\n| `EmployeeService` | class | Employee CRUD |\n| `DepartmentService` | class | Department CRUD |\n| `LeaveRequestService` | class | Leave request CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Row shapes |\n| `HR_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `Department` (`departments`) — `name`, `code`, `managerId?`, `isActive`.\n- `Employee` (`employees`) — `firstName`, `lastName`, `email`, `departmentId?`, `title?`, `status`, `hiredAt?`, `userId?`.\n- `LeaveRequest` (`leave_requests`) — `employeeId`, `type`, `startDate`, `endDate`, `status`, `reason?`.\n\n## Menu\n\n- **Employees** (`/admin/hr/employees`, workspace `hr`).\n- **Departments** (`/admin/hr/departments`, workspace `hr`).\n- **Leave** (`/admin/hr/leave`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
     },
     {
+      "id": "hr_payroll",
+      "name": "Payroll",
+      "version": "1.0.0",
+      "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
+      "author": "Kuray Karaaslan",
+      "license": "CC-BY-NC-ND-4.0",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr_payroll",
+      "dir": "modules/hr_payroll",
+      "icon": "fas fa-money-check-dollar",
+      "tags": [
+        "payroll",
+        "hr",
+        "erp"
+      ],
+      "priority": 60,
+      "tier": "other",
+      "dependencies": {
+        "requires": [
+          "db",
+          "env",
+          "redis",
+          "logger",
+          "setting"
+        ]
+      },
+      "exports": {
+        "services": [
+          "payroll.component.service.ts",
+          "payroll.line.service.ts",
+          "payroll.payslip.service.ts",
+          "payroll.run.service.ts"
+        ],
+        "dtos": [
+          "payroll.dto.ts"
+        ],
+        "enums": [
+          "payroll.enums.ts"
+        ],
+        "messageKeys": [
+          "payroll.messages.ts"
+        ],
+        "settingKeys": [],
+        "providers": [],
+        "jobs": [],
+        "entities": [
+          "payroll_runs.entity.ts",
+          "payslip_lines.entity.ts",
+          "payslips.entity.ts",
+          "salary_components.entity.ts"
+        ]
+      },
+      "enabled": true,
+      "menu": [
+        {
+          "id": "payroll-runs",
+          "label": "Payroll Runs",
+          "href": "/admin/payroll/runs",
+          "icon": "fas fa-money-check-dollar",
+          "group": "Payroll",
+          "workspace": "hr",
+          "order": 40,
+          "scope": "tenant"
+        },
+        {
+          "id": "payroll-payslips",
+          "label": "Payslips",
+          "href": "/admin/payroll/payslips",
+          "icon": "fas fa-file-invoice-dollar",
+          "group": "Payroll",
+          "workspace": "hr",
+          "order": 50,
+          "scope": "tenant"
+        },
+        {
+          "id": "payroll-settings",
+          "label": "Payroll Settings",
+          "href": "/admin/payroll/settings",
+          "icon": "fas fa-gear",
+          "group": "Configuration",
+          "workspace": "hr",
+          "order": 90,
+          "scope": "tenant"
+        }
+      ],
+      "adminRoutes": [
+        {
+          "path": "/admin/payroll/runs",
+          "component": "hr_payroll/ui/payroll-runs.page"
+        },
+        {
+          "path": "/admin/payroll/runs/[runId]",
+          "component": "hr_payroll/ui/payroll-runs-run-id.page"
+        },
+        {
+          "path": "/admin/payroll/runs/settings",
+          "component": "hr_payroll/ui/payroll-runs-settings.page"
+        },
+        {
+          "path": "/admin/payroll/payslips",
+          "component": "hr_payroll/ui/payroll-payslips.page"
+        },
+        {
+          "path": "/admin/payroll/payslips/[payslipId]",
+          "component": "hr_payroll/ui/payroll-payslips-payslip-id.page"
+        },
+        {
+          "path": "/admin/payroll/payslips/settings",
+          "component": "hr_payroll/ui/payroll-payslips-settings.page"
+        },
+        {
+          "path": "/admin/payroll/settings",
+          "component": "hr_payroll/ui/payroll-settings.page"
+        }
+      ],
+      "apiRoutes": [
+        {
+          "path": "/api/payroll/runs",
+          "handler": "hr_payroll/server/payroll-runs.route"
+        },
+        {
+          "path": "/api/payroll/runs/[runId]",
+          "handler": "hr_payroll/server/payroll-runs-run-id.route"
+        },
+        {
+          "path": "/api/payroll/runs/[runId]/process",
+          "handler": "hr_payroll/server/payroll-runs-run-id-process.route"
+        },
+        {
+          "path": "/api/payroll/runs/[runId]/pay",
+          "handler": "hr_payroll/server/payroll-runs-run-id-pay.route"
+        },
+        {
+          "path": "/api/payroll/payslips",
+          "handler": "hr_payroll/server/payroll-payslips.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]",
+          "handler": "hr_payroll/server/payroll-payslips-payslip-id.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/issue",
+          "handler": "hr_payroll/server/payroll-payslips-payslip-id-issue.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/pay",
+          "handler": "hr_payroll/server/payroll-payslips-payslip-id-pay.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/lines",
+          "handler": "hr_payroll/server/payroll-payslips-payslip-id-lines.route"
+        },
+        {
+          "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
+          "handler": "hr_payroll/server/payroll-payslips-payslip-id-lines-line-id.route"
+        },
+        {
+          "path": "/api/payroll/components",
+          "handler": "hr_payroll/server/payroll-components.route"
+        },
+        {
+          "path": "/api/payroll/components/[componentId]",
+          "handler": "hr_payroll/server/payroll-components-component-id.route"
+        }
+      ],
+      "widgets": [],
+      "slots": [],
+      "extensionPoints": [],
+      "extensions": [],
+      "pkgExports": [
+        "./server/payroll.run.service",
+        "./server/payroll.payslip.service",
+        "./server/payroll.line.service",
+        "./server/payroll.component.service",
+        "./server/payroll-runs.route",
+        "./server/payroll-runs-run-id.route",
+        "./server/payroll-runs-run-id-process.route",
+        "./server/payroll-runs-run-id-pay.route",
+        "./server/payroll-payslips.route",
+        "./server/payroll-payslips-payslip-id.route",
+        "./server/payroll-payslips-payslip-id-issue.route",
+        "./server/payroll-payslips-payslip-id-pay.route",
+        "./server/payroll-payslips-payslip-id-lines.route",
+        "./server/payroll-payslips-payslip-id-lines-line-id.route",
+        "./server/payroll-components.route",
+        "./server/payroll-components-component-id.route",
+        "./server/payroll.enums",
+        "./server/payroll.types",
+        "./server/payroll.dto",
+        "./server/payroll.messages",
+        "./server/entities/payroll_runs.entity",
+        "./server/entities/payslips.entity",
+        "./server/entities/payslip_lines.entity",
+        "./server/entities/salary_components.entity",
+        "./server/index",
+        "./server",
+        "./ui/payroll-runs.page",
+        "./ui/payroll-runs-run-id.page",
+        "./ui/payroll-runs-settings.page",
+        "./ui/payroll-payslips.page",
+        "./ui/payroll-payslips-payslip-id.page",
+        "./ui/payroll-payslips-settings.page",
+        "./ui/payroll-settings.page",
+        "./ui/salary-components-panel.component",
+        "./ui/payroll-status-badge.component",
+        "./ui/payslip-lines-panel.component",
+        ".",
+        "./module.json"
+      ],
+      "settingsTabs": [],
+      "modulePermissions": [],
+      "hasReadme": true,
+      "hasModuleJson": true,
+      "hasNextLayer": true,
+      "readme": "# Payroll Module\n\nTenant-scoped payroll: payroll runs, payslips and salary components. Every row is\nisolated by `tenantId` and service methods take `tenantId` as their first argument\n(per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@/modules/payroll`:\n\n| Export | Type | Use |\n|---|---|---|\n| `PayrollRunService` | class | Payroll run CRUD |\n| `PayslipService` | class | Payslip CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Output typing |\n| `PAYROLL_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `PayrollRun` (`payroll_runs`) — `period`, `status`, `runDate` (soft-deletable).\n- `Payslip` (`payslips`) — `runId`, `employeeId`, `gross`, `deductions`, `net`, `status`.\n- `SalaryComponent` (`salary_components`) — `employeeId`, `type`, `name`, `amount` (soft-deletable).\n\n## Menu\n\n- **Payroll Runs** (`/admin/payroll/runs`, workspace `hr`).\n- **Payslips** (`/admin/payroll/payslips`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
+    },
+    {
       "id": "inventory",
       "name": "Inventory",
       "version": "1.0.0",
@@ -11263,222 +11487,6 @@
       "hasModuleJson": true,
       "hasNextLayer": true,
       "readme": "# Order Module\n\nTenant-scoped core sales orders that bridge Commerce and ERP. Every row is\nisolated by `tenantId` and every service method takes `tenantId` as its first\nargument (per `multi-tenancy-patterns.md`).\n\n> Scaffolded skeleton — entities, types and DTOs are in place; service methods\n> and API routes are future work.\n\n## Entities\n\n- `Order` (`orders`) — `number`, `customerId`, `status` (`DRAFT`/`PENDING`/`PAID`/`FULFILLED`/`CANCELLED`/`REFUNDED`), `currency`, `total`, `placedAt`. Soft-deletable.\n- `OrderLine` (`order_lines`) — `orderId`, `productId`, `variantId`, `description`, `quantity`, `unitPrice`.\n- `OrderStatusEvent` (`order_status_events`) — `orderId`, `status`, `note` — an append-only status timeline.\n\n## Public API\n\nImport from the barrel `@/modules/order`:\n\n| Export | Type | Use |\n|---|---|---|\n| `OrderService` | class | Order/line/status-event management (placeholder) |\n| `Create*DTO` | Zod | Input validation |\n| `Safe*Schema` | Zod | Output filtering (omits `deletedAt`) |\n| `OrderStatusEnum` | Zod | Order status values |\n| `ORDER_MESSAGES` | object | Error/message constants |\n\n## Menu\n\n- **Orders** — `/admin/orders` (ERP workspace, *Sales* group)\n- **Orders** — `/admin/orders` (Commerce workspace, *Orders* group)\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
-    },
-    {
-      "id": "payroll",
-      "name": "Payroll",
-      "version": "1.0.0",
-      "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
-      "author": "Kuray Karaaslan",
-      "license": "CC-BY-NC-ND-4.0",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payroll",
-      "dir": "modules/payroll",
-      "icon": "fas fa-money-check-dollar",
-      "tags": [
-        "payroll",
-        "hr",
-        "erp"
-      ],
-      "priority": 60,
-      "tier": "other",
-      "dependencies": {
-        "requires": [
-          "db",
-          "env",
-          "redis",
-          "logger",
-          "setting"
-        ]
-      },
-      "exports": {
-        "services": [
-          "payroll.component.service.ts",
-          "payroll.line.service.ts",
-          "payroll.payslip.service.ts",
-          "payroll.run.service.ts"
-        ],
-        "dtos": [
-          "payroll.dto.ts"
-        ],
-        "enums": [
-          "payroll.enums.ts"
-        ],
-        "messageKeys": [
-          "payroll.messages.ts"
-        ],
-        "settingKeys": [],
-        "providers": [],
-        "jobs": [],
-        "entities": [
-          "payroll_runs.entity.ts",
-          "payslip_lines.entity.ts",
-          "payslips.entity.ts",
-          "salary_components.entity.ts"
-        ]
-      },
-      "enabled": true,
-      "menu": [
-        {
-          "id": "payroll-runs",
-          "label": "Payroll Runs",
-          "href": "/admin/payroll/runs",
-          "icon": "fas fa-money-check-dollar",
-          "group": "Payroll",
-          "workspace": "hr",
-          "order": 40,
-          "scope": "tenant"
-        },
-        {
-          "id": "payroll-payslips",
-          "label": "Payslips",
-          "href": "/admin/payroll/payslips",
-          "icon": "fas fa-file-invoice-dollar",
-          "group": "Payroll",
-          "workspace": "hr",
-          "order": 50,
-          "scope": "tenant"
-        },
-        {
-          "id": "payroll-settings",
-          "label": "Payroll Settings",
-          "href": "/admin/payroll/settings",
-          "icon": "fas fa-gear",
-          "group": "Configuration",
-          "workspace": "hr",
-          "order": 90,
-          "scope": "tenant"
-        }
-      ],
-      "adminRoutes": [
-        {
-          "path": "/admin/payroll/runs",
-          "component": "payroll/ui/payroll-runs.page"
-        },
-        {
-          "path": "/admin/payroll/runs/[runId]",
-          "component": "payroll/ui/payroll-runs-run-id.page"
-        },
-        {
-          "path": "/admin/payroll/runs/settings",
-          "component": "payroll/ui/payroll-runs-settings.page"
-        },
-        {
-          "path": "/admin/payroll/payslips",
-          "component": "payroll/ui/payroll-payslips.page"
-        },
-        {
-          "path": "/admin/payroll/payslips/[payslipId]",
-          "component": "payroll/ui/payroll-payslips-payslip-id.page"
-        },
-        {
-          "path": "/admin/payroll/payslips/settings",
-          "component": "payroll/ui/payroll-payslips-settings.page"
-        },
-        {
-          "path": "/admin/payroll/settings",
-          "component": "payroll/ui/payroll-settings.page"
-        }
-      ],
-      "apiRoutes": [
-        {
-          "path": "/api/payroll/runs",
-          "handler": "payroll/server/payroll-runs.route"
-        },
-        {
-          "path": "/api/payroll/runs/[runId]",
-          "handler": "payroll/server/payroll-runs-run-id.route"
-        },
-        {
-          "path": "/api/payroll/runs/[runId]/process",
-          "handler": "payroll/server/payroll-runs-run-id-process.route"
-        },
-        {
-          "path": "/api/payroll/runs/[runId]/pay",
-          "handler": "payroll/server/payroll-runs-run-id-pay.route"
-        },
-        {
-          "path": "/api/payroll/payslips",
-          "handler": "payroll/server/payroll-payslips.route"
-        },
-        {
-          "path": "/api/payroll/payslips/[payslipId]",
-          "handler": "payroll/server/payroll-payslips-payslip-id.route"
-        },
-        {
-          "path": "/api/payroll/payslips/[payslipId]/issue",
-          "handler": "payroll/server/payroll-payslips-payslip-id-issue.route"
-        },
-        {
-          "path": "/api/payroll/payslips/[payslipId]/pay",
-          "handler": "payroll/server/payroll-payslips-payslip-id-pay.route"
-        },
-        {
-          "path": "/api/payroll/payslips/[payslipId]/lines",
-          "handler": "payroll/server/payroll-payslips-payslip-id-lines.route"
-        },
-        {
-          "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
-          "handler": "payroll/server/payroll-payslips-payslip-id-lines-line-id.route"
-        },
-        {
-          "path": "/api/payroll/components",
-          "handler": "payroll/server/payroll-components.route"
-        },
-        {
-          "path": "/api/payroll/components/[componentId]",
-          "handler": "payroll/server/payroll-components-component-id.route"
-        }
-      ],
-      "widgets": [],
-      "slots": [],
-      "extensionPoints": [],
-      "extensions": [],
-      "pkgExports": [
-        "./server/payroll.run.service",
-        "./server/payroll.payslip.service",
-        "./server/payroll.line.service",
-        "./server/payroll.component.service",
-        "./server/payroll-runs.route",
-        "./server/payroll-runs-run-id.route",
-        "./server/payroll-runs-run-id-process.route",
-        "./server/payroll-runs-run-id-pay.route",
-        "./server/payroll-payslips.route",
-        "./server/payroll-payslips-payslip-id.route",
-        "./server/payroll-payslips-payslip-id-issue.route",
-        "./server/payroll-payslips-payslip-id-pay.route",
-        "./server/payroll-payslips-payslip-id-lines.route",
-        "./server/payroll-payslips-payslip-id-lines-line-id.route",
-        "./server/payroll-components.route",
-        "./server/payroll-components-component-id.route",
-        "./server/payroll.enums",
-        "./server/payroll.types",
-        "./server/payroll.dto",
-        "./server/payroll.messages",
-        "./server/entities/payroll_runs.entity",
-        "./server/entities/payslips.entity",
-        "./server/entities/payslip_lines.entity",
-        "./server/entities/salary_components.entity",
-        "./server/index",
-        "./server",
-        "./ui/payroll-runs.page",
-        "./ui/payroll-runs-run-id.page",
-        "./ui/payroll-runs-settings.page",
-        "./ui/payroll-payslips.page",
-        "./ui/payroll-payslips-payslip-id.page",
-        "./ui/payroll-payslips-settings.page",
-        "./ui/payroll-settings.page",
-        "./ui/salary-components-panel.component",
-        "./ui/payroll-status-badge.component",
-        "./ui/payslip-lines-panel.component",
-        ".",
-        "./module.json"
-      ],
-      "settingsTabs": [],
-      "modulePermissions": [],
-      "hasReadme": true,
-      "hasModuleJson": true,
-      "hasNextLayer": true,
-      "readme": "# Payroll Module\n\nTenant-scoped payroll: payroll runs, payslips and salary components. Every row is\nisolated by `tenantId` and service methods take `tenantId` as their first argument\n(per `multi-tenancy-patterns.md`).\n\n## Public API\n\nImport from the barrel `@/modules/payroll`:\n\n| Export | Type | Use |\n|---|---|---|\n| `PayrollRunService` | class | Payroll run CRUD |\n| `PayslipService` | class | Payslip CRUD |\n| `Create*DTO` / `Update*DTO` | Zod | Input validation |\n| `*Schema` | Zod | Output typing |\n| `PAYROLL_MESSAGES` | object | Error/message constants |\n\n## Entities\n\n- `PayrollRun` (`payroll_runs`) — `period`, `status`, `runDate` (soft-deletable).\n- `Payslip` (`payslips`) — `runId`, `employeeId`, `gross`, `deductions`, `net`, `status`.\n- `SalaryComponent` (`salary_components`) — `employeeId`, `type`, `name`, `amount` (soft-deletable).\n\n## Menu\n\n- **Payroll Runs** (`/admin/payroll/runs`, workspace `hr`).\n- **Payslips** (`/admin/payroll/payslips`, workspace `hr`).\n\n## Dependencies\n\n`db`, `env`, `redis`, `logger`, `setting`.\n"
     },
     {
       "id": "procurement",

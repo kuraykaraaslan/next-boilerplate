@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Limiter from '@kuraykaraaslan/limiter/server/limiter.service.next'
 import TenantSessionNextService from '@kuraykaraaslan/tenant_session/server/tenant_session.service.next'
-import PayslipLineService from '@kuraykaraaslan/payroll/server/payroll.line.service'
-import { CreatePayslipLineDTO, GetPayslipLinesQuery } from '@kuraykaraaslan/payroll/server/payroll.dto'
+import PayslipLineService from '@kuraykaraaslan/hr_payroll/server/payroll.line.service'
+import { CreatePayslipLineDTO, GetPayslipLinesQuery } from '@kuraykaraaslan/hr_payroll/server/payroll.dto'
 
 type Ctx = { params: Promise<{ tenantId: string; payslipId: string }> }
 

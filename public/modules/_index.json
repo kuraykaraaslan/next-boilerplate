@@ -1175,6 +1175,20 @@
     "componentCount": 11,
     "file": "hr.md"
   },
+  "hr_payroll": {
+    "name": "Payroll",
+    "tier": "other",
+    "tags": [
+      "payroll",
+      "hr",
+      "erp"
+    ],
+    "hasNextLayer": true,
+    "routeCount": 0,
+    "entityCount": 4,
+    "componentCount": 10,
+    "file": "hr_payroll.md"
+  },
   "inventory": {
     "name": "Inventory",
     "tier": "other",
@@ -1219,20 +1233,6 @@
     "entityCount": 3,
     "componentCount": 5,
     "file": "order.md"
-  },
-  "payroll": {
-    "name": "Payroll",
-    "tier": "other",
-    "tags": [
-      "payroll",
-      "hr",
-      "erp"
-    ],
-    "hasNextLayer": true,
-    "routeCount": 0,
-    "entityCount": 4,
-    "componentCount": 10,
-    "file": "payroll.md"
   },
   "procurement": {
     "name": "Procurement",

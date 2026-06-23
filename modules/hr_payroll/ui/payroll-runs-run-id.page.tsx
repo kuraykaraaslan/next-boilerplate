@@ -11,7 +11,7 @@ import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
 import { Spinner } from '@kuraykaraaslan/common/ui/spinner.component';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
 import { toast } from '@kuraykaraaslan/common/ui/toast.store';
-import { RunStatusBadge, PayslipStatusBadge } from '@kuraykaraaslan/payroll/ui/payroll-status-badge.component';
+import { RunStatusBadge, PayslipStatusBadge } from '@kuraykaraaslan/hr_payroll/ui/payroll-status-badge.component';
 
 type Run = { runId: string; period: string; status: string; runDate?: string | null };
 type Payslip = { payslipId: string; employeeId: string; net?: string | null; status: string };

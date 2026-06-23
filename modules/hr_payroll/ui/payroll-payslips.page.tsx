@@ -3,7 +3,7 @@ import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@kuraykaraaslan/common/server/axios';
 import { ServerDataTable, type TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
-import { PayslipStatusBadge } from '@kuraykaraaslan/payroll/ui/payroll-status-badge.component';
+import { PayslipStatusBadge } from '@kuraykaraaslan/hr_payroll/ui/payroll-status-badge.component';
 import { PageHeader } from '@kuraykaraaslan/common/ui/page-header.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';

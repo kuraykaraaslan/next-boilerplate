@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-23T19:22:33.205Z",
+  "generatedAt": "2026-06-23T19:29:16.657Z",
   "routes": [
     {
       "filePath": "app/internal/api/caddy-ask/route.ts",

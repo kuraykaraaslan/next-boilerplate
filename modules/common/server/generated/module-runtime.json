@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-23T19:22:33.205Z",
+  "generatedAt": "2026-06-23T19:29:16.657Z",
   "menu": [
     {
       "id": "settings",
@@ -827,7 +827,7 @@
       "order": 40,
       "scope": "tenant",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "id": "product-review-list",
@@ -875,7 +875,7 @@
       "order": 50,
       "scope": "tenant",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "id": "search-content",
@@ -1007,7 +1007,7 @@
       "order": 90,
       "scope": "tenant",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "id": "procurement-settings",
@@ -1643,45 +1643,45 @@
     },
     {
       "path": "/admin/payroll/payslips",
-      "componentId": "payroll/ui/payroll-payslips.page",
+      "componentId": "hr_payroll/ui/payroll-payslips.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/payroll/payslips/[payslipId]",
-      "componentId": "payroll/ui/payroll-payslips-payslip-id.page",
+      "componentId": "hr_payroll/ui/payroll-payslips-payslip-id.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/payroll/payslips/settings",
-      "componentId": "payroll/ui/payroll-payslips-settings.page",
+      "componentId": "hr_payroll/ui/payroll-payslips-settings.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/payroll/runs",
-      "componentId": "payroll/ui/payroll-runs.page",
+      "componentId": "hr_payroll/ui/payroll-runs.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/payroll/runs/[runId]",
-      "componentId": "payroll/ui/payroll-runs-run-id.page",
+      "componentId": "hr_payroll/ui/payroll-runs-run-id.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/payroll/runs/settings",
-      "componentId": "payroll/ui/payroll-runs-settings.page",
+      "componentId": "hr_payroll/ui/payroll-runs-settings.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/payroll/settings",
-      "componentId": "payroll/ui/payroll-settings.page",
+      "componentId": "hr_payroll/ui/payroll-settings.page",
       "permissions": [],
-      "moduleId": "payroll"
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/admin/plans",
@@ -3588,63 +3588,63 @@
     },
     {
       "path": "/api/payroll/components",
-      "handlerId": "payroll/server/payroll-components.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-components.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/components/[componentId]",
-      "handlerId": "payroll/server/payroll-components-component-id.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-components-component-id.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/payslips",
-      "handlerId": "payroll/server/payroll-payslips.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-payslips.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]",
-      "handlerId": "payroll/server/payroll-payslips-payslip-id.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-payslips-payslip-id.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/issue",
-      "handlerId": "payroll/server/payroll-payslips-payslip-id-issue.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-payslips-payslip-id-issue.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/lines",
-      "handlerId": "payroll/server/payroll-payslips-payslip-id-lines.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-payslips-payslip-id-lines.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/lines/[payslipLineId]",
-      "handlerId": "payroll/server/payroll-payslips-payslip-id-lines-line-id.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-payslips-payslip-id-lines-line-id.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/payslips/[payslipId]/pay",
-      "handlerId": "payroll/server/payroll-payslips-payslip-id-pay.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-payslips-payslip-id-pay.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/runs",
-      "handlerId": "payroll/server/payroll-runs.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-runs.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/runs/[runId]",
-      "handlerId": "payroll/server/payroll-runs-run-id.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-runs-run-id.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/runs/[runId]/pay",
-      "handlerId": "payroll/server/payroll-runs-run-id-pay.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-runs-run-id-pay.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/payroll/runs/[runId]/process",
-      "handlerId": "payroll/server/payroll-runs-run-id-process.route",
-      "moduleId": "payroll"
+      "handlerId": "hr_payroll/server/payroll-runs-run-id-process.route",
+      "moduleId": "hr_payroll"
     },
     {
       "path": "/api/plans",
@@ -5196,6 +5196,31 @@
       ]
     },
     {
+      "id": "hr_payroll",
+      "name": "Payroll",
+      "icon": "fas fa-money-check-dollar",
+      "version": "1.0.0",
+      "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
+      "author": "Kuray Karaaslan",
+      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/hr_payroll",
+      "license": "CC-BY-NC-ND-4.0",
+      "tags": [
+        "payroll",
+        "hr",
+        "erp"
+      ],
+      "priority": 60,
+      "enabled": true,
+      "tier": "other",
+      "requires": [
+        "db",
+        "env",
+        "redis",
+        "logger",
+        "setting"
+      ]
+    },
+    {
       "id": "integrations_hub",
       "name": "Integrations Hub",
       "icon": "fas fa-plug",
@@ -5898,31 +5923,6 @@
         "env",
         "redis",
         "logger"
-      ]
-    },
-    {
-      "id": "payroll",
-      "name": "Payroll",
-      "icon": "fas fa-money-check-dollar",
-      "version": "1.0.0",
-      "description": "Tenant-scoped payroll: payroll runs, payslips and salary components.",
-      "author": "Kuray Karaaslan",
-      "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payroll",
-      "license": "CC-BY-NC-ND-4.0",
-      "tags": [
-        "payroll",
-        "hr",
-        "erp"
-      ],
-      "priority": 60,
-      "enabled": true,
-      "tier": "other",
-      "requires": [
-        "db",
-        "env",
-        "redis",
-        "logger",
-        "setting"
       ]
     },
     {
