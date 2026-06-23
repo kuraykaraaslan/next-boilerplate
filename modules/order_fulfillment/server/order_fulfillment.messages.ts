@@ -21,4 +21,11 @@ export const ORDER_FULFILLMENT_MESSAGES = {
   LABEL_NOT_AVAILABLE: 'Label generation is not available for this carrier (unconfigured or unsupported)',
   LABEL_ADDRESS_REQUIRED: 'Both a from and a to address are required to generate a label',
   CARRIER_REQUIRED: 'A carrier must be set on the fulfillment before generating a label',
+
+  CARRIER_NOT_FOUND: 'Carrier not found',
+  CARRIER_CODE_TAKEN: 'A carrier with this code already exists',
+  CARRIER_CREATE_FAILED: 'Failed to create carrier',
+
+  ITEM_NOT_FOUND: 'Fulfillment item not found',
+  ITEM_CREATE_FAILED: 'Failed to add fulfillment item',
 } as const

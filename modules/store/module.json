@@ -63,6 +63,16 @@
       "workspace": "commerce",
       "order": 30,
       "scope": "tenant"
+    },
+    {
+      "id": "store-settings",
+      "label": "Settings",
+      "href": "/admin/store/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "routes": [
@@ -89,6 +99,10 @@
     {
       "path": "/admin/store/products",
       "component": "store/ui/store-products.page"
+    },
+    {
+      "path": "/admin/store/settings",
+      "component": "store/ui/store-settings.page"
     }
   ],
   "apiRoutes": [
@@ -141,6 +155,14 @@
       "handler": "store/server/store-products-product-id.route"
     },
     {
+      "path": "/api/store/products/[productId]/activate",
+      "handler": "store/server/store-products-product-id-activate.route"
+    },
+    {
+      "path": "/api/store/products/[productId]/archive",
+      "handler": "store/server/store-products-product-id-archive.route"
+    },
+    {
       "path": "/api/store/products/[productId]/spec-values",
       "handler": "store/server/store-products-product-id-spec-values.route"
     },
@@ -159,6 +181,14 @@
     {
       "path": "/api/store/products",
       "handler": "store/server/store-products.route"
+    },
+    {
+      "path": "/api/store/product-tags/[tagId]",
+      "handler": "store/server/store-product-tags-tag-id.route"
+    },
+    {
+      "path": "/api/store/product-tags",
+      "handler": "store/server/store-product-tags.route"
     },
     {
       "path": "/api/storefront/categories",

@@ -23,6 +23,8 @@ export const SUBSCRIPTION_MESSAGES = {
   PLATFORM_PLAN_MISSING_PRODUCT: 'Source platform plan references a deleted product',
   SUBSCRIPTION_CANCEL_FAILED: 'Failed to cancel subscription',
   SUBSCRIPTION_ALREADY_CANCELLED: 'Subscription is already cancelled',
+  SUBSCRIPTION_RENEW_FAILED: 'Failed to renew subscription',
+  SUBSCRIPTION_INVALID_TRANSITION: 'This action is not allowed from the current subscription status',
 
   // Payment
   PAYMENT_INITIATION_FAILED: 'Failed to initiate subscription payment',

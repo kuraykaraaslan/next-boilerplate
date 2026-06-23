@@ -19,6 +19,8 @@ export default class StoreProductService {
   static approve          = StoreProductCrudService.approve.bind(StoreProductCrudService);
   static reject           = StoreProductCrudService.reject.bind(StoreProductCrudService);
   static bulkSetStatus    = StoreProductCrudService.bulkSetStatus.bind(StoreProductCrudService);
+  static activate         = StoreProductCrudService.activate.bind(StoreProductCrudService);
+  static archive          = StoreProductCrudService.archive.bind(StoreProductCrudService);
 
   // Images + spec values + duplicate
   static addImage           = StoreProductMediaService.addImage.bind(StoreProductMediaService);

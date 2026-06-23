@@ -18,6 +18,18 @@
     "./server/product_review.seed": "./server/product_review.seed.ts",
     "./server/product_review.service": "./server/product_review.service.ts",
     "./server/product_review.types": "./server/product_review.types.ts",
+    "./server/product_review.workflow.service": "./server/product_review.workflow.service.ts",
+    "./server/product_review.vote.service": "./server/product_review.vote.service.ts",
+    "./server/reviews.route": "./server/reviews.route.ts",
+    "./server/reviews-review-id.route": "./server/reviews-review-id.route.ts",
+    "./server/reviews-review-id-votes.route": "./server/reviews-review-id-votes.route.ts",
+    "./server/reviews-review-id-approve.route": "./server/reviews-review-id-approve.route.ts",
+    "./server/reviews-review-id-reject.route": "./server/reviews-review-id-reject.route.ts",
+    "./server/reviews-review-id-spam.route": "./server/reviews-review-id-spam.route.ts",
+    "./ui/review-status-badge.component": "./ui/review-status-badge.component.tsx",
+    "./ui/review-votes-panel.component": "./ui/review-votes-panel.component.tsx",
+    "./ui/reviews.page": "./ui/reviews.page.tsx",
+    "./ui/reviews-review-id.page": "./ui/reviews-review-id.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
   }

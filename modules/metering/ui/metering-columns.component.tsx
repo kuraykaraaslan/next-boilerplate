@@ -2,6 +2,7 @@
 
 import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import type { TableColumn } from '@kuraykaraaslan/common/ui/server-data-table.component';
+import { BillingRunStatusBadge } from '@kuraykaraaslan/metering/ui/billing-run-status-badge.component';
 
 export type MeterRow = {
   meterId: string;
@@ -112,7 +113,7 @@ export function buildBillingRunColumns(): TableColumn<BillingRunRow>[] {
         </span>
       ),
     },
-    { key: 'status', header: 'Status', render: (r) => <span className="text-text-secondary">{r.status}</span> },
+    { key: 'status', header: 'Status', render: (r) => <BillingRunStatusBadge status={r.status} size="sm" dot /> },
     {
       key: 'totalMinor',
       header: 'Total',

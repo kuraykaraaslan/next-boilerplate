@@ -13,7 +13,7 @@ import OrderFulfillmentCarrierService from './order_fulfillment.carrier.service'
 import OrderFulfillmentAnalyticsService, { type CustomsDeclaration } from './order_fulfillment.analytics.service'
 import { getById, list, listEvents, getOrderState, getPublicTracking } from './order_fulfillment.read.service'
 import { create, update, addTracking, linkReturnRequest } from './order_fulfillment.crud.service'
-import { updateStatus, markShipped, cancel, bulkUpdateStatus, refreshTracking } from './order_fulfillment.status.service'
+import { updateStatus, markShipped, cancel, bulkUpdateStatus, refreshTracking, pack, ship, deliver } from './order_fulfillment.status.service'
 import { generateLabel, generateReturnLabel } from './order_fulfillment.label.service'
 
 /**
@@ -50,6 +50,18 @@ export default class OrderFulfillmentService {
 
   static markShipped(tenantId: string, fulfillmentId: string, tracking?: AddTrackingDTO): Promise<FulfillmentWithItems> {
     return markShipped(tenantId, fulfillmentId, tracking)
+  }
+
+  static pack(tenantId: string, fulfillmentId: string): Promise<FulfillmentWithItems> {
+    return pack(tenantId, fulfillmentId)
+  }
+
+  static ship(tenantId: string, fulfillmentId: string, tracking?: AddTrackingDTO): Promise<FulfillmentWithItems> {
+    return ship(tenantId, fulfillmentId, tracking)
+  }
+
+  static deliver(tenantId: string, fulfillmentId: string): Promise<FulfillmentWithItems> {
+    return deliver(tenantId, fulfillmentId)
   }
 
   static cancel(tenantId: string, fulfillmentId: string, reason?: string): Promise<FulfillmentWithItems> {

@@ -34,12 +34,16 @@ export default class PaymentSubscriptionService {
   static createSubscription  = PaymentSubscriptionLifecycleService.createSubscription.bind(PaymentSubscriptionLifecycleService);
   static getSubscription     = PaymentSubscriptionLifecycleService.getSubscription.bind(PaymentSubscriptionLifecycleService);
   static listSubscriptions   = PaymentSubscriptionLifecycleService.listSubscriptions.bind(PaymentSubscriptionLifecycleService);
+  static updateSubscription  = PaymentSubscriptionLifecycleService.updateSubscription.bind(PaymentSubscriptionLifecycleService);
+  static deleteSubscription  = PaymentSubscriptionLifecycleService.deleteSubscription.bind(PaymentSubscriptionLifecycleService);
   static cancelSubscription  = PaymentSubscriptionLifecycleService.cancelSubscription.bind(PaymentSubscriptionLifecycleService);
   static pauseSubscription   = PaymentSubscriptionLifecycleService.pauseSubscription.bind(PaymentSubscriptionLifecycleService);
   static resumeSubscription  = PaymentSubscriptionLifecycleService.resumeSubscription.bind(PaymentSubscriptionLifecycleService);
   static changePlan          = PaymentSubscriptionLifecycleService.changePlan.bind(PaymentSubscriptionLifecycleService);
   static prorationPreview    = PaymentSubscriptionLifecycleService.prorationPreview.bind(PaymentSubscriptionLifecycleService);
   static markPastDue         = PaymentSubscriptionLifecycleService.markPastDue.bind(PaymentSubscriptionLifecycleService);
+  static expireSubscription  = PaymentSubscriptionLifecycleService.expireSubscription.bind(PaymentSubscriptionLifecycleService);
+  static listEvents          = PaymentSubscriptionLifecycleService.listEvents.bind(PaymentSubscriptionLifecycleService);
 
   // ──────────────────────────────────────────────
   // Dunning (failed-payment retry lifecycle)

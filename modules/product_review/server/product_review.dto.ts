@@ -53,6 +53,19 @@ export const VoteReviewDTO = z.object({
 })
 export type VoteReviewDTO = z.infer<typeof VoteReviewDTO>
 
+// Workflow transition payload (approve / reject / mark-spam): optional note only.
+export const ReviewTransitionDTO = z.object({
+  note: z.string().optional(),
+})
+export type ReviewTransitionDTO = z.infer<typeof ReviewTransitionDTO>
+
+export const GetReviewVotesQuery = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(200).default(50),
+  isHelpful: z.boolean().optional(),
+})
+export type GetReviewVotesQuery = z.infer<typeof GetReviewVotesQuery>
+
 export const GetReviewsQuery = z.object({
   page: z.number().int().nonnegative().default(0),
   pageSize: z.number().int().positive().max(100).default(20),

@@ -24,5 +24,65 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_subscription",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "subscription-list-commerce",
+      "label": "Subscriptions",
+      "href": "/admin/subscriptions",
+      "icon": "fas fa-repeat",
+      "group": "Commerce",
+      "workspace": "commerce",
+      "order": 30,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/subscriptions",
+      "handler": "payment_subscription/server/subscriptions.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]",
+      "handler": "payment_subscription/server/subscriptions-subscription-id.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/lines",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-lines.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/lines/[lineId]",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/events",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-events.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/pause",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-pause.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/resume",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-resume.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/cancel",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-cancel.route"
+    },
+    {
+      "path": "/api/subscriptions/[subscriptionId]/expire",
+      "handler": "payment_subscription/server/subscriptions-subscription-id-expire.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/subscriptions",
+      "component": "payment_subscription/ui/subscriptions.page"
+    },
+    {
+      "path": "/admin/subscriptions/[subscriptionId]",
+      "component": "payment_subscription/ui/subscriptions-subscription-id.page"
+    }
+  ]
 }

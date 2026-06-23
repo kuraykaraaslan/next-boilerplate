@@ -28,7 +28,8 @@ const RichTextEditor = dynamic(
   { ssr: false, loading: () => <div className="h-44 rounded-md border border-border bg-surface-sunken animate-pulse" /> },
 );
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faCopy, faCircleCheck, faBoxArchive } from '@fortawesome/free-solid-svg-icons';
+import type React from 'react';
 import {
   type Product, type VariantGroupItemRow, type VariantProductInfo, type EditForm,
   statusOptions, extractMessage,
@@ -47,6 +48,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ tenant
   const [saving, setSaving]             = useState(false);
   const [saveError, setSaveError]       = useState('');
   const [duplicating, setDuplicating]   = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
 
   const [form, setForm] = useState<EditForm>({
     name: '', slug: '', shortDescription: '', details: '',
@@ -120,11 +122,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ tenant
     finally { setDuplicating(false); }
   }
 
+  async function handleTransition(action: 'activate' | 'archive') {
+    setTransitioning(true);
+    try {
+      await api.post(`/tenant/${tenantId}/api/store/products/${productId}/${action}`);
+      toast.success(action === 'activate' ? 'Product activated' : 'Product archived');
+      load();
+    } catch (err) {
+      toast.error(extractMessage(err, `Failed to ${action} product.`));
+    } finally { setTransitioning(false); }
+  }
+
   if (loading) return <div className="flex justify-center py-16"><Spinner /></div>;
   if (loadError) return <AlertBanner variant="error" message={loadError} />;
   if (!product) return null;
 
   const siblingItems = variantItems.filter((it) => it.productId !== productId);
+
+  const workflowActions: { label: React.ReactNode; onClick: () => void; disabled?: boolean }[] = [];
+  if (form.status !== 'ACTIVE') {
+    workflowActions.push({
+      label: <><FontAwesomeIcon icon={faCircleCheck} /> Activate</>,
+      onClick: () => handleTransition('activate'), disabled: transitioning,
+    });
+  }
+  if (form.status !== 'ARCHIVED') {
+    workflowActions.push({
+      label: <><FontAwesomeIcon icon={faBoxArchive} /> Archive</>,
+      onClick: () => handleTransition('archive'), disabled: transitioning,
+    });
+  }
 
   const generalContent = (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -231,6 +258,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ tenant
         subtitle={product.slug}
         badge={<ProductStatusBadge status={form.status as ProductStatus} />}
         actions={[
+          ...workflowActions,
           { label: <><FontAwesomeIcon icon={faCopy} /> {duplicating ? 'Duplicating…' : 'Duplicate'}</>, onClick: () => handleDuplicate(false), disabled: duplicating },
           { label: <><FontAwesomeIcon icon={faSave} /> {saving ? 'Saving…' : 'Save'}</>, onClick: handleSave, disabled: saving },
         ]}

@@ -28,4 +28,10 @@ export default class MeteringService {
   static runBilling = MeteredBillingService.runBilling.bind(MeteredBillingService);
   static listRuns = MeteredBillingService.listRuns.bind(MeteredBillingService);
   static getRun = MeteredBillingService.getRun.bind(MeteredBillingService);
+  static listRunEvents = MeteredBillingService.listRunEvents.bind(MeteredBillingService);
+
+  // Billing-run document workflow
+  static createRun = MeteredBillingService.createRun.bind(MeteredBillingService);
+  static calculateRun = MeteredBillingService.calculateRun.bind(MeteredBillingService);
+  static billRun = MeteredBillingService.billRun.bind(MeteredBillingService);
 }

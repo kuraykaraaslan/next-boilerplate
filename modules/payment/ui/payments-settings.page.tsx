@@ -7,8 +7,10 @@ import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Toggle } from '@kuraykaraaslan/common/ui/toggle.component';
 import { Badge } from '@kuraykaraaslan/common/ui/badge.component';
 import { Button } from '@kuraykaraaslan/common/ui/button.component';
+import { TabGroup } from '@kuraykaraaslan/common/ui/tab-group.component';
 import { SettingsPanelHost } from '@kuraykaraaslan/setting/ui/settings-panel-host.component';
 import type { SR } from '@kuraykaraaslan/setting/ui/settings-kit.component';
+import { PaymentMethodsPanel } from '@kuraykaraaslan/payment/ui/payment-methods-panel.component';
 import {
   PAYMENT_PROVIDERS,
   isProviderConfigured,
@@ -153,9 +155,19 @@ export default function PaymentsSettingsPage({ params }: { params: Promise<{ ten
       parentCrumb={{ label: 'Settings', href: `/tenant/${tenantId}/admin/settings` }}
     >
       {({ settings, onSave, saving }) => (
-        <div className="space-y-6 pt-6">
-          <GeneralCard settings={settings} onSave={onSave} saving={saving} />
-          <ProvidersPanel settings={settings} onSave={onSave} saving={saving} />
+        <div className="pt-6">
+          <TabGroup tabs={[
+            {
+              id: 'general', label: 'General & Providers',
+              content: (
+                <div className="space-y-6">
+                  <GeneralCard settings={settings} onSave={onSave} saving={saving} />
+                  <ProvidersPanel settings={settings} onSave={onSave} saving={saving} />
+                </div>
+              ),
+            },
+            { id: 'methods', label: 'Payment Methods', content: <PaymentMethodsPanel tenantId={tenantId} /> },
+          ]} />
         </div>
       )}
     </SettingsPanelHost>

@@ -6,6 +6,9 @@ export const METERING_MESSAGES = {
   BILLING_RUN_NOT_FOUND: 'Metered billing run not found',
   INVALID_QUANTITY: 'Usage quantity must be a positive integer',
 
+  RUN_NOT_DRAFT: 'Only a DRAFT run can be calculated',
+  RUN_NOT_CALCULATED: 'Only a CALCULATED run can be billed',
+
   RECORD_FAILED: 'Failed to record usage event',
   BILLING_FAILED: 'Failed to run metered billing',
   INVOICE_CUSTOMER_REQUIRED:

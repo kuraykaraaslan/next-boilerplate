@@ -33,12 +33,72 @@
       "workspace": "erp",
       "order": 20,
       "scope": "tenant"
+    },
+    {
+      "id": "order-fulfillment-settings",
+      "label": "Fulfillment Settings",
+      "href": "/admin/fulfillment/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/fulfillment",
+      "handler": "order_fulfillment/server/fulfillment.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/lines",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id-lines.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/lines/[lineId]",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/pack",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id-pack.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/ship",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id-ship.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/deliver",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id-deliver.route"
+    },
+    {
+      "path": "/api/fulfillment/[fulfillmentId]/cancel",
+      "handler": "order_fulfillment/server/fulfillment-fulfillment-id-cancel.route"
+    },
+    {
+      "path": "/api/fulfillment/carriers",
+      "handler": "order_fulfillment/server/fulfillment-carriers.route"
+    },
+    {
+      "path": "/api/fulfillment/carriers/[carrierId]",
+      "handler": "order_fulfillment/server/fulfillment-carriers-carrier-id.route"
     }
   ],
   "routes": [
     {
       "path": "/admin/fulfillment",
       "component": "order_fulfillment/ui/fulfillment.page"
+    },
+    {
+      "path": "/admin/fulfillment/[fulfillmentId]",
+      "component": "order_fulfillment/ui/fulfillment-fulfillment-id.page"
+    },
+    {
+      "path": "/admin/fulfillment/settings",
+      "component": "order_fulfillment/ui/fulfillment-settings.page"
     }
   ]
 }

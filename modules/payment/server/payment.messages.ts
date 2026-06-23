@@ -15,6 +15,11 @@ export const PAYMENT_MESSAGES = {
   PAYMENT_EXPIRED: 'Payment has expired',
   INVALID_PAYMENT_AMOUNT: 'Invalid payment amount',
   INVALID_PAYMENT_CURRENCY: 'Invalid payment currency',
+  INVALID_TRANSITION: 'Invalid payment status transition',
+
+  // Payment method (configurable master-data)
+  PAYMENT_METHOD_NOT_FOUND: 'Payment method not found',
+  PAYMENT_METHOD_CREATE_FAILED: 'Failed to create payment method',
 
   // Transaction CRUD
   TRANSACTION_NOT_FOUND: 'Transaction not found',

@@ -33,6 +33,14 @@ export class ReturnItem {
   @Column({ type: 'int', default: 1 })
   quantity!: number;
 
+  // Unit refund value of the returned item; line refund = quantity * unitPrice.
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  unitPrice!: number;
+
+  // Cached line refund amount = quantity * unitPrice (recomputed on change).
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  amount!: number;
+
   @Column({ nullable: true, type: 'varchar' })
   reason?: string;
 

@@ -100,6 +100,19 @@ export const WarehouseSchema = z.object({
 })
 export type Warehouse = z.infer<typeof WarehouseSchema>
 
+export const CarrierSchema = z.object({
+  carrierId: z.string().uuid(),
+  tenantId: z.string().uuid(),
+  name: z.string(),
+  code: z.string(),
+  trackingUrlPattern: z.string().nullable().optional(),
+  isActive: z.boolean(),
+  sortOrder: z.number().int(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
+export type Carrier = z.infer<typeof CarrierSchema>
+
 /** Aggregate fulfillment metrics for an admin operations dashboard. */
 export interface FulfillmentAnalytics {
   total: number

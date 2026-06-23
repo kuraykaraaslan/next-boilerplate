@@ -124,4 +124,14 @@ export default class PaymentTransactionService {
       throw new AppError(PAYMENT_MESSAGES.TRANSACTION_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
     }
   }
+
+  static async deleteTransaction(transactionId: string): Promise<void> {
+    const ds = await getDataSource();
+    const repo = ds.getRepository(PaymentTransactionEntity);
+    const existing = await repo.findOne({ where: { transactionId } });
+    if (!existing) throw new AppError(PAYMENT_MESSAGES.TRANSACTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+    // PaymentTransaction has no deletedAt column — hard remove.
+    await repo.remove(existing);
+    await PaymentTransactionService.clearTransactionCache(transactionId, existing.paymentId);
+  }
 }

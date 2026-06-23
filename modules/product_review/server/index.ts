@@ -1,4 +1,6 @@
 export { default as ProductReviewService } from './product_review.service'
+export * as ProductReviewWorkflow from './product_review.workflow.service'
+export * as ProductReviewVotes from './product_review.vote.service'
 export * from './product_review.enums'
 export * from './product_review.types'
 export * from './product_review.dto'

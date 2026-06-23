@@ -22,5 +22,53 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/product_review",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "product-review-list",
+      "label": "Reviews",
+      "href": "/admin/reviews",
+      "icon": "fas fa-star",
+      "group": "Commerce",
+      "workspace": "commerce",
+      "order": 40,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/reviews",
+      "handler": "product_review/server/reviews.route"
+    },
+    {
+      "path": "/api/reviews/[reviewId]",
+      "handler": "product_review/server/reviews-review-id.route"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/votes",
+      "handler": "product_review/server/reviews-review-id-votes.route"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/approve",
+      "handler": "product_review/server/reviews-review-id-approve.route"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/reject",
+      "handler": "product_review/server/reviews-review-id-reject.route"
+    },
+    {
+      "path": "/api/reviews/[reviewId]/spam",
+      "handler": "product_review/server/reviews-review-id-spam.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/reviews",
+      "component": "product_review/ui/reviews.page"
+    },
+    {
+      "path": "/admin/reviews/[reviewId]",
+      "component": "product_review/ui/reviews-review-id.page"
+    }
+  ]
 }

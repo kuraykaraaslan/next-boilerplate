@@ -1,5 +1,7 @@
 export { default as OrderFulfillmentService } from './order_fulfillment.service'
 export { default as OrderFulfillmentWarehouseService } from './order_fulfillment.warehouse.service'
+export { default as OrderFulfillmentCarrierConfigService } from './order_fulfillment.carrier-config.service'
+export { default as OrderFulfillmentItemService } from './order_fulfillment.item.service'
 export { default as OrderFulfillmentCarrierService } from './order_fulfillment.carrier.service'
 export { default as OrderFulfillmentAnalyticsService } from './order_fulfillment.analytics.service'
 export type { CustomsDeclaration } from './order_fulfillment.analytics.service'

@@ -1,12 +1,16 @@
 import 'reflect-metadata'
 import type { SafeProductReview, ProductReviewSummary } from './product_review.types'
 import type {
-  CreateReviewDTO, UpdateReviewDTO, ModerateReviewDTO, VoteReviewDTO, GetReviewsQuery,
+  CreateReviewDTO, UpdateReviewDTO, ModerateReviewDTO, VoteReviewDTO,
+  GetReviewsQuery, GetReviewVotesQuery,
 } from './product_review.dto'
+import type { ReviewVote } from './product_review.types'
 import {
   verifyPurchase, create, getById, list, update,
 } from './product_review.crud.service'
 import { moderate, voteHelpful, getProductSummary } from './product_review.engagement.service'
+import { approve, reject, markSpam } from './product_review.workflow.service'
+import { listByParent as listVotesByParent } from './product_review.vote.service'
 import { remove, eraseForUser, exportForUser } from './product_review.gdpr.service'
 
 /**
@@ -48,6 +52,26 @@ export default class ProductReviewService {
 
   static getProductSummary(tenantId: string, productId: string): Promise<ProductReviewSummary> {
     return getProductSummary(tenantId, productId)
+  }
+
+  // --- Moderation workflow (PENDING -> APPROVED | REJECTED | SPAM) ---
+  static approve(tenantId: string, reviewId: string, note?: string): Promise<SafeProductReview> {
+    return approve(tenantId, reviewId, note)
+  }
+
+  static reject(tenantId: string, reviewId: string, note?: string): Promise<SafeProductReview> {
+    return reject(tenantId, reviewId, note)
+  }
+
+  static markSpam(tenantId: string, reviewId: string, note?: string): Promise<SafeProductReview> {
+    return markSpam(tenantId, reviewId, note)
+  }
+
+  // --- Read-only votes (child line records) ---
+  static listVotes(
+    tenantId: string, reviewId: string, query: GetReviewVotesQuery,
+  ): Promise<{ data: ReviewVote[]; total: number }> {
+    return listVotesByParent(tenantId, reviewId, query)
   }
 
   static delete(tenantId: string, reviewId: string): Promise<void> {

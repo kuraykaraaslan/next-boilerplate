@@ -2,13 +2,14 @@ import 'reflect-metadata';
 import type { Subscription, SubscriptionWithPlan, ProrationPreview } from './payment_subscription.types';
 import type {
   CreateSubscriptionDTO, CancelSubscriptionDTO, PauseSubscriptionDTO,
-  ChangePlanDTO, GetSubscriptionsQuery,
+  ChangePlanDTO, GetSubscriptionsQuery, UpdateSubscriptionDTO,
 } from './payment_subscription.dto';
-import { createSubscription, getSubscription, listSubscriptions } from './payment_subscription.crud.service';
+import { createSubscription, getSubscription, listSubscriptions, updateSubscription, deleteSubscription } from './payment_subscription.crud.service';
 import {
   cancelSubscription, pauseSubscription, resumeSubscription,
-  changePlan, markPastDue, prorationPreview,
+  changePlan, markPastDue, prorationPreview, expireSubscription,
 } from './payment_subscription.transitions.service';
+import PaymentSubscriptionEventService from './payment_subscription.event.service';
 
 /**
  * Subscription lifecycle service facade. The implementation is split across
@@ -30,6 +31,14 @@ export default class PaymentSubscriptionLifecycleService {
     return listSubscriptions(tenantId, query);
   }
 
+  static updateSubscription(tenantId: string, subscriptionId: string, dto: UpdateSubscriptionDTO): Promise<Subscription> {
+    return updateSubscription(tenantId, subscriptionId, dto);
+  }
+
+  static deleteSubscription(tenantId: string, subscriptionId: string): Promise<void> {
+    return deleteSubscription(tenantId, subscriptionId);
+  }
+
   static cancelSubscription(tenantId: string, subscriptionId: string, dto: CancelSubscriptionDTO): Promise<Subscription> {
     return cancelSubscription(tenantId, subscriptionId, dto);
   }
@@ -48,6 +57,14 @@ export default class PaymentSubscriptionLifecycleService {
 
   static markPastDue(tenantId: string, subscriptionId: string): Promise<Subscription> {
     return markPastDue(tenantId, subscriptionId);
+  }
+
+  static expireSubscription(tenantId: string, subscriptionId: string): Promise<Subscription> {
+    return expireSubscription(tenantId, subscriptionId);
+  }
+
+  static listEvents(tenantId: string, subscriptionId: string) {
+    return PaymentSubscriptionEventService.listByParent(tenantId, subscriptionId);
   }
 
   static prorationPreview(tenantId: string, subscriptionId: string, dto: ChangePlanDTO): Promise<ProrationPreview> {

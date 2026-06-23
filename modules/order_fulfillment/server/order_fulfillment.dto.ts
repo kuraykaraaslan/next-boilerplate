@@ -129,6 +129,60 @@ export const AnalyticsQuery = z.object({
 export type AnalyticsQuery = z.infer<typeof AnalyticsQuery>
 
 // ============================================================================
+// Carrier master-data DTOs (configurable carrier list)
+// ============================================================================
+
+export const CreateCarrierDTO = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1).max(50),
+  trackingUrlPattern: z.string().optional(),
+  isActive: z.boolean().optional().default(true),
+  sortOrder: z.coerce.number().int().nonnegative().default(0),
+})
+export type CreateCarrierDTO = z.infer<typeof CreateCarrierDTO>
+
+export const UpdateCarrierDTO = CreateCarrierDTO.partial().omit({ code: true })
+export type UpdateCarrierDTO = z.infer<typeof UpdateCarrierDTO>
+
+export const GetCarriersQuery = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
+  search: z.string().optional(),
+})
+export type GetCarriersQuery = z.infer<typeof GetCarriersQuery>
+
+// ============================================================================
+// Fulfillment line-item (child) DTOs
+// ============================================================================
+
+export const AddFulfillmentItemDTO = FulfillmentItemInputSchema
+export type AddFulfillmentItemDTO = z.infer<typeof AddFulfillmentItemDTO>
+
+export const UpdateFulfillmentItemDTO = z.object({
+  orderItemId: z.string().uuid().optional(),
+  productId: z.string().uuid().optional(),
+  variantId: z.string().uuid().optional(),
+  sku: z.string().optional(),
+  name: z.string().optional(),
+  quantity: z.coerce.number().int().positive().optional(),
+  backorderedQuantity: z.coerce.number().int().nonnegative().optional(),
+  hsCode: z.string().max(14).optional(),
+  countryOfOrigin: z.string().length(2).optional(),
+  unitValue: z.coerce.number().nonnegative().optional(),
+  isDangerousGoods: z.boolean().optional(),
+  hazmatClass: HazmatClassEnum.optional(),
+  unNumber: z.string().max(10).optional(),
+})
+export type UpdateFulfillmentItemDTO = z.infer<typeof UpdateFulfillmentItemDTO>
+
+export const GetFulfillmentItemsQuery = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(500).default(200),
+  search: z.string().optional(),
+})
+export type GetFulfillmentItemsQuery = z.infer<typeof GetFulfillmentItemsQuery>
+
+// ============================================================================
 // Shipping label generation
 // ============================================================================
 

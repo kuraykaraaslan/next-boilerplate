@@ -9,7 +9,8 @@ import {
   SubscriptionPlanSchema, SubscriptionSchema, SubscriptionWithPlanSchema,
   type Subscription, type SubscriptionWithPlan,
 } from './payment_subscription.types';
-import type { CreateSubscriptionDTO, GetSubscriptionsQuery } from './payment_subscription.dto';
+import type { CreateSubscriptionDTO, GetSubscriptionsQuery, UpdateSubscriptionDTO } from './payment_subscription.dto';
+import redis from '@kuraykaraaslan/redis';
 import { SUBSCRIPTION_MESSAGES } from './payment_subscription.messages';
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error';
 import ProrationService from './payment_subscription.proration.service';
@@ -113,4 +114,35 @@ export async function listSubscriptions(
     skip: query.page * query.pageSize, take: query.pageSize,
   });
   return { data: rows.map((r) => SubscriptionSchema.parse(r)), total };
+}
+
+export async function updateSubscription(
+  tenantId: string,
+  subscriptionId: string,
+  data: UpdateSubscriptionDTO,
+): Promise<Subscription> {
+  const ds = await tenantDataSourceFor(tenantId);
+  const repo = ds.getRepository(SubscriptionEntity);
+  const sub = await repo.findOne({ where: { tenantId, subscriptionId } });
+  if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+  try {
+    Object.assign(sub, data);
+    const saved = await repo.save(sub);
+    await redis.del(`sub:id:${subscriptionId}:true`);
+    await redis.del(`sub:id:${subscriptionId}:false`);
+    return SubscriptionSchema.parse(saved);
+  } catch (error) {
+    Logger.error(`${SUBSCRIPTION_MESSAGES.SUBSCRIPTION_UPDATE_FAILED}: ${error}`);
+    throw error instanceof AppError ? error : new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_UPDATE_FAILED, 500, ErrorCode.INTERNAL_ERROR);
+  }
+}
+
+export async function deleteSubscription(tenantId: string, subscriptionId: string): Promise<void> {
+  const ds = await tenantDataSourceFor(tenantId);
+  const repo = ds.getRepository(SubscriptionEntity);
+  const sub = await repo.findOne({ where: { tenantId, subscriptionId } });
+  if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+  await repo.softRemove(sub);
+  await redis.del(`sub:id:${subscriptionId}:true`);
+  await redis.del(`sub:id:${subscriptionId}:false`);
 }

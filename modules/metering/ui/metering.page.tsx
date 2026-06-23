@@ -1,5 +1,6 @@
 'use client';
 import { use, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@kuraykaraaslan/common/ui/button.component';
 import { Input } from '@kuraykaraaslan/common/ui/input.component';
 import { Select } from '@kuraykaraaslan/common/ui/select.component';
@@ -44,13 +45,28 @@ const ACTIVE_OPTIONS = [
 
 const RUN_STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
+  { value: 'DRAFT', label: 'Draft' },
+  { value: 'CALCULATED', label: 'Calculated' },
+  { value: 'BILLED', label: 'Billed' },
   { value: 'PENDING', label: 'Pending' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'FAILED', label: 'Failed' },
 ];
 
+const SUBJECT_TYPE_OPTIONS = [
+  { value: 'TENANT', label: 'Tenant' },
+  { value: 'USER', label: 'User' },
+  { value: 'SUBSCRIPTION', label: 'Subscription' },
+];
+
+function currentPeriodKey(): string {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
 export default function MeteringPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = use(params);
+  const router = useRouter();
 
   // Meters — server-side search (q), active filter and pagination.
   const [meters, setMeters] = useState<MeterRow[]>([]);
@@ -83,6 +99,13 @@ export default function MeteringPage({ params }: { params: Promise<{ tenantId: s
   const [includedQuantity, setIncludedQuantity] = useState('0');
   const [currency, setCurrency] = useState<string>(DEFAULT_CURRENCY);
   const [submitting, setSubmitting] = useState(false);
+
+  // New billing-run document.
+  const [runOpen, setRunOpen] = useState(false);
+  const [runSubjectType, setRunSubjectType] = useState('TENANT');
+  const [runSubjectId, setRunSubjectId] = useState('');
+  const [runPeriod, setRunPeriod] = useState(currentPeriodKey());
+  const [runSubmitting, setRunSubmitting] = useState(false);
 
   const fetchMeters = useCallback(async () => {
     setMetersLoading(true);
@@ -178,6 +201,26 @@ export default function MeteringPage({ params }: { params: Promise<{ tenantId: s
     }
   }
 
+  async function handleCreateRun() {
+    setRunSubmitting(true);
+    try {
+      const res = await api.post(`/tenant/${tenantId}/api/metering/runs`, {
+        subjectType: runSubjectType,
+        subjectId: runSubjectId.trim() || undefined,
+        periodKey: runPeriod.trim(),
+      });
+      toast.success('Billing run created.');
+      setRunOpen(false);
+      const id = res.data?.item?.billingRunId;
+      if (id) router.push(`/tenant/${tenantId}/admin/metering/runs/${id}`);
+      else fetchRuns();
+    } catch (err: unknown) {
+      toast.error(extractMessage(err, 'Failed to create billing run.'));
+    } finally {
+      setRunSubmitting(false);
+    }
+  }
+
   const toggleActive = useCallback(async (meter: MeterRow) => {
     try {
       await api.patch(`/tenant/${tenantId}/api/metering/meters/${meter.meterId}`, {
@@ -198,7 +241,11 @@ export default function MeteringPage({ params }: { params: Promise<{ tenantId: s
       <PageHeader
         title="Metering"
         subtitle="Usage meters, current-period totals and metered / overage billing runs."
-        actions={[{ label: 'New meter', variant: 'primary', onClick: () => setCreateOpen(true) }]}
+        actions={[
+          { label: 'Settings', variant: 'outline', onClick: () => router.push(`/tenant/${tenantId}/admin/metering/settings`) },
+          { label: 'New run', variant: 'outline', onClick: () => setRunOpen(true) },
+          { label: 'New meter', variant: 'primary', onClick: () => setCreateOpen(true) },
+        ]}
       />
 
       {fetchError && <AlertBanner variant="error" message={fetchError} />}
@@ -264,6 +311,7 @@ export default function MeteringPage({ params }: { params: Promise<{ tenantId: s
         total={runsTotal}
         pageSize={RUNS_PAGE_SIZE}
         onPageChange={setRunsPage}
+        onRowClick={(r) => router.push(`/tenant/${tenantId}/admin/metering/runs/${r.billingRunId}`)}
         loading={runsLoading}
         emptyMessage={runsStatus ? 'No billing runs match your filter.' : 'No billing runs yet.'}
         toolbar={
@@ -309,6 +357,38 @@ export default function MeteringPage({ params }: { params: Promise<{ tenantId: s
             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
             <Button variant="primary" onClick={handleCreate} disabled={submitting || !key || !name || !unit}>
               {submitting ? 'Creating…' : 'Create'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={runOpen} onClose={() => setRunOpen(false)} title="New billing run">
+        <div className="space-y-3">
+          <Select
+            id="run-subject-type"
+            label="Subject type"
+            value={runSubjectType}
+            onChange={(e) => setRunSubjectType(e.target.value)}
+            options={SUBJECT_TYPE_OPTIONS}
+          />
+          <Input
+            id="run-subject-id"
+            label="Subject ID (optional — blank = tenant-wide)"
+            value={runSubjectId}
+            onChange={(e) => setRunSubjectId(e.target.value)}
+            placeholder="uuid"
+          />
+          <Input
+            id="run-period"
+            label="Period (YYYY-MM)"
+            value={runPeriod}
+            onChange={(e) => setRunPeriod(e.target.value)}
+            placeholder="2026-06"
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setRunOpen(false)}>Cancel</Button>
+            <Button variant="primary" onClick={handleCreateRun} disabled={runSubmitting || !runPeriod.trim()}>
+              {runSubmitting ? 'Creating…' : 'Create'}
             </Button>
           </div>
         </div>

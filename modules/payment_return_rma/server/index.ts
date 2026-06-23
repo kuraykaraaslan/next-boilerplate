@@ -1,4 +1,6 @@
 export { default as PaymentReturnRmaService } from './payment_return_rma.service'
+export { default as PaymentReturnRmaLineService } from './payment_return_rma.line.service'
+export { default as PaymentReturnRmaReasonService } from './payment_return_rma.reason.service'
 export * from './payment_return_rma.enums'
 export * from './payment_return_rma.types'
 export * from './payment_return_rma.dto'

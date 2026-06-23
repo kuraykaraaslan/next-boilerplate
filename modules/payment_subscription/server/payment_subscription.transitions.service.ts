@@ -17,6 +17,7 @@ import ProrationService from './payment_subscription.proration.service';
 import type { BillingCycle } from './payment_subscription.enums';
 import WebhookService from '@kuraykaraaslan/webhook/server/webhook.service';
 import PaymentSubscriptionPlanService from './payment_subscription.plan.service';
+import PaymentSubscriptionEventService from './payment_subscription.event.service';
 
 async function bustCache(subscriptionId: string): Promise<void> {
   await redis.del(`sub:id:${subscriptionId}:true`);
@@ -45,6 +46,7 @@ export async function cancelSubscription(tenantId: string, subscriptionId: strin
     status: saved.status,
     cancelAtPeriodEnd: saved.cancelAtPeriodEnd,
   });
+  await PaymentSubscriptionEventService.append(tenantId, subscriptionId, saved.status, 'cancel', dto.reason);
   return SubscriptionSchema.parse(saved);
 }
 
@@ -66,6 +68,7 @@ export async function pauseSubscription(tenantId: string, subscriptionId: string
     planId: saved.planId,
     status: saved.status,
   });
+  await PaymentSubscriptionEventService.append(tenantId, subscriptionId, saved.status, 'pause');
   return SubscriptionSchema.parse(saved);
 }
 
@@ -87,6 +90,7 @@ export async function resumeSubscription(tenantId: string, subscriptionId: strin
     planId: saved.planId,
     status: saved.status,
   });
+  await PaymentSubscriptionEventService.append(tenantId, subscriptionId, saved.status, 'resume');
   return SubscriptionSchema.parse(saved);
 }
 
@@ -123,6 +127,32 @@ export async function changePlan(tenantId: string, subscriptionId: string, dto: 
     status: saved.status,
     billingCycle: saved.billingCycle,
   });
+  await PaymentSubscriptionEventService.append(tenantId, subscriptionId, saved.status, 'change_plan', `plan ${saved.planId}`);
+  return SubscriptionSchema.parse(saved);
+}
+
+/**
+ * Terminal transition for a subscription whose grace period has elapsed.
+ * Workflow arm: ACTIVE/PAST_DUE/PAUSED -> EXPIRED. Idempotent on terminal states.
+ */
+export async function expireSubscription(tenantId: string, subscriptionId: string): Promise<Subscription> {
+  const ds = await tenantDataSourceFor(tenantId);
+  const repo = ds.getRepository(SubscriptionEntity);
+  const sub = await repo.findOne({ where: { tenantId, subscriptionId } });
+  if (!sub) throw new AppError(SUBSCRIPTION_MESSAGES.SUBSCRIPTION_NOT_FOUND, 404, ErrorCode.NOT_FOUND);
+  if (['CANCELLED', 'EXPIRED'].includes(sub.status)) return SubscriptionSchema.parse(sub);
+
+  sub.status = 'EXPIRED';
+  sub.cancelledAt = sub.cancelledAt ?? new Date();
+  const saved = await repo.save(sub);
+  await bustCache(subscriptionId);
+  await WebhookService.dispatchEvent(tenantId, 'subscription.expired', {
+    subscriptionId: saved.subscriptionId,
+    userId: saved.userId,
+    planId: saved.planId,
+    status: saved.status,
+  });
+  await PaymentSubscriptionEventService.append(tenantId, subscriptionId, saved.status, 'expire');
   return SubscriptionSchema.parse(saved);
 }
 
@@ -150,6 +180,7 @@ export async function markPastDue(tenantId: string, subscriptionId: string): Pro
     planId: saved.planId,
     pastDueCount: saved.pastDueCount,
   });
+  await PaymentSubscriptionEventService.append(tenantId, subscriptionId, saved.status, 'past_due', `attempt ${saved.pastDueCount}`);
   return SubscriptionSchema.parse(saved);
 }
 

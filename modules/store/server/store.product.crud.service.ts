@@ -229,6 +229,34 @@ export default class StoreProductCrudService {
     return this.transition(tenantId, productId, 'DRAFT')
   }
 
+  /**
+   * Publish a product: DRAFT/APPROVED/ARCHIVED → ACTIVE. Honours the tenant's
+   * editorial-review gate (an unapproved DRAFT cannot jump straight to ACTIVE).
+   */
+  static async activate(tenantId: string, productId: string): Promise<StoreProduct> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
+    if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (!['DRAFT', 'APPROVED', 'ARCHIVED', 'OUT_OF_STOCK'].includes(product.status)) {
+      throw new AppError(STORE_MESSAGES.PRODUCT_INVALID_TRANSITION, 422, ErrorCode.VALIDATION_ERROR)
+    }
+    if (product.status === 'DRAFT' && (await this.isApprovalRequired(tenantId))) {
+      throw new AppError(STORE_MESSAGES.PRODUCT_APPROVAL_REQUIRED, 422, ErrorCode.VALIDATION_ERROR)
+    }
+    return this.transition(tenantId, productId, 'ACTIVE')
+  }
+
+  /** Archive a product: any live status → ARCHIVED. */
+  static async archive(tenantId: string, productId: string): Promise<StoreProduct> {
+    const ds = await tenantDataSourceFor(tenantId)
+    const product = await ds.getRepository(ProductEntity).findOne({ where: { tenantId, productId } })
+    if (!product) throw new AppError(STORE_MESSAGES.PRODUCT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+    if (product.status === 'ARCHIVED') {
+      throw new AppError(STORE_MESSAGES.PRODUCT_INVALID_TRANSITION, 422, ErrorCode.VALIDATION_ERROR)
+    }
+    return this.transition(tenantId, productId, 'ARCHIVED')
+  }
+
   /** Bulk status update across many products in one tenant. */
   static async bulkSetStatus(tenantId: string, productIds: string[], status: StoreProduct['status']): Promise<number> {
     if (productIds.length === 0) return 0

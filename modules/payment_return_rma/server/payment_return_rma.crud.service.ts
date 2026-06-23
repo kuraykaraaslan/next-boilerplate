@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { ILike } from 'typeorm'
 import { tenantDataSourceFor } from '@kuraykaraaslan/db'
 import Logger from '@kuraykaraaslan/logger'
 import { AppError, ErrorCode } from '@kuraykaraaslan/common/server/app-error'
@@ -48,7 +49,9 @@ export default class PaymentReturnRmaCrudService {
         const items = dto.items.map((item) => itemRepo.create({
           tenantId, returnRequestId: savedRequest.returnRequestId,
           orderItemId: item.orderItemId, productId: item.productId, variantId: item.variantId,
-          sku: item.sku, name: item.name, quantity: item.quantity, reason: item.reason, condition: item.condition,
+          sku: item.sku, name: item.name, quantity: item.quantity,
+          unitPrice: item.unitPrice ?? 0, amount: Number(item.quantity) * Number(item.unitPrice ?? 0),
+          reason: item.reason, condition: item.condition,
         }))
         await itemRepo.save(items)
         await PaymentReturnRmaCrudService.logEvent(ds, tenantId, savedRequest.returnRequestId, 'REQUESTED')
@@ -81,6 +84,7 @@ export default class PaymentReturnRmaCrudService {
     if (query.status) where['status'] = query.status
     if (query.type) where['type'] = query.type
     if (query.rmaNumber) where['rmaNumber'] = query.rmaNumber
+    if (query.search) where['rmaNumber'] = ILike(`%${query.search}%`)
     const [rows, total] = await repo.findAndCount({
       where, order: { createdAt: 'DESC' },
       skip: query.page * query.pageSize, take: query.pageSize,

@@ -39,12 +39,30 @@
       "workspace": "crm",
       "order": 10,
       "scope": "tenant"
+    },
+    {
+      "id": "subscription-admin-list",
+      "label": "Subscriptions",
+      "href": "/admin/subscriptions",
+      "icon": "fas fa-rectangle-list",
+      "group": "Management",
+      "workspace": "crm",
+      "order": 11,
+      "scope": "tenant"
     }
   ],
   "routes": [
     {
       "path": "/admin/subscription",
       "component": "tenant_subscription/ui/subscription.page"
+    },
+    {
+      "path": "/admin/subscriptions",
+      "component": "tenant_subscription/ui/subscriptions.page"
+    },
+    {
+      "path": "/admin/subscription/[subscriptionId]",
+      "component": "tenant_subscription/ui/subscription-subscription-id.page"
     }
   ],
   "apiRoutes": [
@@ -83,6 +101,30 @@
     {
       "path": "/api/subscription",
       "handler": "tenant_subscription/server/subscription.route"
+    },
+    {
+      "path": "/api/subscription/admin",
+      "handler": "tenant_subscription/server/subscription-admin.route"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]",
+      "handler": "tenant_subscription/server/subscription-admin-subscription-id.route"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/renew",
+      "handler": "tenant_subscription/server/subscription-admin-subscription-id-renew.route"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/cancel",
+      "handler": "tenant_subscription/server/subscription-admin-subscription-id-cancel.route"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/expire",
+      "handler": "tenant_subscription/server/subscription-admin-subscription-id-expire.route"
+    },
+    {
+      "path": "/api/subscription/admin/[subscriptionId]/start-grace",
+      "handler": "tenant_subscription/server/subscription-admin-subscription-id-start-grace.route"
     },
     {
       "path": "/api/cron/expire-subscriptions",

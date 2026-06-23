@@ -23,5 +23,91 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/payment_return_rma",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "returns-list",
+      "label": "Returns (RMA)",
+      "href": "/admin/returns",
+      "icon": "fas fa-rotate-left",
+      "group": "Commerce",
+      "workspace": "commerce",
+      "order": 40,
+      "scope": "tenant"
+    },
+    {
+      "id": "returns-settings",
+      "label": "Return Settings",
+      "href": "/admin/returns/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/returns",
+      "handler": "payment_return_rma/server/returns.route"
+    },
+    {
+      "path": "/api/returns/[returnId]",
+      "handler": "payment_return_rma/server/returns-return-id.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/lines",
+      "handler": "payment_return_rma/server/returns-return-id-lines.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/lines/[lineId]",
+      "handler": "payment_return_rma/server/returns-return-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/approve",
+      "handler": "payment_return_rma/server/returns-return-id-approve.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/reject",
+      "handler": "payment_return_rma/server/returns-return-id-reject.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/receive",
+      "handler": "payment_return_rma/server/returns-return-id-receive.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/refund",
+      "handler": "payment_return_rma/server/returns-return-id-refund.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/complete",
+      "handler": "payment_return_rma/server/returns-return-id-complete.route"
+    },
+    {
+      "path": "/api/returns/[returnId]/cancel",
+      "handler": "payment_return_rma/server/returns-return-id-cancel.route"
+    },
+    {
+      "path": "/api/return-reasons",
+      "handler": "payment_return_rma/server/return-reasons.route"
+    },
+    {
+      "path": "/api/return-reasons/[reasonId]",
+      "handler": "payment_return_rma/server/return-reasons-reason-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/returns",
+      "component": "payment_return_rma/ui/returns.page"
+    },
+    {
+      "path": "/admin/returns/[returnId]",
+      "component": "payment_return_rma/ui/returns-return-id.page"
+    },
+    {
+      "path": "/admin/returns/settings",
+      "component": "payment_return_rma/ui/return-settings.page"
+    }
+  ]
 }

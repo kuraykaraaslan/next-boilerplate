@@ -40,18 +40,56 @@
       "workspace": "commerce",
       "order": 10,
       "scope": "tenant"
+    },
+    {
+      "id": "metering-settings",
+      "label": "Settings",
+      "href": "/admin/metering/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "routes": [
     {
       "path": "/admin/metering",
       "component": "metering/ui/metering.page"
+    },
+    {
+      "path": "/admin/metering/runs/[runId]",
+      "component": "metering/ui/metering-runs-run-id.page"
+    },
+    {
+      "path": "/admin/metering/settings",
+      "component": "metering/ui/metering-settings.page"
     }
   ],
   "apiRoutes": [
     {
       "path": "/api/metering/billing",
       "handler": "metering/server/metering-billing.route"
+    },
+    {
+      "path": "/api/metering/runs",
+      "handler": "metering/server/metering-runs.route"
+    },
+    {
+      "path": "/api/metering/runs/[runId]",
+      "handler": "metering/server/metering-runs-run-id.route"
+    },
+    {
+      "path": "/api/metering/runs/[runId]/lines",
+      "handler": "metering/server/metering-runs-run-id-lines.route"
+    },
+    {
+      "path": "/api/metering/runs/[runId]/calculate",
+      "handler": "metering/server/metering-runs-run-id-calculate.route"
+    },
+    {
+      "path": "/api/metering/runs/[runId]/bill",
+      "handler": "metering/server/metering-runs-run-id-bill.route"
     },
     {
       "path": "/api/metering/events",

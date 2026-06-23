@@ -123,6 +123,27 @@ export const RunBillingDTO = InvoiceCustomer.extend({
 });
 export type RunBillingDTO = z.infer<typeof RunBillingDTO>;
 
+/**
+ * Open a new billing-run *document* in DRAFT. No usage is read and nothing is
+ * charged yet — `calculate` derives the lines, `bill` settles them. Mirrors a
+ * sales-order opening empty before its lines/workflow.
+ */
+export const CreateRunDTO = z.object({
+  subjectType: SubjectTypeEnum.default('TENANT'),
+  subjectId: z.string().uuid().optional(),
+  periodKey: PeriodKey,
+});
+export type CreateRunDTO = z.infer<typeof CreateRunDTO>;
+
+/**
+ * The `bill` transition's customer / wallet details — same shape `runBilling`
+ * needs to settle the remainder, but supplied at bill-time on a CALCULATED run.
+ */
+export const BillRunDTO = InvoiceCustomer.extend({
+  walletUserId: z.string().uuid().optional(),
+});
+export type BillRunDTO = z.infer<typeof BillRunDTO>;
+
 export const ListRunsQuery = z.object({
   page: z.coerce.number().int().nonnegative().default(0),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

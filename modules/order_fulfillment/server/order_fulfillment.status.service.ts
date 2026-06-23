@@ -80,6 +80,34 @@ export async function cancel(tenantId: string, fulfillmentId: string, reason?: s
   return updateStatus(tenantId, fulfillmentId, { status: 'CANCELLED', message: reason })
 }
 
+/** Assert the fulfillment is in one of `from` before transitioning. */
+async function assertFrom(tenantId: string, fulfillmentId: string, from: FulfillmentStatus[]): Promise<void> {
+  const ds = await tenantDataSourceFor(tenantId)
+  const row = await ds.getRepository(FulfillmentEntity).findOne({ where: { tenantId, fulfillmentId } })
+  if (!row) throw new AppError(ORDER_FULFILLMENT_MESSAGES.FULFILLMENT_NOT_FOUND, 404, ErrorCode.NOT_FOUND)
+  if (!from.includes(row.status as FulfillmentStatus)) {
+    throw new AppError(ORDER_FULFILLMENT_MESSAGES.INVALID_STATUS_TRANSITION, 409, ErrorCode.CONFLICT)
+  }
+}
+
+/** PENDING/PROCESSING/BACKORDERED -> PACKED. */
+export async function pack(tenantId: string, fulfillmentId: string): Promise<FulfillmentWithItems> {
+  await assertFrom(tenantId, fulfillmentId, ['PENDING', 'PROCESSING', 'BACKORDERED'])
+  return updateStatus(tenantId, fulfillmentId, { status: 'PACKED' })
+}
+
+/** SHIPPED/IN_TRANSIT -> DELIVERED. */
+export async function deliver(tenantId: string, fulfillmentId: string): Promise<FulfillmentWithItems> {
+  await assertFrom(tenantId, fulfillmentId, ['SHIPPED', 'IN_TRANSIT'])
+  return updateStatus(tenantId, fulfillmentId, { status: 'DELIVERED' })
+}
+
+/** PACKED -> SHIPPED (with optional tracking). */
+export async function ship(tenantId: string, fulfillmentId: string, tracking?: AddTrackingDTO): Promise<FulfillmentWithItems> {
+  await assertFrom(tenantId, fulfillmentId, ['PACKED', 'PENDING', 'PROCESSING'])
+  return markShipped(tenantId, fulfillmentId, tracking)
+}
+
 /** Apply a status transition to many fulfillments in one operation. */
 export async function bulkUpdateStatus(tenantId: string, dto: BulkUpdateStatusDTO): Promise<{ updated: number; skipped: string[] }> {
   const skipped: string[] = []

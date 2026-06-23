@@ -1,7 +1,8 @@
 import PaymentCrudService from './payment.crud.service';
 import PaymentCheckoutService from './payment.checkout.service';
+import PaymentWorkflowService from './payment.workflow.service';
 
-export { PaymentCrudService, PaymentCheckoutService };
+export { PaymentCrudService, PaymentCheckoutService, PaymentWorkflowService };
 
 export default class PaymentService {
 
@@ -27,6 +28,7 @@ export default class PaymentService {
   static getTransactionById   = PaymentCrudService.getTransactionById.bind(PaymentCrudService);
   static getTransactions      = PaymentCrudService.getTransactions.bind(PaymentCrudService);
   static updateTransaction    = PaymentCrudService.updateTransaction.bind(PaymentCrudService);
+  static deleteTransaction    = PaymentCrudService.deleteTransaction.bind(PaymentCrudService);
 
   // ──────────────────────────────────────────────
   // Convenience
@@ -57,4 +59,12 @@ export default class PaymentService {
   static createPaymentIntent       = PaymentCheckoutService.createPaymentIntent.bind(PaymentCheckoutService);
   static getProviderStatus         = PaymentCheckoutService.getProviderStatus.bind(PaymentCheckoutService);
   static checkBin                  = PaymentCheckoutService.checkBin.bind(PaymentCheckoutService);
+
+  // ──────────────────────────────────────────────
+  // Status workflow (authorize / capture / fail)
+  // ──────────────────────────────────────────────
+
+  static authorize = PaymentWorkflowService.authorize.bind(PaymentWorkflowService);
+  static capture   = PaymentWorkflowService.capture.bind(PaymentWorkflowService);
+  static fail      = PaymentWorkflowService.fail.bind(PaymentWorkflowService);
 }

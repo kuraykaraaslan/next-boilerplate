@@ -16,4 +16,10 @@ export const PAYMENT_RETURN_RMA_MESSAGES = {
   EXCHANGES_NOT_ALLOWED: 'Exchanges are not enabled for this tenant',
 
   EVENT_LOG_FAILED: 'Failed to log return event',
+
+  RETURN_LINE_NOT_FOUND: 'Return line not found',
+  RETURN_LINE_CREATE_FAILED: 'Failed to add return line',
+
+  RETURN_REASON_NOT_FOUND: 'Return reason not found',
+  RETURN_REASON_CREATE_FAILED: 'Failed to create return reason',
 } as const

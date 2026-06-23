@@ -38,4 +38,10 @@ export const STORE_MESSAGES = {
   VARIANT_GROUP_SELF: 'A product cannot be a variant of itself',
   VARIANT_GROUP_ALREADY_MEMBER: 'Target product already belongs to a variant group',
   VARIANT_GROUP_ITEM_NOT_FOUND: 'Variant group item not found',
+
+  PRODUCT_TAG_NOT_FOUND: 'Product tag not found',
+  PRODUCT_TAG_CREATE_FAILED: 'Failed to create product tag',
+  PRODUCT_TAG_SLUG_TAKEN: 'A product tag with this slug already exists',
+
+  PRODUCT_INVALID_TRANSITION: 'This product cannot transition to the requested status from its current status',
 } as const

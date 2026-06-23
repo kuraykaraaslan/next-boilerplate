@@ -1,8 +1,13 @@
 import PaymentReturnRmaCrudService from './payment_return_rma.crud.service';
 import PaymentReturnRmaLifecycleService from './payment_return_rma.lifecycle.service';
 import PaymentReturnRmaPolicyService from './payment_return_rma.policy.service';
+import PaymentReturnRmaLineService from './payment_return_rma.line.service';
+import PaymentReturnRmaReasonService from './payment_return_rma.reason.service';
 
-export { PaymentReturnRmaCrudService, PaymentReturnRmaLifecycleService, PaymentReturnRmaPolicyService };
+export {
+  PaymentReturnRmaCrudService, PaymentReturnRmaLifecycleService, PaymentReturnRmaPolicyService,
+  PaymentReturnRmaLineService, PaymentReturnRmaReasonService,
+};
 
 export default class PaymentReturnRmaService {
 

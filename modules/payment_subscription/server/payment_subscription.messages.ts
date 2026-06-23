@@ -20,6 +20,9 @@ export const SUBSCRIPTION_MESSAGES = {
   SUBSCRIPTION_ALREADY_ACTIVE: 'Subscription is already active',
   SUBSCRIPTION_NOT_ACTIVE: 'Subscription is not active',
   SUBSCRIPTION_PAUSED: 'Subscription is currently paused',
+  SUBSCRIPTION_ALREADY_EXPIRED: 'Subscription is already expired',
+  SUBSCRIPTION_DELETE_FAILED: 'Failed to delete subscription',
+  SUBSCRIPTION_EVENT_CREATE_FAILED: 'Failed to record subscription event',
 
   PRORATION_CALCULATE_FAILED: 'Failed to calculate proration',
 

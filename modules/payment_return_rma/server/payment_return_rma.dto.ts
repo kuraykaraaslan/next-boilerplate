@@ -13,6 +13,7 @@ export const ReturnItemInputSchema = z.object({
   sku: z.string().optional(),
   name: z.string(),
   quantity: z.number().int().positive().default(1),
+  unitPrice: z.coerce.number().nonnegative().default(0),
   reason: z.string().optional(),
   condition: ReturnItemConditionEnum.optional(),
 })
@@ -62,12 +63,61 @@ export const RefundReturnDTO = z.object({
 export type RefundReturnDTO = z.infer<typeof RefundReturnDTO>
 
 export const GetReturnsQuery = z.object({
-  page: z.number().int().nonnegative().default(0),
-  pageSize: z.number().int().positive().max(100).default(20),
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
   orderId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: ReturnStatusEnum.optional(),
   type: ReturnTypeEnum.optional(),
+  search: z.string().optional(),
   rmaNumber: z.string().optional(),
 })
 export type GetReturnsQuery = z.infer<typeof GetReturnsQuery>
+
+// ============================================================================
+// Return line (ReturnItem) DTOs — child line panel CRUD
+// ============================================================================
+
+export const AddReturnLineDTO = z.object({
+  orderItemId: z.string().uuid().optional(),
+  productId: z.string().uuid().optional(),
+  variantId: z.string().uuid().optional(),
+  sku: z.string().optional(),
+  name: z.string().min(1),
+  quantity: z.coerce.number().int().positive().default(1),
+  unitPrice: z.coerce.number().nonnegative().default(0),
+  reason: z.string().optional(),
+  condition: ReturnItemConditionEnum.optional(),
+})
+export type AddReturnLineDTO = z.infer<typeof AddReturnLineDTO>
+
+export const UpdateReturnLineDTO = AddReturnLineDTO.partial()
+export type UpdateReturnLineDTO = z.infer<typeof UpdateReturnLineDTO>
+
+export const GetReturnLinesQuery = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(200).default(200),
+  search: z.string().optional(),
+})
+export type GetReturnLinesQuery = z.infer<typeof GetReturnLinesQuery>
+
+// ============================================================================
+// ReturnReason DTOs (configurable master-data)
+// ============================================================================
+
+export const CreateReturnReasonDTO = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1),
+  isActive: z.boolean().optional().default(false),
+})
+export type CreateReturnReasonDTO = z.infer<typeof CreateReturnReasonDTO>
+
+export const UpdateReturnReasonDTO = CreateReturnReasonDTO.partial()
+export type UpdateReturnReasonDTO = z.infer<typeof UpdateReturnReasonDTO>
+
+export const GetReturnReasonsQuery = z.object({
+  page: z.coerce.number().int().nonnegative().default(0),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
+  search: z.string().optional(),
+})
+export type GetReturnReasonsQuery = z.infer<typeof GetReturnReasonsQuery>

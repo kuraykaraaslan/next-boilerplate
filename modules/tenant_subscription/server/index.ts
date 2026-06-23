@@ -1,4 +1,5 @@
 export { default as TenantSubscriptionService } from './tenant_subscription.service'
+export { default as TenantSubscriptionAdminService } from './tenant_subscription.admin.service'
 export { default as TenantPlanService } from './tenant_subscription.plan.service'
 export { default as TenantCheckoutService } from './tenant_subscription.checkout.service'
 export { default as TenantCardCheckoutService } from './tenant_subscription.card.service'

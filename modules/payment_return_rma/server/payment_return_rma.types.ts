@@ -39,6 +39,8 @@ export const ReturnItemSchema = z.object({
   sku: z.string().nullable(),
   name: z.string(),
   quantity: z.number().int(),
+  unitPrice: z.coerce.number().default(0),
+  amount: z.coerce.number().default(0),
   reason: z.string().nullable(),
   condition: ReturnItemConditionEnum.nullable(),
   createdAt: z.date(),

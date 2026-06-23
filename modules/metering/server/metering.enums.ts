@@ -22,5 +22,18 @@ export const SubjectTypeEnum = z.enum(['TENANT', 'USER', 'SUBSCRIPTION']);
 export type SubjectType = z.infer<typeof SubjectTypeEnum>;
 
 // Lifecycle of a billing run.
-export const BillingRunStatusEnum = z.enum(['PENDING', 'COMPLETED', 'FAILED']);
+//
+// Two overlapping shapes share the same column:
+//  - The legacy one-shot settlement (`runBilling`) writes PENDING → COMPLETED |
+//    FAILED in a single call.
+//  - The document workflow (`createRun` → `calculate` → `bill`) drives
+//    DRAFT → CALCULATED → BILLED so a run can be reviewed before it charges.
+export const BillingRunStatusEnum = z.enum([
+  'PENDING',
+  'COMPLETED',
+  'FAILED',
+  'DRAFT',
+  'CALCULATED',
+  'BILLED',
+]);
 export type BillingRunStatus = z.infer<typeof BillingRunStatusEnum>;

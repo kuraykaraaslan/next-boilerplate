@@ -54,6 +54,16 @@
       "workspace": "commerce",
       "order": 12,
       "scope": "tenant"
+    },
+    {
+      "id": "payment-settings",
+      "label": "Payment Settings",
+      "href": "/admin/payments/settings",
+      "icon": "fas fa-gear",
+      "group": "Configuration",
+      "workspace": "commerce",
+      "order": 90,
+      "scope": "tenant"
     }
   ],
   "slots": [
@@ -106,12 +116,36 @@
       "handler": "payment/server/payments-payment-id-refund.route"
     },
     {
-      "path": "/api/payments/[paymentId]",
-      "handler": "payment/server/payments-payment-id.route"
+      "path": "/api/payments/[paymentId]/authorize",
+      "handler": "payment/server/payments-payment-id-authorize.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]/capture",
+      "handler": "payment/server/payments-payment-id-capture.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]/fail",
+      "handler": "payment/server/payments-payment-id-fail.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]/transactions/[transactionId]",
+      "handler": "payment/server/payments-payment-id-transactions-transaction-id.route"
     },
     {
       "path": "/api/payments/[paymentId]/transactions",
       "handler": "payment/server/payments-payment-id-transactions.route"
+    },
+    {
+      "path": "/api/payments/methods/[methodId]",
+      "handler": "payment/server/payments-methods-method-id.route"
+    },
+    {
+      "path": "/api/payments/methods",
+      "handler": "payment/server/payments-methods.route"
+    },
+    {
+      "path": "/api/payments/[paymentId]",
+      "handler": "payment/server/payments-payment-id.route"
     },
     {
       "path": "/api/payments/bin-check",

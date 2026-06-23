@@ -66,6 +66,18 @@ export const CreateSubscriptionDTO = z.object({
 })
 export type CreateSubscriptionDTO = z.infer<typeof CreateSubscriptionDTO>
 
+// Editable header fields surfaced on the subscription detail page. Status and
+// lifecycle dates are owned by the workflow transitions, not this PATCH.
+export const UpdateSubscriptionDTO = z.object({
+  userId: z.string().uuid().optional(),
+  providerSubscriptionId: z.string().optional(),
+  providerCustomerId: z.string().optional(),
+  cancelAtPeriodEnd: z.boolean().optional(),
+  currentPeriodEnd: z.coerce.date().optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
+})
+export type UpdateSubscriptionDTO = z.infer<typeof UpdateSubscriptionDTO>
+
 export const CancelSubscriptionDTO = z.object({
   cancelAtPeriodEnd: z.boolean().default(true),
   reason: z.string().optional(),

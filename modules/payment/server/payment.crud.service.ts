@@ -95,4 +95,5 @@ export default class PaymentCrudService {
   static getTransactionById       = PaymentTransactionService.getTransactionById.bind(PaymentTransactionService);
   static getTransactions          = PaymentTransactionService.getTransactions.bind(PaymentTransactionService);
   static updateTransaction        = PaymentTransactionService.updateTransaction.bind(PaymentTransactionService);
+  static deleteTransaction        = PaymentTransactionService.deleteTransaction.bind(PaymentTransactionService);
 }

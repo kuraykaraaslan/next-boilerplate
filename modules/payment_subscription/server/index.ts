@@ -1,5 +1,8 @@
 export { default as PaymentSubscriptionService } from './payment_subscription.service'
 export { default as ProrationService } from './payment_subscription.proration.service'
+export { default as PaymentSubscriptionLineService } from './payment_subscription.line.service'
+export { default as PaymentSubscriptionEventService } from './payment_subscription.event.service'
+export { SubscriptionEvent } from './entities/subscription_event.entity'
 export * from './payment_subscription.enums'
 export * from './payment_subscription.types'
 export * from './payment_subscription.dto'
