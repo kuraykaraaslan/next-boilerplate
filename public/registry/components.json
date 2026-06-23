@@ -1,7 +1,7 @@
 {
   "name": "next-boilerplate",
   "registryVersion": "1.0",
-  "generatedAt": "2026-06-19T12:50:02.357Z",
+  "generatedAt": "2026-06-23T08:53:57.457Z",
   "components": [
     {
       "id": "ai_chat/ui/ai-chat-box.component",

@@ -1,0 +1,130 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "drive",
+  "name": "Drive",
+  "description": "Google Drive-like file manager over the storage module: nested folders, internal + public-link sharing, inline preview of common file types, trash bin (soft-delete + restore), a read-only view of all tenant storage objects, and drive:* extension points for community plugins (preview/action/source/lifecycle).",
+  "version": "1.0.0",
+  "icon": "fas fa-folder-open",
+  "tags": [
+    "content",
+    "files",
+    "storage"
+  ],
+  "priority": 38,
+  "dependencies": {
+    "requires": [
+      "db",
+      "storage",
+      "common",
+      "env"
+    ],
+    "optional": [
+      "marketplace"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/drive",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "drive",
+      "label": "Drive",
+      "href": "/admin/drive",
+      "icon": "fas fa-folder-open",
+      "group": "Drive",
+      "workspace": "content",
+      "order": 20,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/drive",
+      "component": "drive/ui/drive.page"
+    }
+  ],
+  "extensionPoints": [
+    {
+      "id": "drive:preview",
+      "kind": "provider",
+      "description": "Custom previewer/renderer for specific MIME types or groups (e.g. office, CAD, 3D, markdown)."
+    },
+    {
+      "id": "drive:action",
+      "kind": "provider",
+      "description": "Custom per-file action surfaced in the context menu (e.g. OCR, convert-to-PDF, export)."
+    },
+    {
+      "id": "drive:source",
+      "kind": "provider",
+      "description": "External storage backend mounted as a virtual Drive folder (Google Drive, Dropbox, OneDrive)."
+    },
+    {
+      "id": "drive:lifecycle",
+      "kind": "hook",
+      "description": "Lifecycle hooks for upload/delete/move events (thumbnails, indexing, antivirus, …)."
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/drive/system/[uploadedFileId]/adopt",
+      "handler": "drive/server/drive-system-uploaded-file-id-adopt.route"
+    },
+    {
+      "path": "/api/drive/system",
+      "handler": "drive/server/drive-system.route"
+    },
+    {
+      "path": "/api/drive/sources",
+      "handler": "drive/server/drive-sources.route"
+    },
+    {
+      "path": "/api/drive/trash",
+      "handler": "drive/server/drive-trash.route"
+    },
+    {
+      "path": "/api/drive/public/[token]",
+      "handler": "drive/server/drive-public-token.route"
+    },
+    {
+      "path": "/api/drive/upload",
+      "handler": "drive/server/drive-upload.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/actions/[actionKey]",
+      "handler": "drive/server/drive-drive-file-id-actions-action-key.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/actions",
+      "handler": "drive/server/drive-drive-file-id-actions.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/restore",
+      "handler": "drive/server/drive-drive-file-id-restore.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/permanent",
+      "handler": "drive/server/drive-drive-file-id-permanent.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/preview",
+      "handler": "drive/server/drive-drive-file-id-preview.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/shares",
+      "handler": "drive/server/drive-drive-file-id-shares.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]/public-link",
+      "handler": "drive/server/drive-drive-file-id-public-link.route"
+    },
+    {
+      "path": "/api/drive/[driveFileId]",
+      "handler": "drive/server/drive-drive-file-id.route"
+    },
+    {
+      "path": "/api/drive",
+      "handler": "drive/server/drive.route"
+    }
+  ]
+}
