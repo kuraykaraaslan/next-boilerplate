@@ -22,5 +22,23 @@
   },
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order_fulfillment",
-  "license": "CC-BY-NC-ND-4.0"
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "order-fulfillment-erp",
+      "label": "Fulfillment",
+      "href": "/admin/fulfillment",
+      "icon": "fas fa-box",
+      "group": "Sales",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/fulfillment",
+      "component": "order_fulfillment/ui/fulfillment.page"
+    }
+  ]
 }

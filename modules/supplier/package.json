@@ -1,0 +1,35 @@
+{
+  "name": "@kuraykaraaslan/supplier",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/supplier.service": "./server/supplier.service.ts",
+    "./server/supplier.category.service": "./server/supplier.category.service.ts",
+    "./server/supplier.contact.service": "./server/supplier.contact.service.ts",
+    "./server/suppliers.route": "./server/suppliers.route.ts",
+    "./server/suppliers-supplier-id.route": "./server/suppliers-supplier-id.route.ts",
+    "./server/suppliers-supplier-id-lines.route": "./server/suppliers-supplier-id-lines.route.ts",
+    "./server/suppliers-supplier-id-lines-contact-id.route": "./server/suppliers-supplier-id-lines-contact-id.route.ts",
+    "./server/suppliers-categories.route": "./server/suppliers-categories.route.ts",
+    "./server/suppliers-categories-category-id.route": "./server/suppliers-categories-category-id.route.ts",
+    "./server/supplier.dto": "./server/supplier.dto.ts",
+    "./server/supplier.messages": "./server/supplier.messages.ts",
+    "./server/supplier.types": "./server/supplier.types.ts",
+    "./server/entities/suppliers.entity": "./server/entities/suppliers.entity.ts",
+    "./server/entities/supplier_contacts.entity": "./server/entities/supplier_contacts.entity.ts",
+    "./server/entities/supplier_categories.entity": "./server/entities/supplier_categories.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/suppliers.page": "./ui/suppliers.page.tsx",
+    "./ui/suppliers-supplier-id.page": "./ui/suppliers-supplier-id.page.tsx",
+    "./ui/supplier-categories.page": "./ui/supplier-categories.page.tsx",
+    "./ui/supplier-contacts-panel.component": "./ui/supplier-contacts-panel.component.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

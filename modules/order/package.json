@@ -1,0 +1,36 @@
+{
+  "name": "@kuraykaraaslan/order",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/order.service": "./server/order.service.ts",
+    "./server/order.line.service": "./server/order.line.service.ts",
+    "./server/orders.route": "./server/orders.route.ts",
+    "./server/orders-order-id.route": "./server/orders-order-id.route.ts",
+    "./server/orders-order-id-lines.route": "./server/orders-order-id-lines.route.ts",
+    "./server/orders-order-id-lines-line-id.route": "./server/orders-order-id-lines-line-id.route.ts",
+    "./server/orders-order-id-confirm.route": "./server/orders-order-id-confirm.route.ts",
+    "./server/orders-order-id-fulfill.route": "./server/orders-order-id-fulfill.route.ts",
+    "./server/orders-order-id-cancel.route": "./server/orders-order-id-cancel.route.ts",
+    "./server/order.types": "./server/order.types.ts",
+    "./server/order.dto": "./server/order.dto.ts",
+    "./server/order.messages": "./server/order.messages.ts",
+    "./server/order.enums": "./server/order.enums.ts",
+    "./server/entities/orders.entity": "./server/entities/orders.entity.ts",
+    "./server/entities/order_lines.entity": "./server/entities/order_lines.entity.ts",
+    "./server/entities/order_status_events.entity": "./server/entities/order_status_events.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/orders.page": "./ui/orders.page.tsx",
+    "./ui/orders-order-id.page": "./ui/orders-order-id.page.tsx",
+    "./ui/order-lines-panel.component": "./ui/order-lines-panel.component.tsx",
+    "./ui/order-status-badge.component": "./ui/order-status-badge.component.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

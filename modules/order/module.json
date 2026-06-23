@@ -1,0 +1,89 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "order",
+  "name": "Orders",
+  "description": "Tenant-scoped core sales orders, order lines and status events. Bridges Commerce and ERP.",
+  "version": "1.0.0",
+  "icon": "fas fa-receipt",
+  "tags": [
+    "order",
+    "sales",
+    "commerce",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/order",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "order-list-erp",
+      "label": "Orders",
+      "href": "/admin/orders",
+      "icon": "fas fa-receipt",
+      "group": "Sales",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "order-list-commerce",
+      "label": "Orders",
+      "href": "/admin/orders",
+      "icon": "fas fa-receipt",
+      "group": "Orders",
+      "workspace": "commerce",
+      "order": 5,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/orders",
+      "handler": "order/server/orders.route"
+    },
+    {
+      "path": "/api/orders/[orderId]",
+      "handler": "order/server/orders-order-id.route"
+    },
+    {
+      "path": "/api/orders/[orderId]/lines",
+      "handler": "order/server/orders-order-id-lines.route"
+    },
+    {
+      "path": "/api/orders/[orderId]/lines/[lineId]",
+      "handler": "order/server/orders-order-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/orders/[orderId]/confirm",
+      "handler": "order/server/orders-order-id-confirm.route"
+    },
+    {
+      "path": "/api/orders/[orderId]/fulfill",
+      "handler": "order/server/orders-order-id-fulfill.route"
+    },
+    {
+      "path": "/api/orders/[orderId]/cancel",
+      "handler": "order/server/orders-order-id-cancel.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/orders",
+      "component": "order/ui/orders.page"
+    },
+    {
+      "path": "/admin/orders/[orderId]",
+      "component": "order/ui/orders-order-id.page"
+    }
+  ]
+}

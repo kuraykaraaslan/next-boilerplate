@@ -25,7 +25,12 @@
     "./server/order_fulfillment.status.service": "./server/order_fulfillment.status.service.ts",
     "./server/order_fulfillment.types": "./server/order_fulfillment.types.ts",
     "./server/order_fulfillment.warehouse.service": "./server/order_fulfillment.warehouse.service.ts",
+    "./ui/fulfillment.page": "./ui/fulfillment.page.tsx",
     ".": "./server/index.ts",
     "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
   }
 }

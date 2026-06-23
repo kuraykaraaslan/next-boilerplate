@@ -1,0 +1,185 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "inventory",
+  "name": "Inventory",
+  "description": "Tenant-scoped inventory: warehouses, stock locations, stock items, movements and counts.",
+  "version": "1.0.0",
+  "icon": "fas fa-warehouse",
+  "tags": [
+    "inventory",
+    "warehouse",
+    "stock",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/inventory",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "inventory-warehouses",
+      "label": "Warehouses",
+      "href": "/admin/inventory/warehouses",
+      "icon": "fas fa-warehouse",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "inventory-stock",
+      "label": "Stock",
+      "href": "/admin/inventory/stock",
+      "icon": "fas fa-boxes-stacked",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant"
+    },
+    {
+      "id": "inventory-movements",
+      "label": "Movements",
+      "href": "/admin/inventory/movements",
+      "icon": "fas fa-right-left",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 30,
+      "scope": "tenant"
+    },
+    {
+      "id": "inventory-counts",
+      "label": "Counts",
+      "href": "/admin/inventory/counts",
+      "icon": "fas fa-list-check",
+      "group": "Inventory",
+      "workspace": "erp",
+      "order": 40,
+      "scope": "tenant"
+    },
+    {
+      "id": "inventory-uoms",
+      "label": "Units of Measure",
+      "href": "/admin/inventory/uoms",
+      "icon": "fas fa-ruler",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant"
+    },
+    {
+      "id": "inventory-reasons",
+      "label": "Movement Reasons",
+      "href": "/admin/inventory/reasons",
+      "icon": "fas fa-tags",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 91,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/inventory/warehouses",
+      "component": "inventory/ui/inventory-warehouses.page"
+    },
+    {
+      "path": "/admin/inventory/stock",
+      "component": "inventory/ui/inventory-stock.page"
+    },
+    {
+      "path": "/admin/inventory/movements",
+      "component": "inventory/ui/inventory-movements.page"
+    },
+    {
+      "path": "/admin/inventory/counts",
+      "component": "inventory/ui/inventory-counts.page"
+    },
+    {
+      "path": "/admin/inventory/counts/[countId]",
+      "component": "inventory/ui/inventory-counts-count-id.page"
+    },
+    {
+      "path": "/admin/inventory/uoms",
+      "component": "inventory/ui/inventory-uoms.page"
+    },
+    {
+      "path": "/admin/inventory/reasons",
+      "component": "inventory/ui/inventory-reasons.page"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/inventory/warehouses",
+      "handler": "inventory/server/inventory-warehouses.route"
+    },
+    {
+      "path": "/api/inventory/warehouses/[warehouseId]",
+      "handler": "inventory/server/inventory-warehouses-warehouse-id.route"
+    },
+    {
+      "path": "/api/inventory/stock",
+      "handler": "inventory/server/inventory-stock.route"
+    },
+    {
+      "path": "/api/inventory/stock/[stockItemId]",
+      "handler": "inventory/server/inventory-stock-stock-item-id.route"
+    },
+    {
+      "path": "/api/inventory/movements",
+      "handler": "inventory/server/inventory-movements.route"
+    },
+    {
+      "path": "/api/inventory/movements/[movementId]",
+      "handler": "inventory/server/inventory-movements-movement-id.route"
+    },
+    {
+      "path": "/api/inventory/counts",
+      "handler": "inventory/server/inventory-counts.route"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]",
+      "handler": "inventory/server/inventory-counts-count-id.route"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/lines",
+      "handler": "inventory/server/inventory-counts-count-id-lines.route"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/lines/[countLineId]",
+      "handler": "inventory/server/inventory-counts-count-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/start",
+      "handler": "inventory/server/inventory-counts-count-id-start.route"
+    },
+    {
+      "path": "/api/inventory/counts/[countId]/close",
+      "handler": "inventory/server/inventory-counts-count-id-close.route"
+    },
+    {
+      "path": "/api/inventory/uoms",
+      "handler": "inventory/server/inventory-uoms.route"
+    },
+    {
+      "path": "/api/inventory/uoms/[uomId]",
+      "handler": "inventory/server/inventory-uoms-uom-id.route"
+    },
+    {
+      "path": "/api/inventory/reasons",
+      "handler": "inventory/server/inventory-reasons.route"
+    },
+    {
+      "path": "/api/inventory/reasons/[reasonId]",
+      "handler": "inventory/server/inventory-reasons-reason-id.route"
+    }
+  ]
+}

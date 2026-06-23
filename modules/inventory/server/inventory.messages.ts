@@ -1,0 +1,18 @@
+export const INVENTORY_MESSAGES = {
+  WAREHOUSE_NOT_FOUND: 'Warehouse not found',
+  LOCATION_NOT_FOUND: 'Location not found',
+  STOCK_ITEM_NOT_FOUND: 'Stock item not found',
+  MOVEMENT_NOT_FOUND: 'Movement not found',
+  COUNT_NOT_FOUND: 'Count not found',
+  UOM_NOT_FOUND: 'Unit of measure not found',
+  REASON_NOT_FOUND: 'Movement reason not found',
+  COUNT_LINE_NOT_FOUND: 'Count line not found',
+  WAREHOUSE_CREATE_FAILED: 'Failed to create warehouse',
+  STOCK_ITEM_CREATE_FAILED: 'Failed to create stock item',
+  MOVEMENT_CREATE_FAILED: 'Failed to create movement',
+  COUNT_CREATE_FAILED: 'Failed to create count',
+  UOM_CREATE_FAILED: 'Failed to create unit of measure',
+  REASON_CREATE_FAILED: 'Failed to create movement reason',
+  COUNT_LINE_CREATE_FAILED: 'Failed to create count line',
+  COUNT_INVALID_TRANSITION: 'Invalid status transition for this count',
+} as const

@@ -29,6 +29,18 @@
   "author": "Kuray Karaaslan",
   "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/invoice",
   "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "invoice-list-erp",
+      "label": "Invoices",
+      "href": "/admin/invoices",
+      "icon": "fas fa-file-invoice",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 50,
+      "scope": "tenant"
+    }
+  ],
   "extensionPoints": [
     {
       "id": "invoice:adapter",

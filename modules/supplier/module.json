@@ -1,0 +1,89 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "supplier",
+  "name": "Suppliers",
+  "description": "Tenant-scoped supplier/vendor master records and their contacts.",
+  "version": "1.0.0",
+  "icon": "fas fa-truck",
+  "tags": [
+    "supplier",
+    "vendor",
+    "procurement",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/supplier",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "supplier-list",
+      "label": "Suppliers",
+      "href": "/admin/suppliers",
+      "icon": "fas fa-truck",
+      "group": "Procurement",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "supplier-categories",
+      "label": "Categories",
+      "href": "/admin/suppliers/categories",
+      "icon": "fas fa-tags",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 90,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/suppliers",
+      "handler": "supplier/server/suppliers.route"
+    },
+    {
+      "path": "/api/suppliers/categories",
+      "handler": "supplier/server/suppliers-categories.route"
+    },
+    {
+      "path": "/api/suppliers/categories/[categoryId]",
+      "handler": "supplier/server/suppliers-categories-category-id.route"
+    },
+    {
+      "path": "/api/suppliers/[supplierId]",
+      "handler": "supplier/server/suppliers-supplier-id.route"
+    },
+    {
+      "path": "/api/suppliers/[supplierId]/lines",
+      "handler": "supplier/server/suppliers-supplier-id-lines.route"
+    },
+    {
+      "path": "/api/suppliers/[supplierId]/lines/[contactId]",
+      "handler": "supplier/server/suppliers-supplier-id-lines-contact-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/suppliers",
+      "component": "supplier/ui/suppliers.page"
+    },
+    {
+      "path": "/admin/suppliers/categories",
+      "component": "supplier/ui/supplier-categories.page"
+    },
+    {
+      "path": "/admin/suppliers/[supplierId]",
+      "component": "supplier/ui/suppliers-supplier-id.page"
+    }
+  ]
+}

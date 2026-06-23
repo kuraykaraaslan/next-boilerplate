@@ -25,6 +25,16 @@
   "license": "CC-BY-NC-ND-4.0",
   "menu": [
     {
+      "id": "store-products-erp",
+      "label": "Products",
+      "href": "/admin/store/products",
+      "icon": "fas fa-box",
+      "group": "Catalog",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
       "id": "store-categories",
       "label": "Categories",
       "href": "/admin/store/categories",

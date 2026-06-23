@@ -1,0 +1,163 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "accounting",
+  "name": "Accounting",
+  "description": "Tenant-scoped double-entry accounting: chart of accounts, journal entries/lines, fiscal periods.",
+  "version": "1.0.0",
+  "icon": "fas fa-book",
+  "tags": [
+    "accounting",
+    "ledger",
+    "finance",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/accounting",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "accounting-accounts",
+      "label": "Chart of Accounts",
+      "href": "/admin/accounting/accounts",
+      "icon": "fas fa-book",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 10,
+      "scope": "tenant"
+    },
+    {
+      "id": "accounting-journal",
+      "label": "Journal",
+      "href": "/admin/accounting/journal",
+      "icon": "fas fa-pen-nib",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant"
+    },
+    {
+      "id": "accounting-ledger",
+      "label": "Ledger",
+      "href": "/admin/accounting/ledger",
+      "icon": "fas fa-scale-balanced",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 30,
+      "scope": "tenant"
+    },
+    {
+      "id": "accounting-periods",
+      "label": "Periods",
+      "href": "/admin/accounting/periods",
+      "icon": "fas fa-calendar",
+      "group": "Finance",
+      "workspace": "erp",
+      "order": 40,
+      "scope": "tenant"
+    },
+    {
+      "id": "accounting-journals",
+      "label": "Journals",
+      "href": "/admin/accounting/journals",
+      "icon": "fas fa-folder-tree",
+      "group": "Configuration",
+      "workspace": "erp",
+      "order": 50,
+      "scope": "tenant"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/accounting/accounts",
+      "component": "accounting/ui/accounting-accounts.page"
+    },
+    {
+      "path": "/admin/accounting/journal",
+      "component": "accounting/ui/accounting-journal.page"
+    },
+    {
+      "path": "/admin/accounting/ledger",
+      "component": "accounting/ui/accounting-ledger.page"
+    },
+    {
+      "path": "/admin/accounting/periods",
+      "component": "accounting/ui/accounting-periods.page"
+    },
+    {
+      "path": "/admin/accounting/journals",
+      "component": "accounting/ui/accounting-journals.page"
+    },
+    {
+      "path": "/admin/accounting/journal/[entryId]",
+      "component": "accounting/ui/accounting-journal-entry-id.page"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/accounting/accounts",
+      "handler": "accounting/server/accounting-accounts.route"
+    },
+    {
+      "path": "/api/accounting/accounts/[accountId]",
+      "handler": "accounting/server/accounting-accounts-account-id.route"
+    },
+    {
+      "path": "/api/accounting/journal",
+      "handler": "accounting/server/accounting-journal.route"
+    },
+    {
+      "path": "/api/accounting/journals",
+      "handler": "accounting/server/accounting-journals.route"
+    },
+    {
+      "path": "/api/accounting/journals/[journalId]",
+      "handler": "accounting/server/accounting-journals-journal-id.route"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]",
+      "handler": "accounting/server/accounting-journal-entry-id.route"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/lines",
+      "handler": "accounting/server/accounting-journal-entry-id-lines.route"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/lines/[lineId]",
+      "handler": "accounting/server/accounting-journal-entry-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/post",
+      "handler": "accounting/server/accounting-journal-entry-id-post.route"
+    },
+    {
+      "path": "/api/accounting/journal/[entryId]/void",
+      "handler": "accounting/server/accounting-journal-entry-id-void.route"
+    },
+    {
+      "path": "/api/accounting/ledger",
+      "handler": "accounting/server/accounting-ledger.route"
+    },
+    {
+      "path": "/api/accounting/ledger/[lineId]",
+      "handler": "accounting/server/accounting-ledger-line-id.route"
+    },
+    {
+      "path": "/api/accounting/periods",
+      "handler": "accounting/server/accounting-periods.route"
+    },
+    {
+      "path": "/api/accounting/periods/[periodId]",
+      "handler": "accounting/server/accounting-periods-period-id.route"
+    }
+  ]
+}

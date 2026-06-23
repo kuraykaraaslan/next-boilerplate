@@ -1,0 +1,42 @@
+{
+  "name": "@kuraykaraaslan/procurement",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./server/procurement.service": "./server/procurement.service.ts",
+    "./server/procurement.purchaseOrder.service": "./server/procurement.purchaseOrder.service.ts",
+    "./server/procurement.purchaseOrderLine.service": "./server/procurement.purchaseOrderLine.service.ts",
+    "./server/procurement.goodsReceipt.service": "./server/procurement.goodsReceipt.service.ts",
+    "./server/procurement-purchase-orders.route": "./server/procurement-purchase-orders.route.ts",
+    "./server/procurement-purchase-orders-purchase-order-id.route": "./server/procurement-purchase-orders-purchase-order-id.route.ts",
+    "./server/procurement-purchase-orders-purchase-order-id-lines.route": "./server/procurement-purchase-orders-purchase-order-id-lines.route.ts",
+    "./server/procurement-purchase-orders-purchase-order-id-lines-line-id.route": "./server/procurement-purchase-orders-purchase-order-id-lines-line-id.route.ts",
+    "./server/procurement-purchase-orders-purchase-order-id-order.route": "./server/procurement-purchase-orders-purchase-order-id-order.route.ts",
+    "./server/procurement-purchase-orders-purchase-order-id-receive.route": "./server/procurement-purchase-orders-purchase-order-id-receive.route.ts",
+    "./server/procurement-purchase-orders-purchase-order-id-cancel.route": "./server/procurement-purchase-orders-purchase-order-id-cancel.route.ts",
+    "./server/procurement-receipts.route": "./server/procurement-receipts.route.ts",
+    "./server/procurement-receipts-receipt-id.route": "./server/procurement-receipts-receipt-id.route.ts",
+    "./server/procurement.types": "./server/procurement.types.ts",
+    "./server/procurement.dto": "./server/procurement.dto.ts",
+    "./server/procurement.messages": "./server/procurement.messages.ts",
+    "./server/procurement.enums": "./server/procurement.enums.ts",
+    "./server/entities/purchase_orders.entity": "./server/entities/purchase_orders.entity.ts",
+    "./server/entities/purchase_order_lines.entity": "./server/entities/purchase_order_lines.entity.ts",
+    "./server/entities/goods_receipts.entity": "./server/entities/goods_receipts.entity.ts",
+    "./server/entities/goods_receipt_lines.entity": "./server/entities/goods_receipt_lines.entity.ts",
+    "./server/index": "./server/index.ts",
+    "./server": "./server/index.ts",
+    "./ui/procurement-purchase-orders.page": "./ui/procurement-purchase-orders.page.tsx",
+    "./ui/procurement-purchase-orders-purchase-order-id.page": "./ui/procurement-purchase-orders-purchase-order-id.page.tsx",
+    "./ui/purchase-order-lines-panel.component": "./ui/purchase-order-lines-panel.component.tsx",
+    "./ui/purchase-order-status-badge.component": "./ui/purchase-order-status-badge.component.tsx",
+    "./ui/procurement-receipts.page": "./ui/procurement-receipts.page.tsx",
+    ".": "./server/index.ts",
+    "./module.json": "./module.json"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "next": "*"
+  }
+}

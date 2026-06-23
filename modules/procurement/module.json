@@ -1,0 +1,100 @@
+{
+  "$schema": "../module.schema.json",
+  "id": "procurement",
+  "name": "Procurement",
+  "description": "Tenant-scoped procurement: purchase orders, their lines, and goods receipts.",
+  "version": "1.0.0",
+  "icon": "fas fa-clipboard-list",
+  "tags": [
+    "procurement",
+    "purchase-order",
+    "erp"
+  ],
+  "priority": 60,
+  "dependencies": {
+    "requires": [
+      "db",
+      "env",
+      "redis",
+      "logger",
+      "setting"
+    ]
+  },
+  "author": "Kuray Karaaslan",
+  "homepage": "https://github.com/kuraykaraaslan/next-boilerplate/tree/main/modules/procurement",
+  "license": "CC-BY-NC-ND-4.0",
+  "menu": [
+    {
+      "id": "procurement-purchase-orders",
+      "label": "Purchase Orders",
+      "href": "/admin/procurement/purchase-orders",
+      "icon": "fas fa-clipboard-list",
+      "group": "Procurement",
+      "workspace": "erp",
+      "order": 20,
+      "scope": "tenant"
+    },
+    {
+      "id": "procurement-receipts",
+      "label": "Goods Receipts",
+      "href": "/admin/procurement/receipts",
+      "icon": "fas fa-box-open",
+      "group": "Procurement",
+      "workspace": "erp",
+      "order": 30,
+      "scope": "tenant"
+    }
+  ],
+  "apiRoutes": [
+    {
+      "path": "/api/procurement/purchase-orders",
+      "handler": "procurement/server/procurement-purchase-orders.route"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]",
+      "handler": "procurement/server/procurement-purchase-orders-purchase-order-id.route"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/lines",
+      "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-lines.route"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/lines/[lineId]",
+      "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-lines-line-id.route"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/order",
+      "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-order.route"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/receive",
+      "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-receive.route"
+    },
+    {
+      "path": "/api/procurement/purchase-orders/[purchaseOrderId]/cancel",
+      "handler": "procurement/server/procurement-purchase-orders-purchase-order-id-cancel.route"
+    },
+    {
+      "path": "/api/procurement/receipts",
+      "handler": "procurement/server/procurement-receipts.route"
+    },
+    {
+      "path": "/api/procurement/receipts/[receiptId]",
+      "handler": "procurement/server/procurement-receipts-receipt-id.route"
+    }
+  ],
+  "routes": [
+    {
+      "path": "/admin/procurement/purchase-orders",
+      "component": "procurement/ui/procurement-purchase-orders.page"
+    },
+    {
+      "path": "/admin/procurement/purchase-orders/[purchaseOrderId]",
+      "component": "procurement/ui/procurement-purchase-orders-purchase-order-id.page"
+    },
+    {
+      "path": "/admin/procurement/receipts",
+      "component": "procurement/ui/procurement-receipts.page"
+    }
+  ]
+}
